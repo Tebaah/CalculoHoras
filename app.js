@@ -26,6 +26,9 @@ const horaTerminoInput = document.getElementById('horaTermino');
 const valorHoraSelect = document.getElementById('valorHora');
 const customValueGroup = document.getElementById('customValueGroup');
 const customValueInput = document.getElementById('customValue');
+const colacionSelect = document.getElementById('colacion');
+const colacionTramoGroup = document.getElementById('colacionTramoGroup');
+const colacionTramoSelect = document.getElementById('colacionTramo');
 const errorDiv = document.getElementById('errorMessage');
 const resultsDiv = document.getElementById('results');
 
@@ -33,6 +36,9 @@ const resultsDiv = document.getElementById('results');
 form.addEventListener('submit', handleSubmit);
 valorHoraSelect.addEventListener('change', (e) => {
     customValueGroup.style.display = e.target.value === 'custom' ? 'block' : 'none';
+});
+colacionSelect.addEventListener('change', (e) => {
+    colacionTramoGroup.style.display = parseInt(e.target.value) > 0 ? 'block' : 'none';
 });
 
 /**
@@ -194,8 +200,21 @@ function handleSubmit(e) {
         // Horas sin recargo = Total - Horas con recargo
         const minSinRecargo = totalMinutosTrabajados - minConRecargo;
 
-        // Horas normales del operador = Total de horas trabajadas
-        const minNormalesOp = totalMinutosTrabajados;
+        // Aplicar descuento de colación
+        const minColacion = parseInt(colacionSelect.value);
+        const colacionTramo = colacionTramoSelect.value;
+        let minSinRecargoFinal = minSinRecargo;
+        let minConRecargoFinal = minConRecargo;
+        if (minColacion > 0) {
+            if (colacionTramo === 'sinRecargo') {
+                minSinRecargoFinal = Math.max(0, minSinRecargo - minColacion);
+            } else {
+                minConRecargoFinal = Math.max(0, minConRecargo - minColacion);
+            }
+        }
+
+        // Horas normales del operador = Total de horas trabajadas (descontando colación)
+        const minNormalesOp = minSinRecargoFinal + minConRecargoFinal;
 
         // Horas dobles del operador = antes de 07:00 + desde las 19:00
         const minDoblesManana = calculateMinutesInRange(startMin, endMin, 0, 7 * 60);
@@ -203,8 +222,8 @@ function handleSubmit(e) {
         const minDobles = minDoblesManana + minDoblesNoche;
 
         // Convertir minutos a horas (con 2 decimales)
-        const horasSinRecargo = parseFloat(minutesToHours(minSinRecargo));
-        const horasConRecargo = parseFloat(minutesToHours(minConRecargo));
+        const horasSinRecargo = parseFloat(minutesToHours(minSinRecargoFinal));
+        const horasConRecargo = parseFloat(minutesToHours(minConRecargoFinal));
         const horasNormalesOp = parseFloat(minutesToHours(minNormalesOp));
         const horasDobles = parseFloat(minutesToHours(minDobles));
 
