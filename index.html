@@ -224,7 +224,7 @@
         <div class="info-box">
             <strong>Reglas de cálculo:</strong>
             <strong>Servicio:</strong> Sin recargo: Cualquier hora fuera del rango 18:00-07:00 | Con recargo: 18:00-07:00 (cruza medianoche)<br>
-            <strong>Operador:</strong> Normales: 07:00-19:00 | Dobles: antes de 07:00 y después de 19:00
+            <strong>Operador:</strong> Normales: Total de horas trabajadas | Dobles: antes de las 07:00 y desde las 19:00 en adelante
         </div>
 
         <form id="calculatorForm">
@@ -273,11 +273,11 @@
                 <span class="result-value" id="horasConRecargo">0.00 h</span>
             </div>
             <div class="result-item">
-                <span class="result-label">Horas normales del operador (07:00 - 19:00)</span>
+                <span class="result-label">Horas normales del operador (total horas trabajadas)</span>
                 <span class="result-value" id="horasNormalesOp">0.00 h</span>
             </div>
             <div class="result-item">
-                <span class="result-label">Horas dobles del operador (19:00 - 07:00)</span>
+                <span class="result-label">Horas dobles del operador (antes 07:00 y después 19:00)</span>
                 <span class="result-value" id="horasDobles">0.00 h</span>
             </div>
             <div class="result-item total">
@@ -484,15 +484,13 @@
                 // Horas sin recargo = Total - Horas con recargo
                 const minSinRecargo = totalMinutosTrabajados - minConRecargo;
                 
-                const minNormalesOp = calculateMinutesInRange(
-                    startMin, endMin,
-                    RANGO_NORMAL_OPERADOR.inicio,
-                    RANGO_NORMAL_OPERADOR.fin
-                );
+                // Horas normales del operador = Total de horas trabajadas
+                const minNormalesOp = totalMinutosTrabajados;
                 
-                // Horas dobles del operador = Total - Horas normales
-                // Incluye antes de 07:00 y después de 19:00
-                const minDobles = totalMinutosTrabajados - minNormalesOp;
+                // Horas dobles del operador = antes de 07:00 + desde las 19:00
+                const minDoblesManana = calculateMinutesInRange(startMin, endMin, 0, 7 * 60);
+                const minDoblesNoche = calculateMinutesInRange(startMin, endMin, 19 * 60, 24 * 60);
+                const minDobles = minDoblesManana + minDoblesNoche;
 
                 // Convertir minutos a horas (con 2 decimales)
                 const horasSinRecargo = parseFloat(minutesToHours(minSinRecargo));
