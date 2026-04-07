@@ -201,8 +201,8 @@ function handleSubmit(e) {
         const minSinRecargo = totalMinutosTrabajados - minConRecargo;
 
         // Aplicar descuento de colación
-        const minColacion = parseInt(colacionSelect.value);
-        const colacionTramo = colacionTramoSelect.value;
+        const minColacion = parseInt(colacionSelect.value) || 0;
+        const colacionTramo = colacionTramoSelect.value || 'sinRecargo';
         let minSinRecargoFinal = minSinRecargo;
         let minConRecargoFinal = minConRecargo;
         if (minColacion > 0) {
@@ -213,13 +213,25 @@ function handleSubmit(e) {
             }
         }
 
-        // Horas normales del operador = Total de horas trabajadas (descontando colación)
-        const minNormalesOp = minSinRecargoFinal + minConRecargoFinal;
+        // Horas normales del operador = Total de horas trabajadas
+        let minNormalesOp = totalMinutosTrabajados;
 
         // Horas dobles del operador = antes de 07:00 + desde las 19:00
         const minDoblesManana = calculateMinutesInRange(startMin, endMin, 0, 7 * 60);
         const minDoblesNoche = calculateMinutesInRange(startMin, endMin, 19 * 60, 24 * 60);
-        const minDobles = minDoblesManana + minDoblesNoche;
+        let minDobles = minDoblesManana + minDoblesNoche;
+
+        // Descuento de colación en horas del operador (independiente del descuento al servicio)
+        if (minColacion > 0) {
+            if (colacionTramo === 'sinRecargo') {
+                // Opción "sin recargo": descontar solo de horas normales
+                minNormalesOp = Math.max(0, minNormalesOp - minColacion);
+            } else {
+                // Opción "con recargo": descontar de horas normales y también de horas dobles
+                minNormalesOp = Math.max(0, minNormalesOp - minColacion);
+                minDobles = Math.max(0, minDobles - minColacion);
+            }
+        }
 
         // Convertir minutos a horas (con 2 decimales)
         const horasSinRecargo = parseFloat(minutesToHours(minSinRecargoFinal));
