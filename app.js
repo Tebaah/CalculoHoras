@@ -191,16 +191,41 @@ function handleSubmit(e) {
         const cruza_medianoche = endMin < startMin;
         const totalMinutosTrabajados = cruza_medianoche ? (endMin + 1440 - startMin) : (endMin - startMin);
 
-        // Calcular minutos en cada rango horario
-        // Horas con recargo son SOLO las entre 18:00 PM y 07:00 AM del siguiente día
-        const minConRecargo = calculateMinutesInRange(
-            startMin, endMin,
-            RANGO_CON_RECARGO.inicio,    // 18:00
-            RANGO_CON_RECARGO.fin        // 07:00 (cruza medianoche)
-        );
+        // Calcular minutos en cada rango horario según el tipo de día
+        let minConRecargo, minSinRecargo, minDobles;
 
-        // Horas sin recargo = Total - Horas con recargo
-        const minSinRecargo = totalMinutosTrabajados - minConRecargo;
+        if (tipoDia === 'normal') {
+            // Día normal: con recargo 18:00–07:00, dobles antes 07:00 y desde 19:00
+            minConRecargo = calculateMinutesInRange(
+                startMin, endMin,
+                RANGO_CON_RECARGO.inicio,    // 18:00
+                RANGO_CON_RECARGO.fin        // 07:00 (cruza medianoche)
+            );
+            minSinRecargo = totalMinutosTrabajados - minConRecargo;
+
+            const minDoblesManana = calculateMinutesInRange(startMin, endMin, 0, 7 * 60);
+            const minDoblesNoche  = calculateMinutesInRange(startMin, endMin, 19 * 60, 24 * 60);
+            minDobles = minDoblesManana + minDoblesNoche;
+
+        } else if (tipoDia === 'sabado') {
+            // Día sábado: con recargo desde 13:00 (cruza medianoche hasta 07:00), dobles desde 13:00
+            minConRecargo = calculateMinutesInRange(
+                startMin, endMin,
+                13 * 60,    // 13:00
+                7 * 60      // 07:00 (cruza medianoche)
+            );
+            minSinRecargo = totalMinutosTrabajados - minConRecargo;
+
+            const minDoblesManana = calculateMinutesInRange(startMin, endMin, 0, 7 * 60);
+            const minDoblesNoche  = calculateMinutesInRange(startMin, endMin, 13 * 60, 24 * 60);
+            minDobles = minDoblesManana + minDoblesNoche;
+
+        } else {
+            // Día domingo y festivo: todo el tiempo es con recargo y doble
+            minConRecargo = totalMinutosTrabajados;
+            minSinRecargo = 0;
+            minDobles = totalMinutosTrabajados;
+        }
 
         // Aplicar descuento de colación
         const minColacion = parseInt(colacionSelect.value) || 0;
@@ -217,11 +242,6 @@ function handleSubmit(e) {
 
         // Horas normales del operador = Total de horas trabajadas
         let minNormalesOp = totalMinutosTrabajados;
-
-        // Horas dobles del operador = antes de 07:00 + desde las 19:00
-        const minDoblesManana = calculateMinutesInRange(startMin, endMin, 0, 7 * 60);
-        const minDoblesNoche = calculateMinutesInRange(startMin, endMin, 19 * 60, 24 * 60);
-        let minDobles = minDoblesManana + minDoblesNoche;
 
         // Descuento de colación en horas del operador (independiente del descuento al servicio)
         if (minColacion > 0) {
@@ -246,6 +266,21 @@ function handleSubmit(e) {
         const montoSinRecargo = horasSinRecargo * valorHora;
         const montoConRecargo = horasConRecargo * (valorHora * 1.30);
         const montoTotal = montoSinRecargo + montoConRecargo;
+
+        // Actualizar etiquetas de resultado según el tipo de día
+        if (tipoDia === 'normal') {
+            document.getElementById('labelSinRecargo').textContent = 'Horas sin recargo (07:00 - 18:00)';
+            document.getElementById('labelConRecargo').textContent = 'Horas con recargo (18:00 - 07:00)';
+            document.getElementById('labelDoblesOp').textContent   = 'Horas dobles del operador (antes 07:00 y después 19:00)';
+        } else if (tipoDia === 'sabado') {
+            document.getElementById('labelSinRecargo').textContent = 'Horas sin recargo (07:00 - 13:00)';
+            document.getElementById('labelConRecargo').textContent = 'Horas con recargo (desde 13:00)';
+            document.getElementById('labelDoblesOp').textContent   = 'Horas dobles del operador (desde 13:00)';
+        } else {
+            document.getElementById('labelSinRecargo').textContent = 'Horas sin recargo';
+            document.getElementById('labelConRecargo').textContent = 'Horas con recargo (todo el día)';
+            document.getElementById('labelDoblesOp').textContent   = 'Horas dobles del operador (todo el día)';
+        }
 
         // Actualizar elementos de resultado
         document.getElementById('horasSinRecargo').textContent = horasSinRecargo.toFixed(2) + ' h';
