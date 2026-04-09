@@ -17,6 +17,15 @@
         </div>
 
         <form id="calculatorForm">
+            <div class="form-group">
+                <label for="tipoDia">Tipo de Día</label>
+                <select id="tipoDia" required>
+                    <option value="normal">Día normal</option>
+                    <option value="sabado">Día Sábado</option>
+                    <option value="domingoFestivo">Día domingo y festivo</option>
+                </select>
+            </div>
+
             <div class="form-row">
                 <div class="form-group">
                     <label for="horaInicio">Hora de Inicio (HH:MM)</label>
@@ -83,11 +92,11 @@
         <div class="results" id="results">
             <h2>📊 Resultados</h2>
             <div class="result-item">
-                <span class="result-label">Horas sin recargo (07:00 - 18:00)</span>
+                <span class="result-label" id="labelSinRecargo">Horas sin recargo (07:00 - 18:00)</span>
                 <span class="result-value" id="horasSinRecargo">0.00 h</span>
             </div>
             <div class="result-item">
-                <span class="result-label">Horas con recargo (18:00 - 07:00)</span>
+                <span class="result-label" id="labelConRecargo">Horas con recargo (18:00 - 07:00)</span>
                 <span class="result-value" id="horasConRecargo">0.00 h</span>
             </div>
             <div class="result-item">
@@ -95,7 +104,7 @@
                 <span class="result-value" id="horasNormalesOp">0.00 h</span>
             </div>
             <div class="result-item">
-                <span class="result-label">Horas dobles del operador (antes 07:00 y después 19:00)</span>
+                <span class="result-label" id="labelDoblesOp">Horas dobles del operador (antes 07:00 y después 19:00)</span>
                 <span class="result-value" id="horasDobles">0.00 h</span>
             </div>
             <div class="result-item total">
