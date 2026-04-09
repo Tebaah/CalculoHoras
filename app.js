@@ -21,6 +21,7 @@ const RANGO_DOBLES_OPERADOR = {
 
 // Elementos del DOM
 const form = document.getElementById('calculatorForm');
+const tipoDiaSelect = document.getElementById('tipoDia');
 const horaInicioInput = document.getElementById('horaInicio');
 const horaTerminoInput = document.getElementById('horaTermino');
 const valorHoraSelect = document.getElementById('valorHora');
@@ -163,6 +164,7 @@ function handleSubmit(e) {
 
     try {
         // Obtener y validar valores del formulario
+        const tipoDia = tipoDiaSelect.value;
         const horaInicio = horaInicioInput.value;
         const horaTermino = horaTerminoInput.value;
         let valorHora = valorHoraSelect.value;
