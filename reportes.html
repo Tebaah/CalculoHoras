@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes - Cálculo de Horas</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>⏱️ Cálculo de Horas</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="ordenes.html" class="nav-item" id="nav-ordenes">
+                    <span class="nav-icon">📋</span>
+                    <span class="nav-text">Órdenes de Trabajo</span>
+                </a>
+                <a href="reportes.html" class="nav-item active" id="nav-reportes">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">Reportes</span>
+                </a>
+            </nav>
+        </aside>
+        <main class="main-content">
+            <div class="container">
+                <h1>📊 Reportes</h1>
+                <div class="info-box" style="margin-top: 20px;">
+                    <strong>Próximamente</strong>
+                    <p>Esta sección de reportes estará disponible en una próxima actualización. Aquí podrá visualizar estadísticas y reportes detallados de las órdenes de trabajo.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Highlight current page in sidebar based on URL
+        const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+        if (currentPath === 'ordenes.html') {
+            document.getElementById('nav-ordenes').classList.add('active');
+        } else if (currentPath === 'reportes.html') {
+            document.getElementById('nav-reportes').classList.add('active');
+        }
+    </script>
+</body>
+</html>
