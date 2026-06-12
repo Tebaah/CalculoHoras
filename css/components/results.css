@@ -1,0 +1,71 @@
+/* ======================================
+   Component: Results Display
+   ====================================== */
+
+.results {
+    display: none;
+    margin-top: 30px;
+    padding: 25px;
+    background: var(--color-result-bg);
+    border-radius: var(--radius-md);
+    border-left: 5px solid var(--color-result-border);
+}
+
+.results.show {
+    display: block;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.results h2 {
+    color: var(--color-text-primary);
+    margin-bottom: 20px;
+    font-size: var(--font-size-lg);
+}
+
+.result-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.result-item:last-child {
+    border-bottom: none;
+}
+
+.result-item.total {
+    background-color: var(--color-bg-highlight);
+    padding: 15px;
+    border-radius: var(--radius-sm);
+    margin-top: 10px;
+    border: none;
+}
+
+.result-label {
+    color: var(--color-text-secondary);
+    font-weight: 500;
+    font-size: var(--font-size-base);
+}
+
+.result-value {
+    color: var(--blue-slate);
+    font-weight: 700;
+    font-size: 18px;
+}
+
+.result-item.total .result-value {
+    color: var(--color-primary-dark);
+    font-size: 22px;
+}
