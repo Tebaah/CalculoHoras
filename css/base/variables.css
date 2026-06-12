@@ -1,0 +1,81 @@
+/* ======================================
+   CSS Custom Properties (Variables)
+   ====================================== */
+
+:root {
+    /* Brand Colors */
+    --alice-blue: #f4faff;
+    --alabaster-grey: #dee3e8;
+    --powder-blue: #adbfce;
+    --blue-slate: #4f6170;
+    --charcoal: #525456;
+
+    /* Semantic Colors */
+    --color-primary: var(--blue-slate);
+    --color-primary-light: var(--powder-blue);
+    --color-primary-dark: #3a4d5a;
+    --color-primary-gradient: linear-gradient(135deg, var(--blue-slate) 0%, var(--powder-blue) 100%);
+
+    --color-bg: var(--alice-blue);
+    --color-bg-white: #ffffff;
+    --color-bg-card: #ffffff;
+    --color-bg-sidebar: #2c3e50;
+    --color-bg-sidebar-hover: #34495e;
+    --color-bg-sidebar-active: var(--blue-slate);
+    --color-bg-muted: #f0f4f8;
+    --color-bg-highlight: #eaf0f6;
+
+    --color-text-primary: var(--charcoal);
+    --color-text-secondary: #6b7a85;
+    --color-text-light: #8a9aa8;
+    --color-text-sidebar: #b0bec5;
+    --color-text-sidebar-hover: #ffffff;
+    --color-text-sidebar-active: #ffffff;
+    --color-text-white: #ffffff;
+
+    --color-border: var(--alabaster-grey);
+    --color-border-light: #eef2f6;
+    --color-border-focus: var(--powder-blue);
+
+    --color-accent-saturday: #d48c3a;
+    --color-accent-saturday-bg: #fef3e2;
+    --color-accent-sunday: #c0392b;
+    --color-accent-sunday-bg: #fde8e8;
+
+    --color-error: #c0392b;
+    --color-error-bg: #fde8e8;
+    --color-error-border: #c0392b;
+
+    --color-info-bg: #e3f2fd;
+    --color-info-border: var(--powder-blue);
+    --color-info-text: var(--blue-slate);
+
+    --color-result-bg: #f8fafc;
+    --color-result-border: var(--powder-blue);
+
+    /* Shadows */
+    --shadow-sm: 0 1px 3px rgba(79, 97, 112, 0.12);
+    --shadow-md: 0 4px 12px rgba(79, 97, 112, 0.15);
+    --shadow-lg: 0 10px 40px rgba(79, 97, 112, 0.18);
+    --shadow-hover: 0 8px 25px rgba(79, 97, 112, 0.2);
+
+    /* Border Radius */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+
+    /* Transitions */
+    --transition-fast: all 0.15s ease;
+    --transition-normal: all 0.2s ease;
+    --transition-slow: all 0.3s ease;
+
+    /* Font */
+    --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --font-size-xs: 12px;
+    --font-size-sm: 13px;
+    --font-size-base: 14px;
+    --font-size-md: 16px;
+    --font-size-lg: 20px;
+    --font-size-xl: 24px;
+    --font-size-2xl: 28px;
+}
