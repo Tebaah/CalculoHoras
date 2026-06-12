@@ -1,0 +1,14 @@
+/* ======================================
+   Page: Home (index.html)
+   ====================================== */
+
+/* Page-specific overrides for welcome card */
+.welcome-card {
+    margin-top: 40px;
+}
+
+@media (max-width: 600px) {
+    .welcome-card {
+        margin-top: 20px;
+    }
+}
