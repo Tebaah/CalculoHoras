@@ -1,0 +1,49 @@
+/* ======================================
+   Component: Form Elements
+   ====================================== */
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--color-text-secondary);
+    font-weight: 500;
+    font-size: var(--font-size-base);
+}
+
+input[type="time"],
+input[type="number"],
+select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-md);
+    transition: var(--transition-normal);
+    font-family: var(--font-family);
+    background: var(--color-bg-white);
+    color: var(--color-text-primary);
+}
+
+input[type="time"]:focus,
+input[type="number"]:focus,
+select:focus {
+    outline: none;
+    border-color: var(--powder-blue);
+    box-shadow: 0 0 0 3px rgba(173, 191, 206, 0.25);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+@media (max-width: 600px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
