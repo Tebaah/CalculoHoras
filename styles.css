@@ -332,6 +332,112 @@ button:active {
 }
 
 /* ======================================
+   REPORT PAGE (reportes.html)
+   ====================================== */
+.report-container {
+    max-width: 960px;
+}
+
+.report-table {
+    margin: 25px 0;
+    border: 2px solid #e8eaf6;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.report-table-header {
+    display: grid;
+    grid-template-columns: 110px 1fr 1fr 1fr 1fr;
+    gap: 8px;
+    padding: 12px 16px;
+    background: #f0f0ff;
+    border-bottom: 2px solid #d0d0ff;
+    font-weight: 600;
+    font-size: 13px;
+    color: #555;
+    align-items: center;
+}
+
+.report-row {
+    display: grid;
+    grid-template-columns: 110px 1fr 1fr 1fr 1fr;
+    gap: 8px;
+    padding: 8px 16px;
+    align-items: center;
+    border-bottom: 1px solid #e8eaf6;
+    transition: background 0.15s;
+}
+
+.report-row:last-child {
+    border-bottom: none;
+}
+
+.report-row:hover {
+    background: #f8f9ff;
+}
+
+.report-row .col-dia {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.report-row .day-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+
+.report-row .day-tag {
+    font-size: 10px;
+    color: #667eea;
+    background: #e8eaf6;
+    padding: 2px 8px;
+    border-radius: 8px;
+    font-weight: 500;
+    display: inline-block;
+    width: fit-content;
+}
+
+.report-row .day-tag.sabado {
+    color: #e67e22;
+    background: #fef3e2;
+}
+
+.report-row .day-tag.domingo {
+    color: #e74c3c;
+    background: #fde8e8;
+}
+
+.report-row input[type="time"],
+.report-row select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 2px solid #e0e0e0;
+    border-radius: 5px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-color 0.2s;
+}
+
+.report-row input[type="time"]:focus,
+.report-row select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+}
+
+#totalResults {
+    margin-top: 20px;
+}
+
+#totalResults .result-value#diasIncluidos {
+    font-size: 14px;
+    color: #555;
+    font-weight: 500;
+}
+
+/* ======================================
    RESPONSIVE
    ====================================== */
 @media (max-width: 768px) {
