@@ -1,0 +1,18 @@
+/* ======================================
+   Page: Órdenes de Trabajo (ordenes.html)
+   ====================================== */
+
+/* Container is defined in components/container.css */
+#customValueGroup {
+    margin-top: -10px;
+}
+
+#colacionTramoGroup {
+    margin-top: -10px;
+}
+
+#totalResults .result-value#diasIncluidos {
+    font-size: var(--font-size-base);
+    color: var(--color-text-secondary);
+    font-weight: 500;
+}

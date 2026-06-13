@@ -1,0 +1,27 @@
+/* ======================================
+   Component: Button
+   ====================================== */
+
+button {
+    width: 100%;
+    padding: 14px;
+    background: var(--color-primary-gradient);
+    color: var(--color-text-white);
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-md);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-normal);
+    margin-top: 10px;
+    letter-spacing: 0.02em;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(79, 97, 112, 0.35);
+}
+
+button:active {
+    transform: translateY(0);
+}
