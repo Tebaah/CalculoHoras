@@ -1,0 +1,28 @@
+/* ======================================
+   Main Stylesheet
+   Import order: base → layouts → components → pages
+   ====================================== */
+
+/* Base */
+@import url('base/variables.css');
+@import url('base/reset.css');
+@import url('base/typography.css');
+
+/* Layouts */
+@import url('layouts/layout.css');
+
+/* Components */
+@import url('components/sidebar.css');
+@import url('components/container.css');
+@import url('components/form.css');
+@import url('components/button.css');
+@import url('components/info-box.css');
+@import url('components/error.css');
+@import url('components/results.css');
+@import url('components/welcome-card.css');
+@import url('components/report-table.css');
+
+/* Pages */
+@import url('pages/home.css');
+@import url('pages/ordenes.css');
+@import url('pages/reportes.css');
