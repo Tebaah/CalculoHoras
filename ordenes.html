@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Órdenes de Trabajo - Cálculo de Horas</title>
     <link rel="stylesheet" href="css/main.css">
 </head>
+
 <body>
     <div class="layout">
         <aside class="sidebar">
@@ -29,8 +31,10 @@
 
                 <div class="info-box">
                     <strong>Reglas de cálculo:</strong>
-                    <strong>Servicio:</strong> Sin recargo: Cualquier hora fuera del rango 18:00-07:00 | Con recargo: 18:00-07:00 (cruza medianoche)<br>
-                    <strong>Operador:</strong> Normales: Total de horas trabajadas | Dobles: antes de las 07:00 y desde las 19:00 en adelante
+                    <strong>Servicio:</strong> Sin recargo: Cualquier hora fuera del rango 18:00-07:00 | Con recargo:
+                    18:00-07:00 (cruza medianoche)<br>
+                    <strong>Operador:</strong> Normales: Total de horas trabajadas | Dobles: antes de las 07:00 y desde
+                    las 19:00 en adelante
                 </div>
 
                 <form id="calculatorForm">
@@ -40,6 +44,17 @@
                             <option value="normal">Día normal</option>
                             <option value="sabado">Día Sábado</option>
                             <option value="domingoFestivo">Día domingo y festivo</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="horasMinimas">Mínimo de Horas</label>
+                        <select id="horasMinimas" required>
+                            <option value="0">Sin mínimo</option>
+                            <option value="5">5 horas</option>
+                            <option value="6">6 horas</option>
+                            <option value="8">8 horas</option>
+                            <option value="9">9 horas</option>
                         </select>
                     </div>
 
@@ -121,7 +136,8 @@
                         <span class="result-value" id="horasNormalesOp">0.00 h</span>
                     </div>
                     <div class="result-item">
-                        <span class="result-label" id="labelDoblesOp">Horas dobles del operador (antes 07:00 y después 19:00)</span>
+                        <span class="result-label" id="labelDoblesOp">Horas dobles del operador (antes 07:00 y después
+                            19:00)</span>
                         <span class="result-value" id="horasDobles">0.00 h</span>
                     </div>
                     <div class="result-item total">
@@ -145,4 +161,5 @@
     <script src="shared.js"></script>
     <script src="app.js"></script>
 </body>
+
 </html>
