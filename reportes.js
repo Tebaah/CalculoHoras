@@ -46,6 +46,35 @@ function formatHourRate(amount) {
 }
 
 /**
+ * Puebla la tabla de horas diarias en los resultados
+ */
+function populateDailyHoursTable(results) {
+    const tableContainer = document.getElementById('hoursDailyTable');
+    // Limpiar filas existentes (mantener solo el encabezado)
+    const rows = tableContainer.querySelectorAll('.result-item:not(.header)');
+    rows.forEach(row => row.remove());
+
+    const nombresDias = {
+        lunes: 'Lunes', martes: 'Martes', miercoles: 'Miércoles',
+        jueves: 'Jueves', viernes: 'Viernes', sabado: 'Sábado', domingo: 'Domingo'
+    };
+
+    results.forEach(r => {
+        const row = document.createElement('div');
+        row.className = 'result-item';
+        const label = document.createElement('span');
+        label.className = 'result-label';
+        label.textContent = nombresDias[r.dia] || r.dia;
+        const value = document.createElement('span');
+        value.className = 'result-value';
+        value.textContent = r.horasNormalesOp.toFixed(2) + ' h';
+        row.appendChild(label);
+        row.appendChild(value);
+        tableContainer.appendChild(row);
+    });
+}
+
+/**
  * Obtiene los datos de todos los días del formulario
  * Solo incluye días que tengan hora inicio Y hora término ingresados
  */
@@ -211,6 +240,9 @@ function handleReportSubmit(e) {
         // Calcular cada día
         const results = daysData.map(dayData => calculateDay(dayData, valorHora));
 
+        // Poblar tabla de horas diarias
+        populateDailyHoursTable(results);
+
         // Calcular totales generales
         const totalSinRecargo = results.reduce((sum, r) => sum + r.horasSinRecargo, 0);
         const totalConRecargo = results.reduce((sum, r) => sum + r.horasConRecargo, 0);
@@ -232,8 +264,16 @@ function handleReportSubmit(e) {
         document.getElementById('totalMonto').textContent = formatCurrency(totalMonto);
 
         // Actualizar etiquetas de resultados con los valores/hora
-        document.querySelector('#totalResults .result-item:nth-child(3) .result-label').textContent = 'Total horas sin recargo ' + formatHourRate(valorSinRecargo) + ' (07:00 - 18:00)';
-        document.querySelector('#totalResults .result-item:nth-child(4) .result-label').textContent = 'Total horas con recargo ' + formatHourRate(valorConRecargo) + ' (18:00 - 07:00)';
+        // Los índices cambian porque ahora hay más .result-item dentro de #totalResults:
+        // child 1: h2, child 2: "Días incluidos", child 3: #hoursDailyTable (contiene varios .result-item),
+        // child 4: "Total horas sin recargo" -> .result-item:nth-child(4)
+        // child 5: "Total horas con recargo" -> .result-item:nth-child(5)
+        // child 6: "Total horas normales operador" -> .result-item:nth-child(6) etc.
+        // Pero nth-child cuenta solo hermanos del mismo padre, no anidados.
+        // En #totalResults los hijos directos son: h2, .result-item, .hours-daily-table, .result-item, ...
+        // daysIncluidos es child 2, hoursDailyTable es child 3, sinRecargo es child 4, conRecargo child 5
+        document.querySelector('#totalResults .result-item:nth-child(4) .result-label').textContent = 'Total horas sin recargo ' + formatHourRate(valorSinRecargo) + ' (07:00 - 18:00)';
+        document.querySelector('#totalResults .result-item:nth-child(5) .result-label').textContent = 'Total horas con recargo ' + formatHourRate(valorConRecargo) + ' (18:00 - 07:00)';
 
         // Mostrar resultados
         document.getElementById('totalResults').classList.add('show');
