@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reportes - Cálculo de Horas</title>
     <link rel="stylesheet" href="css/main.css">
 </head>
+
 <body>
     <div class="layout">
         <aside class="sidebar">
@@ -29,8 +31,10 @@
 
                 <div class="info-box">
                     <strong>Reglas de cálculo:</strong>
-                    <strong>Servicio:</strong> Sin recargo: Cualquier hora fuera del rango 18:00-07:00 | Con recargo: 18:00-07:00 (cruza medianoche)<br>
-                    <strong>Operador:</strong> Normales: Total de horas trabajadas | Dobles: antes de las 07:00 y desde las 19:00 en adelante<br>
+                    <strong>Servicio:</strong> Sin recargo: Cualquier hora fuera del rango 18:00-07:00 | Con recargo:
+                    18:00-07:00 (cruza medianoche)<br>
+                    <strong>Operador:</strong> Normales: Total de horas trabajadas | Dobles: antes de las 07:00 y desde
+                    las 19:00 en adelante<br>
                     <strong>Tipos de día:</strong> Lun-Vie → Normal | Sábado → Sábado | Domingo → Domingo/Festivo
                 </div>
 
@@ -252,6 +256,12 @@
                         <span class="result-label">Días incluidos en el cálculo</span>
                         <span class="result-value" id="diasIncluidos">0</span>
                     </div>
+                    <div class="hours-daily-table" id="hoursDailyTable">
+                        <div class="result-item">
+                            <span class="result-label">Día</span>
+                            <span class="result-value">Horas</span>
+                        </div>
+                    </div>
                     <div class="result-item">
                         <span class="result-label">Total horas sin recargo (07:00 - 18:00)</span>
                         <span class="result-value" id="totalSinRecargo">0.00 h</span>
@@ -289,4 +299,5 @@
     <script src="shared.js"></script>
     <script src="reportes.js"></script>
 </body>
+
 </html>
