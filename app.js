@@ -1,6 +1,7 @@
 // Elementos del DOM
 const form = document.getElementById('calculatorForm');
 const tipoDiaSelect = document.getElementById('tipoDia');
+const horasMinimasSelect = document.getElementById('horasMinimas');
 const horaInicioInput = document.getElementById('horaInicio');
 const horaTerminoInput = document.getElementById('horaTermino');
 const valorHoraSelect = document.getElementById('valorHora');
@@ -100,6 +101,18 @@ function handleSubmit(e) {
             minSinRecargo = 0;
             minDobles = totalMinutosTrabajados;
         }
+
+        // Aplicar regla de mínimo de horas
+        const horasMinimas = parseInt(horasMinimasSelect.value) || 0;
+        const minAdjustment = applyMinimumHours(
+            minConRecargo,
+            minSinRecargo,
+            totalMinutosTrabajados,
+            tipoDia,
+            horasMinimas
+        );
+        minSinRecargo = minAdjustment.minSinRecargo;
+        minConRecargo = minAdjustment.minConRecargo;
 
         // Aplicar descuento de colación
         const minColacion = parseInt(colacionSelect.value) || 0;

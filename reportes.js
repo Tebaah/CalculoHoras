@@ -12,6 +12,7 @@
 // Elementos del DOM
 const reportForm = document.getElementById('reportForm');
 const valorHoraSelect = document.getElementById('valorHora');
+const horasMinimasSelect = document.getElementById('horasMinimas');
 const customValueGroup = document.getElementById('customValueGroup');
 const customValueInput = document.getElementById('customValue');
 const errorDiv = document.getElementById('errorMessage');
@@ -50,28 +51,22 @@ function formatHourRate(amount) {
  */
 function populateDailyHoursTable(results) {
     const tableContainer = document.getElementById('hoursDailyTable');
-    // Limpiar filas existentes (mantener solo el encabezado)
-    const rows = tableContainer.querySelectorAll('.result-item:not(.header)');
-    rows.forEach(row => row.remove());
 
     const nombresDias = {
         lunes: 'Lunes', martes: 'Martes', miercoles: 'Miércoles',
         jueves: 'Jueves', viernes: 'Viernes', sabado: 'Sábado', domingo: 'Domingo'
     };
 
+    // Reconstruir todo el contenido HTML desde cero para evitar problemas con nodos
+    let html = '<div class="result-item"><span class="result-label">Día</span><span class="result-value">Horas</span></div>';
     results.forEach(r => {
-        const row = document.createElement('div');
-        row.className = 'result-item';
-        const label = document.createElement('span');
-        label.className = 'result-label';
-        label.textContent = nombresDias[r.dia] || r.dia;
-        const value = document.createElement('span');
-        value.className = 'result-value';
-        value.textContent = r.horasNormalesOp.toFixed(2) + ' h';
-        row.appendChild(label);
-        row.appendChild(value);
-        tableContainer.appendChild(row);
+        const nombreDia = nombresDias[r.dia] || r.dia;
+        html += '<div class="result-item">' +
+            '<span class="result-label">' + nombreDia + '</span>' +
+            '<span class="result-value">' + r.horasTotales.toFixed(2) + ' h</span>' +
+            '</div>';
     });
+    tableContainer.innerHTML = html;
 }
 
 /**
@@ -153,6 +148,20 @@ function calculateDay(diaData, valorHora) {
         minDobles = totalMinutosTrabajados;
     }
 
+    // Aplicar regla de mínimo de horas
+    const horasMinimas = diaData.horasMinimas || 0;
+    if (horasMinimas > 0) {
+        const minAdjustment = applyMinimumHours(
+            minConRecargo,
+            minSinRecargo,
+            totalMinutosTrabajados,
+            diaData.tipoDia,
+            horasMinimas
+        );
+        minSinRecargo = minAdjustment.minSinRecargo;
+        minConRecargo = minAdjustment.minConRecargo;
+    }
+
     // Aplicar descuento de colación
     const minColacion = diaData.colacion || 0;
     const colacionTramo = diaData.colacionTramo || 'sinRecargo';
@@ -191,12 +200,16 @@ function calculateDay(diaData, valorHora) {
     const montoConRecargo = horasConRecargo * (valorHora * 1.30);
     const montoTotal = montoSinRecargo + montoConRecargo;
 
+    // Horas totales considerando el mínimo (sinRecargo + conRecargo después del ajuste)
+    const horasTotales = horasSinRecargo + horasConRecargo;
+
     return {
         dia: diaData.dia,
         horasSinRecargo,
         horasConRecargo,
         horasNormalesOp,
         horasDobles,
+        horasTotales,
         montoTotal
     };
 }
@@ -237,6 +250,14 @@ function handleReportSubmit(e) {
             throw new Error('Debe ingresar al menos un día con hora de inicio y término.');
         }
 
+        // Obtener mínimo de horas global
+        const horasMinimas = parseInt(horasMinimasSelect.value) || 0;
+
+        // Asignar el mínimo de horas global a cada día antes de calcular
+        daysData.forEach(dayData => {
+            dayData.horasMinimas = horasMinimas;
+        });
+
         // Calcular cada día
         const results = daysData.map(dayData => calculateDay(dayData, valorHora));
 
@@ -272,8 +293,8 @@ function handleReportSubmit(e) {
         // Pero nth-child cuenta solo hermanos del mismo padre, no anidados.
         // En #totalResults los hijos directos son: h2, .result-item, .hours-daily-table, .result-item, ...
         // daysIncluidos es child 2, hoursDailyTable es child 3, sinRecargo es child 4, conRecargo child 5
-        document.querySelector('#totalResults .result-item:nth-child(4) .result-label').textContent = 'Total horas sin recargo ' + formatHourRate(valorSinRecargo) + ' (07:00 - 18:00)';
-        document.querySelector('#totalResults .result-item:nth-child(5) .result-label').textContent = 'Total horas con recargo ' + formatHourRate(valorConRecargo) + ' (18:00 - 07:00)';
+        document.querySelector('#totalResults > .result-item:nth-child(4) .result-label').textContent = 'Total horas sin recargo ' + formatHourRate(valorSinRecargo) + ' (07:00 - 18:00)';
+        document.querySelector('#totalResults > .result-item:nth-child(5) .result-label').textContent = 'Total horas con recargo ' + formatHourRate(valorConRecargo) + ' (18:00 - 07:00)';
 
         // Mostrar resultados
         document.getElementById('totalResults').classList.add('show');
