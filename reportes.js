@@ -39,6 +39,13 @@ function setupColacionListeners() {
 setupColacionListeners();
 
 /**
+ * Formatea un número como precio/hora en formato CLP
+ */
+function formatHourRate(amount) {
+    return '$' + Math.round(amount).toLocaleString('es-CL') + '/h';
+}
+
+/**
  * Obtiene los datos de todos los días del formulario
  * Solo incluye días que tengan hora inicio Y hora término ingresados
  */
@@ -94,7 +101,7 @@ function calculateDay(diaData, valorHora) {
         minSinRecargo = totalMinutosTrabajados - minConRecargo;
 
         const minDoblesManana = calculateMinutesInRange(startMin, endMin, 0, 7 * 60);
-        const minDoblesNoche  = calculateMinutesInRange(startMin, endMin, 19 * 60, 24 * 60);
+        const minDoblesNoche = calculateMinutesInRange(startMin, endMin, 19 * 60, 24 * 60);
         minDobles = minDoblesManana + minDoblesNoche;
 
     } else if (diaData.tipoDia === 'sabado') {
@@ -107,7 +114,7 @@ function calculateDay(diaData, valorHora) {
         minSinRecargo = totalMinutosTrabajados - minConRecargo;
 
         const minDoblesManana = calculateMinutesInRange(startMin, endMin, 0, 7 * 60);
-        const minDoblesNoche  = calculateMinutesInRange(startMin, endMin, 13 * 60, 24 * 60);
+        const minDoblesNoche = calculateMinutesInRange(startMin, endMin, 13 * 60, 24 * 60);
         minDobles = minDoblesManana + minDoblesNoche;
 
     } else {
@@ -190,6 +197,10 @@ function handleReportSubmit(e) {
 
         valorHora = parseFloat(valorHora);
 
+        // Precios por hora
+        const valorSinRecargo = valorHora;
+        const valorConRecargo = valorHora * 1.30;
+
         // Obtener datos de los días
         const daysData = getDaysData();
 
@@ -219,6 +230,10 @@ function handleReportSubmit(e) {
         document.getElementById('totalNormalesOp').textContent = totalNormalesOp.toFixed(2) + ' h';
         document.getElementById('totalDoblesOp').textContent = totalDoblesOp.toFixed(2) + ' h';
         document.getElementById('totalMonto').textContent = formatCurrency(totalMonto);
+
+        // Actualizar etiquetas de resultados con los valores/hora
+        document.querySelector('#totalResults .result-item:nth-child(3) .result-label').textContent = 'Total horas sin recargo ' + formatHourRate(valorSinRecargo) + ' (07:00 - 18:00)';
+        document.querySelector('#totalResults .result-item:nth-child(4) .result-label').textContent = 'Total horas con recargo ' + formatHourRate(valorConRecargo) + ' (18:00 - 07:00)';
 
         // Mostrar resultados
         document.getElementById('totalResults').classList.add('show');
