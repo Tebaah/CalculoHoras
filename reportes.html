@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reportes - Cálculo de Horas</title>
     <link rel="stylesheet" href="css/main.css">
 </head>
+
 <body>
     <div class="layout">
         <aside class="sidebar">
@@ -29,33 +31,48 @@
 
                 <div class="info-box">
                     <strong>Reglas de cálculo:</strong>
-                    <strong>Servicio:</strong> Sin recargo: Cualquier hora fuera del rango 18:00-07:00 | Con recargo: 18:00-07:00 (cruza medianoche)<br>
-                    <strong>Operador:</strong> Normales: Total de horas trabajadas | Dobles: antes de las 07:00 y desde las 19:00 en adelante<br>
+                    <strong>Servicio:</strong> Sin recargo: Cualquier hora fuera del rango 18:00-07:00 | Con recargo:
+                    18:00-07:00 (cruza medianoche)<br>
+                    <strong>Operador:</strong> Normales: Total de horas trabajadas | Dobles: antes de las 07:00 y desde
+                    las 19:00 en adelante<br>
                     <strong>Tipos de día:</strong> Lun-Vie → Normal | Sábado → Sábado | Domingo → Domingo/Festivo
                 </div>
 
                 <form id="reportForm">
-                    <div class="form-group">
-                        <label for="valorHora">Valor de la Hora Normal (global para todos los días)</label>
-                        <select id="valorHora" required>
-                            <option value="">Seleccione un valor...</option>
-                            <option value="95000">$95.000</option>
-                            <option value="110000">$110.000</option>
-                            <option value="120000">$120.000</option>
-                            <option value="140000">$140.000</option>
-                            <option value="165000">$165.000</option>
-                            <option value="190000">$190.000</option>
-                            <option value="210000">$210.000</option>
-                            <option value="235000">$235.000</option>
-                            <option value="260000">$260.000</option>
-                            <option value="265000">$265.000</option>
-                            <option value="290000">$290.000</option>
-                            <option value="345000">$345.000</option>
-                            <option value="390000">$390.000</option>
-                            <option value="460000">$460.000</option>
-                            <option value="495000">$495.000</option>
-                            <option value="custom">Otro valor...</option>
-                        </select>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="valorHora">Valor de la Hora Normal (global para todos los días)</label>
+                            <select id="valorHora" required>
+                                <option value="">Seleccione un valor...</option>
+                                <option value="95000">$95.000</option>
+                                <option value="110000">$110.000</option>
+                                <option value="120000">$120.000</option>
+                                <option value="140000">$140.000</option>
+                                <option value="165000">$165.000</option>
+                                <option value="190000">$190.000</option>
+                                <option value="210000">$210.000</option>
+                                <option value="235000">$235.000</option>
+                                <option value="260000">$260.000</option>
+                                <option value="265000">$265.000</option>
+                                <option value="290000">$290.000</option>
+                                <option value="345000">$345.000</option>
+                                <option value="390000">$390.000</option>
+                                <option value="460000">$460.000</option>
+                                <option value="495000">$495.000</option>
+                                <option value="custom">Otro valor...</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="horasMinimas">Mínimo de Horas (por día)</label>
+                            <select id="horasMinimas" required>
+                                <option value="0">Sin mínimo</option>
+                                <option value="5">5 horas</option>
+                                <option value="6">6 horas</option>
+                                <option value="8">8 horas</option>
+                                <option value="9">9 horas</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="form-group" id="customValueGroup" style="display: none;">
@@ -252,6 +269,12 @@
                         <span class="result-label">Días incluidos en el cálculo</span>
                         <span class="result-value" id="diasIncluidos">0</span>
                     </div>
+                    <div class="hours-daily-table" id="hoursDailyTable">
+                        <div class="result-item">
+                            <span class="result-label">Día</span>
+                            <span class="result-value">Horas</span>
+                        </div>
+                    </div>
                     <div class="result-item">
                         <span class="result-label">Total horas sin recargo (07:00 - 18:00)</span>
                         <span class="result-value" id="totalSinRecargo">0.00 h</span>
@@ -289,4 +312,5 @@
     <script src="shared.js"></script>
     <script src="reportes.js"></script>
 </body>
+
 </html>

@@ -12,6 +12,7 @@
 // Elementos del DOM
 const reportForm = document.getElementById('reportForm');
 const valorHoraSelect = document.getElementById('valorHora');
+const horasMinimasSelect = document.getElementById('horasMinimas');
 const customValueGroup = document.getElementById('customValueGroup');
 const customValueInput = document.getElementById('customValue');
 const errorDiv = document.getElementById('errorMessage');
@@ -37,6 +38,36 @@ function setupColacionListeners() {
 
 // Inicializar listeners de colación
 setupColacionListeners();
+
+/**
+ * Formatea un número como precio/hora en formato CLP
+ */
+function formatHourRate(amount) {
+    return '$' + Math.round(amount).toLocaleString('es-CL') + '/h';
+}
+
+/**
+ * Puebla la tabla de horas diarias en los resultados
+ */
+function populateDailyHoursTable(results) {
+    const tableContainer = document.getElementById('hoursDailyTable');
+
+    const nombresDias = {
+        lunes: 'Lunes', martes: 'Martes', miercoles: 'Miércoles',
+        jueves: 'Jueves', viernes: 'Viernes', sabado: 'Sábado', domingo: 'Domingo'
+    };
+
+    // Reconstruir todo el contenido HTML desde cero para evitar problemas con nodos
+    let html = '<div class="result-item"><span class="result-label">Día</span><span class="result-value">Horas</span></div>';
+    results.forEach(r => {
+        const nombreDia = nombresDias[r.dia] || r.dia;
+        html += '<div class="result-item">' +
+            '<span class="result-label">' + nombreDia + '</span>' +
+            '<span class="result-value">' + r.horasTotales.toFixed(2) + ' h</span>' +
+            '</div>';
+    });
+    tableContainer.innerHTML = html;
+}
 
 /**
  * Obtiene los datos de todos los días del formulario
@@ -94,7 +125,7 @@ function calculateDay(diaData, valorHora) {
         minSinRecargo = totalMinutosTrabajados - minConRecargo;
 
         const minDoblesManana = calculateMinutesInRange(startMin, endMin, 0, 7 * 60);
-        const minDoblesNoche  = calculateMinutesInRange(startMin, endMin, 19 * 60, 24 * 60);
+        const minDoblesNoche = calculateMinutesInRange(startMin, endMin, 19 * 60, 24 * 60);
         minDobles = minDoblesManana + minDoblesNoche;
 
     } else if (diaData.tipoDia === 'sabado') {
@@ -107,7 +138,7 @@ function calculateDay(diaData, valorHora) {
         minSinRecargo = totalMinutosTrabajados - minConRecargo;
 
         const minDoblesManana = calculateMinutesInRange(startMin, endMin, 0, 7 * 60);
-        const minDoblesNoche  = calculateMinutesInRange(startMin, endMin, 13 * 60, 24 * 60);
+        const minDoblesNoche = calculateMinutesInRange(startMin, endMin, 13 * 60, 24 * 60);
         minDobles = minDoblesManana + minDoblesNoche;
 
     } else {
@@ -115,6 +146,20 @@ function calculateDay(diaData, valorHora) {
         minConRecargo = totalMinutosTrabajados;
         minSinRecargo = 0;
         minDobles = totalMinutosTrabajados;
+    }
+
+    // Aplicar regla de mínimo de horas
+    const horasMinimas = diaData.horasMinimas || 0;
+    if (horasMinimas > 0) {
+        const minAdjustment = applyMinimumHours(
+            minConRecargo,
+            minSinRecargo,
+            totalMinutosTrabajados,
+            diaData.tipoDia,
+            horasMinimas
+        );
+        minSinRecargo = minAdjustment.minSinRecargo;
+        minConRecargo = minAdjustment.minConRecargo;
     }
 
     // Aplicar descuento de colación
@@ -155,12 +200,16 @@ function calculateDay(diaData, valorHora) {
     const montoConRecargo = horasConRecargo * (valorHora * 1.30);
     const montoTotal = montoSinRecargo + montoConRecargo;
 
+    // Horas totales considerando el mínimo (sinRecargo + conRecargo después del ajuste)
+    const horasTotales = horasSinRecargo + horasConRecargo;
+
     return {
         dia: diaData.dia,
         horasSinRecargo,
         horasConRecargo,
         horasNormalesOp,
         horasDobles,
+        horasTotales,
         montoTotal
     };
 }
@@ -190,6 +239,10 @@ function handleReportSubmit(e) {
 
         valorHora = parseFloat(valorHora);
 
+        // Precios por hora
+        const valorSinRecargo = valorHora;
+        const valorConRecargo = valorHora * 1.30;
+
         // Obtener datos de los días
         const daysData = getDaysData();
 
@@ -197,8 +250,19 @@ function handleReportSubmit(e) {
             throw new Error('Debe ingresar al menos un día con hora de inicio y término.');
         }
 
+        // Obtener mínimo de horas global
+        const horasMinimas = parseInt(horasMinimasSelect.value) || 0;
+
+        // Asignar el mínimo de horas global a cada día antes de calcular
+        daysData.forEach(dayData => {
+            dayData.horasMinimas = horasMinimas;
+        });
+
         // Calcular cada día
         const results = daysData.map(dayData => calculateDay(dayData, valorHora));
+
+        // Poblar tabla de horas diarias
+        populateDailyHoursTable(results);
 
         // Calcular totales generales
         const totalSinRecargo = results.reduce((sum, r) => sum + r.horasSinRecargo, 0);
@@ -219,6 +283,18 @@ function handleReportSubmit(e) {
         document.getElementById('totalNormalesOp').textContent = totalNormalesOp.toFixed(2) + ' h';
         document.getElementById('totalDoblesOp').textContent = totalDoblesOp.toFixed(2) + ' h';
         document.getElementById('totalMonto').textContent = formatCurrency(totalMonto);
+
+        // Actualizar etiquetas de resultados con los valores/hora
+        // Los índices cambian porque ahora hay más .result-item dentro de #totalResults:
+        // child 1: h2, child 2: "Días incluidos", child 3: #hoursDailyTable (contiene varios .result-item),
+        // child 4: "Total horas sin recargo" -> .result-item:nth-child(4)
+        // child 5: "Total horas con recargo" -> .result-item:nth-child(5)
+        // child 6: "Total horas normales operador" -> .result-item:nth-child(6) etc.
+        // Pero nth-child cuenta solo hermanos del mismo padre, no anidados.
+        // En #totalResults los hijos directos son: h2, .result-item, .hours-daily-table, .result-item, ...
+        // daysIncluidos es child 2, hoursDailyTable es child 3, sinRecargo es child 4, conRecargo child 5
+        document.querySelector('#totalResults > .result-item:nth-child(4) .result-label').textContent = 'Total horas sin recargo ' + formatHourRate(valorSinRecargo) + ' (07:00 - 18:00)';
+        document.querySelector('#totalResults > .result-item:nth-child(5) .result-label').textContent = 'Total horas con recargo ' + formatHourRate(valorConRecargo) + ' (18:00 - 07:00)';
 
         // Mostrar resultados
         document.getElementById('totalResults').classList.add('show');

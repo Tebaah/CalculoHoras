@@ -134,3 +134,54 @@ function validateInputs(horaInicio, horaTermino) {
 
     return { startMin, endMin };
 }
+
+/**
+ * Aplica la regla de mínimo de horas al cálculo.
+ *
+ * Si el total de minutos trabajados es menor al mínimo establecido,
+ * se agregan los minutos faltantes para cumplir con ese mínimo.
+ *
+ * Reglas según tipo de día:
+ * - Día normal (normal): los minutos extra se suman a horas sin recargo
+ * - Día sábado (sabado): los minutos extra se suman a horas sin recargo
+ * - Día domingo/festivo (domingoFestivo): los minutos extra se suman a horas con recargo
+ *
+ * @param {number} minConRecargo - Minutos calculados con recargo
+ * @param {number} minSinRecargo - Minutos calculados sin recargo
+ * @param {number} totalMinutosTrabajados - Total de minutos trabajados (sin colación)
+ * @param {string} tipoDia - Tipo de día ('normal', 'sabado', 'domingoFestivo')
+ * @param {number} horasMinimas - Mínimo de horas exigido (0 si no aplica)
+ * @returns {{ minSinRecargo: number, minConRecargo: number, minutosExtra: number }}
+ */
+function applyMinimumHours(minConRecargo, minSinRecargo, totalMinutosTrabajados, tipoDia, horasMinimas) {
+    if (horasMinimas <= 0) {
+        // No hay mínimo
+        return { minSinRecargo, minConRecargo, minutosExtra: 0 };
+    }
+
+    const minimoMinutos = horasMinimas * 60;
+
+    if (totalMinutosTrabajados >= minimoMinutos) {
+        // Ya cumple el mínimo
+        return { minSinRecargo, minConRecargo, minutosExtra: 0 };
+    }
+
+    // Faltan minutos para llegar al mínimo
+    const minutosExtra = minimoMinutos - totalMinutosTrabajados;
+
+    if (tipoDia === 'domingoFestivo') {
+        // Domingo/festivo: los minutos extra se suman a horas con recargo
+        return {
+            minSinRecargo,
+            minConRecargo: minConRecargo + minutosExtra,
+            minutosExtra
+        };
+    } else {
+        // Normal o sábado: los minutos extra se suman a horas sin recargo
+        return {
+            minSinRecargo: minSinRecargo + minutosExtra,
+            minConRecargo,
+            minutosExtra
+        };
+    }
+}
