@@ -300,17 +300,7 @@
         </main>
     </div>
 
-    <script>
-        // Highlight current page in sidebar based on URL
-        const currentPath = window.location.pathname.split('/').pop() || 'index.html';
-        if (currentPath === 'ordenes.html') {
-            document.getElementById('nav-ordenes').classList.add('active');
-        } else if (currentPath === 'reportes.html') {
-            document.getElementById('nav-reportes').classList.add('active');
-        }
-    </script>
-    <script src="shared.js"></script>
-    <script src="reportes.js"></script>
+    <script type="module" src="/src/reportes.js"></script>
 </body>
 
 </html>
