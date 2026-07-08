@@ -74,6 +74,7 @@
 }
 
 .report-row input[type="time"],
+.report-row input[type="date"],
 .report-row select {
     width: 100%;
     padding: 8px 10px;
@@ -87,6 +88,7 @@
 }
 
 .report-row input[type="time"]:focus,
+.report-row input[type="date"]:focus,
 .report-row select:focus {
     outline: none;
     border-color: var(--powder-blue);
