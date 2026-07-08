@@ -8,9 +8,11 @@
 import { calculateSingleDay } from '../../store/actions/calculatorActions.js';
 import { renderResults } from '../render/renderResults.js';
 import { initSidebar } from '../components/sidebar.js';
+import { getDayTypeFromDate } from '../../core/utils/dateUtils.js';
 
 // Elementos del DOM
 const form = document.getElementById('calculatorForm');
+const fechaDiaInput = document.getElementById('fechaDia');
 const tipoDiaSelect = document.getElementById('tipoDia');
 const horasMinimasSelect = document.getElementById('horasMinimas');
 const horaInicioInput = document.getElementById('horaInicio');
@@ -23,6 +25,18 @@ const colacionTramoGroup = document.getElementById('colacionTramoGroup');
 const colacionTramoSelect = document.getElementById('colacionTramo');
 const errorDiv = document.getElementById('errorMessage');
 const resultsDiv = document.getElementById('results');
+
+/**
+ * Actualiza el tipo de día automáticamente según la fecha seleccionada
+ */
+function updateDayTypeFromDate() {
+    const dateValue = fechaDiaInput.value;
+    if (!dateValue) return;
+
+    const date = new Date(dateValue + 'T12:00:00');
+    const dayType = getDayTypeFromDate(date);
+    tipoDiaSelect.value = dayType;
+}
 
 /**
  * Obtiene los datos del formulario
@@ -42,6 +56,7 @@ function getFormData() {
 
     return {
         tipoDia: tipoDiaSelect.value,
+        fecha: fechaDiaInput.value,
         horaInicio: horaInicioInput.value,
         horaTermino: horaTerminoInput.value,
         valorHora: parseFloat(valorHora),
@@ -89,6 +104,17 @@ export function initOrdenesPage() {
     initSidebar();
 
     form.addEventListener('submit', handleSubmit);
+
+    // Detectar tipo de día automáticamente al cambiar la fecha
+    fechaDiaInput.addEventListener('change', updateDayTypeFromDate);
+
+    // Establecer fecha por defecto: hoy
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    fechaDiaInput.value = year + '-' + month + '-' + day;
+    updateDayTypeFromDate();
 
     valorHoraSelect.addEventListener('change', (e) => {
         customValueGroup.style.display = e.target.value === 'custom' ? 'block' : 'none';

@@ -16,6 +16,7 @@ label {
 
 input[type="time"],
 input[type="number"],
+input[type="date"],
 select {
     width: 100%;
     padding: 12px;
@@ -30,6 +31,7 @@ select {
 
 input[type="time"]:focus,
 input[type="number"]:focus,
+input[type="date"]:focus,
 select:focus {
     outline: none;
     border-color: var(--powder-blue);
