@@ -38,13 +38,19 @@
                 </div>
 
                 <form id="calculatorForm">
-                    <div class="form-group">
-                        <label for="tipoDia">Tipo de Día</label>
-                        <select id="tipoDia" required>
-                            <option value="normal">Día normal</option>
-                            <option value="sabado">Día Sábado</option>
-                            <option value="domingoFestivo">Día domingo y festivo</option>
-                        </select>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fechaDia">Fecha del servicio</label>
+                            <input type="date" id="fechaDia" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="tipoDia">Tipo de Día</label>
+                            <select id="tipoDia" required>
+                                <option value="normal">Día normal</option>
+                                <option value="sabado">Día Sábado</option>
+                                <option value="domingoFestivo">Día domingo y festivo</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="form-group">
