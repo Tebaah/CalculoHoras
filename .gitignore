@@ -19,5 +19,8 @@ rad.json
 #License-file
 *.flf
 #Test results file
-TestResults.xmlnode_modules/
+TestResults.xml
+
+### Node.js ###
+node_modules/
 dist/
