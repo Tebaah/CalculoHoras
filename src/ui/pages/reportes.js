@@ -8,6 +8,8 @@
 import { calculateWeeklyReport } from '../../store/actions/calculatorActions.js';
 import { renderReportTotals } from '../render/renderReport.js';
 import { initSidebar } from '../components/sidebar.js';
+import { getDayTypeFromDate, addDays, toDateInputValue, getDayId } from '../../core/utils/dateUtils.js';
+import { TIPOS_DIA } from '../../core/constants.js';
 
 // Elementos del DOM
 const reportForm = document.getElementById('reportForm');
@@ -18,6 +20,54 @@ const customValueInput = document.getElementById('customValue');
 const errorDiv = document.getElementById('errorMessage');
 
 /**
+ * Actualiza el tipo de día (data-tipo) y la etiqueta visual de una fila
+ * según la fecha seleccionada
+ *
+ * @param {HTMLElement} row - Fila del reporte
+ * @param {Date} date - Fecha asociada
+ */
+function updateRowDayType(row, date) {
+    const dayType = getDayTypeFromDate(date);
+    row.dataset.tipo = dayType;
+
+    const dayTag = row.querySelector('.day-tag');
+    if (dayType === TIPOS_DIA.NORMAL) {
+        dayTag.textContent = 'Normal';
+        dayTag.className = 'day-tag';
+    } else if (dayType === TIPOS_DIA.SABADO) {
+        dayTag.textContent = 'S\u00E1bado';
+        dayTag.className = 'day-tag sabado';
+    } else {
+        dayTag.textContent = 'Festivo';
+        dayTag.className = 'day-tag domingo';
+    }
+}
+
+/**
+ * Auto-rellena las fechas de los días siguientes cuando se cambia
+ * la fecha del primer día (Lunes)
+ */
+function handleFirstDateChange() {
+    const firstDateInput = document.querySelector('.fecha-dia[data-day-index="0"]');
+    if (!firstDateInput || !firstDateInput.value) return;
+
+    const baseDate = new Date(firstDateInput.value + 'T12:00:00');
+    const dateInputs = document.querySelectorAll('.fecha-dia');
+
+    dateInputs.forEach((input) => {
+        const index = parseInt(input.dataset.dayIndex);
+        const newDate = addDays(baseDate, index);
+        input.value = toDateInputValue(newDate);
+
+        // Actualizar tipo de día y etiqueta visual
+        const row = input.closest('.report-row');
+        if (row) {
+            updateRowDayType(row, newDate);
+        }
+    });
+}
+
+/**
  * Configura los event listeners de colación para cada fila del reporte
  */
 function setupColacionListeners() {
@@ -26,6 +76,35 @@ function setupColacionListeners() {
             const tramoSelect = e.target.closest('.report-row').querySelector('.colacion-tramo');
             tramoSelect.style.display = parseInt(e.target.value) > 0 ? 'block' : 'none';
         });
+    });
+}
+
+/**
+ * Configura el auto-relleno de fechas al cambiar el primer día
+ */
+function setupDateAutoFill() {
+    const firstDateInput = document.querySelector('.fecha-dia[data-day-index="0"]');
+    if (firstDateInput) {
+        firstDateInput.addEventListener('change', handleFirstDateChange);
+    }
+}
+
+/**
+ * Establece las fechas por defecto: desde hoy (Lunes = hoy)
+ */
+function setDefaultDates() {
+    const today = new Date();
+    const dateInputs = document.querySelectorAll('.fecha-dia');
+
+    dateInputs.forEach((input) => {
+        const index = parseInt(input.dataset.dayIndex);
+        const date = addDays(today, index);
+        input.value = toDateInputValue(date);
+
+        const row = input.closest('.report-row');
+        if (row) {
+            updateRowDayType(row, date);
+        }
     });
 }
 
@@ -126,4 +205,6 @@ export function initReportesPage() {
     });
 
     setupColacionListeners();
+    setupDateAutoFill();
+    setDefaultDates();
 }
