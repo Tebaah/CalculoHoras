@@ -148,21 +148,7 @@ function calculateDay(diaData, valorHora) {
         minDobles = totalMinutosTrabajados;
     }
 
-    // Aplicar regla de mínimo de horas
-    const horasMinimas = diaData.horasMinimas || 0;
-    if (horasMinimas > 0) {
-        const minAdjustment = applyMinimumHours(
-            minConRecargo,
-            minSinRecargo,
-            totalMinutosTrabajados,
-            diaData.tipoDia,
-            horasMinimas
-        );
-        minSinRecargo = minAdjustment.minSinRecargo;
-        minConRecargo = minAdjustment.minConRecargo;
-    }
-
-    // Aplicar descuento de colación
+    // Aplicar descuento de colación (primero)
     const minColacion = diaData.colacion || 0;
     const colacionTramo = diaData.colacionTramo || 'sinRecargo';
     let minSinRecargoFinal = minSinRecargo;
@@ -173,6 +159,21 @@ function calculateDay(diaData, valorHora) {
         } else {
             minConRecargoFinal = Math.max(0, minConRecargo - minColacion);
         }
+    }
+
+    // Aplicar regla de mínimo de horas (después de colación)
+    const horasMinimas = diaData.horasMinimas || 0;
+    if (horasMinimas > 0) {
+        const totalNeto = minSinRecargoFinal + minConRecargoFinal;
+        const minAdjustment = applyMinimumHours(
+            minConRecargoFinal,
+            minSinRecargoFinal,
+            totalNeto,
+            diaData.tipoDia,
+            horasMinimas
+        );
+        minSinRecargoFinal = minAdjustment.minSinRecargo;
+        minConRecargoFinal = minAdjustment.minConRecargo;
     }
 
     // Horas normales del operador = Total de horas trabajadas
