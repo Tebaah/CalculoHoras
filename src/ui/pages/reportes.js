@@ -15,6 +15,7 @@ import { TIPOS_DIA } from '../../core/constants.js';
 const reportForm = document.getElementById('reportForm');
 const valorHoraSelect = document.getElementById('valorHora');
 const horasMinimasSelect = document.getElementById('horasMinimas');
+const recargoPorcentajeSelect = document.getElementById('recargoPorcentaje');
 const customValueGroup = document.getElementById('customValueGroup');
 const customValueInput = document.getElementById('customValue');
 const errorDiv = document.getElementById('errorMessage');
@@ -172,16 +173,18 @@ function handleReportSubmit(e) {
             throw new Error('Debe ingresar al menos un día con hora de inicio y término.');
         }
 
-        // Asignar mínimo de horas global a cada día
+        // Asignar mínimo de horas global y recargo a cada día
         const horasMinimas = parseInt(horasMinimasSelect.value) || 0;
+        const recargoPorcentaje = parseInt(recargoPorcentajeSelect.value) || 0;
         daysData.forEach((dayData) => {
             dayData.horasMinimas = horasMinimas;
+            dayData.recargoPorcentaje = recargoPorcentaje;
         });
 
         const report = calculateWeeklyReport(daysData, valorHora);
 
         // Renderizar resultados
-        renderReportTotals(report, valorHora);
+        renderReportTotals(report, valorHora, recargoPorcentaje);
         document.getElementById('totalResults').classList.add('show');
 
         document.getElementById('totalResults').scrollIntoView({ behavior: 'smooth', block: 'start' });
