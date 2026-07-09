@@ -38,10 +38,16 @@ export function populateDailyHoursTable(results) {
  * @param {number} report.totalMonto
  * @param {number} report.daysCount
  * @param {number} valorHora - Valor de la hora normal
+ * @param {number} [recargoPorcentaje=30] - Porcentaje de recargo
  */
-export function renderReportTotals(report, valorHora) {
+export function renderReportTotals(report, valorHora, recargoPorcentaje) {
+    recargoPorcentaje = recargoPorcentaje || report.recargoPorcentaje || 30;
     const valorSinRecargo = valorHora;
-    const valorConRecargo = valorHora * 1.30;
+    const multiplicadorRecargo = 1 + (recargoPorcentaje / 100);
+    const valorConRecargo = valorHora * multiplicadorRecargo;
+    const recargoText = recargoPorcentaje > 0
+        ? `(+${recargoPorcentaje}%)`
+        : '(sin recargo)';
 
     // Poblar tabla de horas diarias
     populateDailyHoursTable(report.results);
@@ -65,7 +71,7 @@ export function renderReportTotals(report, valorHora) {
             label.textContent = 'Total horas sin recargo ' + formatHourRate(valorSinRecargo) + ' (07:00 - 18:00)';
         }
         if (label.textContent.includes('Total horas con recargo')) {
-            label.textContent = 'Total horas con recargo ' + formatHourRate(valorConRecargo) + ' (18:00 - 07:00)';
+            label.textContent = 'Total horas con recargo ' + formatHourRate(valorConRecargo) + ' ' + recargoText + ' (18:00 - 07:00)';
         }
     });
 }

@@ -15,6 +15,7 @@ const form = document.getElementById('calculatorForm');
 const fechaDiaInput = document.getElementById('fechaDia');
 const tipoDiaSelect = document.getElementById('tipoDia');
 const horasMinimasSelect = document.getElementById('horasMinimas');
+const recargoPorcentajeSelect = document.getElementById('recargoPorcentaje');
 const horaInicioInput = document.getElementById('horaInicio');
 const horaTerminoInput = document.getElementById('horaTermino');
 const valorHoraSelect = document.getElementById('valorHora');
@@ -63,6 +64,7 @@ function getFormData() {
         colacion: parseInt(colacionSelect.value) || 0,
         colacionTramo: colacionTramoSelect.value || 'sinRecargo',
         horasMinimas: parseInt(horasMinimasSelect.value) || 0,
+        recargoPorcentaje: parseInt(recargoPorcentajeSelect.value) || 0,
     };
 }
 
@@ -86,7 +88,8 @@ function handleSubmit(e) {
         // Agregar valores de hora al resultado para el render
         result.tipoDia = formData.tipoDia;
         result.valorSinRecargo = formData.valorHora;
-        result.valorConRecargo = formData.valorHora * 1.30;
+        const multiplicadorRecargo = 1 + (formData.recargoPorcentaje / 100);
+        result.valorConRecargo = formData.valorHora * multiplicadorRecargo;
 
         renderResults(result);
         resultsDiv.classList.add('show');

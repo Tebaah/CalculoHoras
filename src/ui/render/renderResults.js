@@ -3,7 +3,7 @@
  */
 
 import { formatHourRate, formatCurrency, formatHours } from '../../core/utils/formatUtils.js';
-import { TIPOS_DIA } from '../../core/constants.js';
+import { TIPOS_DIA, getMultiplicadorRecargo } from '../../core/constants.js';
 
 /**
  * Obtiene las etiquetas de resultados según el tipo de día
@@ -12,21 +12,25 @@ import { TIPOS_DIA } from '../../core/constants.js';
  * @param {number} valorConRecargo
  * @returns {{ sinRecargo: string, conRecargo: string, doblesOp: string }}
  */
-function getLabelsByDayType(tipoDia, valorSinRecargo, valorConRecargo) {
+function getLabelsByDayType(tipoDia, valorSinRecargo, valorConRecargo, recargoPorcentaje) {
+    const recargoText = recargoPorcentaje > 0
+        ? `(+${recargoPorcentaje}%)`
+        : '(sin recargo)';
+
     const labels = {
         [TIPOS_DIA.NORMAL]: {
             sinRecargo: `Horas sin recargo ${formatHourRate(valorSinRecargo)} (07:00 - 18:00)`,
-            conRecargo: `Horas con recargo ${formatHourRate(valorConRecargo)} (18:00 - 07:00)`,
+            conRecargo: `Horas con recargo ${formatHourRate(valorConRecargo)} ${recargoText} (18:00 - 07:00)`,
             doblesOp: 'Horas dobles del operador (antes 07:00 y después 19:00)',
         },
         [TIPOS_DIA.SABADO]: {
             sinRecargo: `Horas sin recargo ${formatHourRate(valorSinRecargo)} (07:00 - 13:00)`,
-            conRecargo: `Horas con recargo ${formatHourRate(valorConRecargo)} (desde 13:00)`,
+            conRecargo: `Horas con recargo ${formatHourRate(valorConRecargo)} ${recargoText} (desde 13:00)`,
             doblesOp: 'Horas dobles del operador (desde 13:00)',
         },
         [TIPOS_DIA.DOMINGO_FESTIVO]: {
             sinRecargo: `Horas sin recargo ${formatHourRate(valorSinRecargo)}`,
-            conRecargo: `Horas con recargo ${formatHourRate(valorConRecargo)} (todo el día)`,
+            conRecargo: `Horas con recargo ${formatHourRate(valorConRecargo)} ${recargoText} (todo el día)`,
             doblesOp: 'Horas dobles del operador (todo el día)',
         },
     };
@@ -48,7 +52,7 @@ function getLabelsByDayType(tipoDia, valorSinRecargo, valorConRecargo) {
  * @param {number} result.valorConRecargo
  */
 export function renderResults(result) {
-    const labels = getLabelsByDayType(result.tipoDia, result.valorSinRecargo, result.valorConRecargo);
+    const labels = getLabelsByDayType(result.tipoDia, result.valorSinRecargo, result.valorConRecargo, result.recargoPorcentaje);
 
     document.getElementById('labelSinRecargo').textContent = labels.sinRecargo;
     document.getElementById('labelConRecargo').textContent = labels.conRecargo;

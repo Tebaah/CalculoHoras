@@ -25,6 +25,7 @@ export class WorkDay {
         this.colacionTramo = data.colacionTramo || 'sinRecargo';
         this.horasMinimas = data.horasMinimas || 0;
         this.valorHora = data.valorHora || 0;
+        this.recargoPorcentaje = data.recargoPorcentaje !== undefined ? data.recargoPorcentaje : 30;
     }
 
     /**
@@ -49,6 +50,7 @@ export class WorkDay {
             colacionTramo: this.colacionTramo,
             horasMinimas: this.horasMinimas,
             valorHora: this.valorHora,
+            recargoPorcentaje: this.recargoPorcentaje,
         });
     }
 }

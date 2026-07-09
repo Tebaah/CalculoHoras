@@ -7,7 +7,7 @@
  * - Monto total del servicio
  */
 
-import { RANGOS, MULTIPLICADORES, TIPOS_DIA } from '../constants.js';
+import { RANGOS, MULTIPLICADORES, TIPOS_DIA, getMultiplicadorRecargo } from '../constants.js';
 import { calculateMinutesInRange, minutesToHours } from '../utils/timeUtils.js';
 
 /**
@@ -125,6 +125,7 @@ function applyMinimumHours(minConRecargo, minSinRecargo, totalMinutosTrabajados,
  * @param {string} params.colacionTramo
  * @param {number} params.horasMinimas
  * @param {number} params.valorHora
+ * @param {number} [params.recargoPorcentaje=30] - Porcentaje de recargo (0, 10, 20, 30)
  * @returns {Object} Resultado del cálculo del servicio
  */
 export function calculateService(params) {
@@ -136,6 +137,7 @@ export function calculateService(params) {
         colacionTramo,
         horasMinimas,
         valorHora,
+        recargoPorcentaje = 30,
     } = params;
 
     // 1. Calcular minutos base según tipo de día
@@ -158,8 +160,9 @@ export function calculateService(params) {
     const horasSinRecargo = parseFloat(minutesToHours(adjusted.minSinRecargo));
     const horasConRecargo = parseFloat(minutesToHours(adjusted.minConRecargo));
 
-    // 5. Calcular montos
-    const valorConRecargo = valorHora * MULTIPLICADORES.RECARGO;
+    // 5. Calcular montos con recargo dinámico
+    const multiplicadorRecargo = getMultiplicadorRecargo(recargoPorcentaje);
+    const valorConRecargo = valorHora * multiplicadorRecargo;
     const montoSinRecargo = horasSinRecargo * valorHora;
     const montoConRecargo = horasConRecargo * valorConRecargo;
     const montoTotal = montoSinRecargo + montoConRecargo;
@@ -172,6 +175,7 @@ export function calculateService(params) {
         montoTotal,
         valorSinRecargo: valorHora,
         valorConRecargo,
+        recargoPorcentaje,
         minutosExtra: adjusted.minutosExtra,
         totalMinutos,
     };

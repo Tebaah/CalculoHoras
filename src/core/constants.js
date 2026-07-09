@@ -25,7 +25,7 @@ export const RANGOS = {
 
 // Multiplicadores de recargo
 export const MULTIPLICADORES = {
-    RECARGO: 1.30,        // 30% de recargo
+    RECARGO: 1.30,        // 30% de recargo (defecto)
     DOBLE: 2.0,           // 100% (doble)
 };
 
@@ -48,6 +48,26 @@ export const OPCIONES_HORAS_MINIMAS = [0, 5, 6, 8, 9];
 
 // Opciones de colación
 export const OPCIONES_COLACION = [0, 15, 30, 45, 60];
+
+// Opciones de porcentaje de recargo (dinámico)
+export const OPCIONES_RECARGO = [
+    { value: 0, label: 'Sin recargo' },
+    { value: 10, label: '10%' },
+    { value: 20, label: '20%' },
+    { value: 30, label: '30%' },
+];
+
+// Porcentaje de recargo por defecto
+export const RECARGO_POR_DEFECTO = 30;
+
+/**
+ * Calcula el multiplicador de recargo a partir de un porcentaje
+ * @param {number} porcentaje - Porcentaje de recargo (ej: 30 para 30%)
+ * @returns {number} Multiplicador (ej: 1.30)
+ */
+export function getMultiplicadorRecargo(porcentaje) {
+    return 1 + (porcentaje / 100);
+}
 
 // Nombres de días en español
 export const NOMBRES_DIAS = {
