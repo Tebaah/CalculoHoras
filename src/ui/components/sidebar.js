@@ -12,11 +12,15 @@ export function initSidebar() {
 
     const navOrdenes = document.getElementById('nav-ordenes');
     const navReportes = document.getElementById('nav-reportes');
+    const navHistorial = document.getElementById('nav-historial');
 
     if (navOrdenes) {
         navOrdenes.classList.toggle('active', currentPath === 'ordenes.html');
     }
     if (navReportes) {
         navReportes.classList.toggle('active', currentPath === 'reportes.html');
+    }
+    if (navHistorial) {
+        navHistorial.classList.toggle('active', currentPath === 'historial.html');
     }
 }
