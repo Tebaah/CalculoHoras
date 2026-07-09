@@ -5,6 +5,7 @@
 import { store } from '../store.js';
 import { calculateDay } from '../../core/use-cases/calculateDay.js';
 import { WorkDay } from '../../core/entities/workDay.js';
+import { getMultiplicadorRecargo } from '../../core/constants.js';
 
 /**
  * Ejecuta el cálculo completo de una orden de trabajo (un día)
@@ -20,13 +21,16 @@ export function calculateSingleDay(formData) {
 
     const result = calculateDay(workDay, formData.valorHora);
 
+    const multiplicadorRecargo = getMultiplicadorRecargo(formData.recargoPorcentaje || 30);
+
     store.setState({
         lastCalculation: {
             ...result,
             tipoDia: formData.tipoDia,
             valorHora: formData.valorHora,
             valorSinRecargo: formData.valorHora,
-            valorConRecargo: formData.valorHora * 1.30,
+            valorConRecargo: formData.valorHora * multiplicadorRecargo,
+            recargoPorcentaje: formData.recargoPorcentaje || 30,
         },
     });
 
