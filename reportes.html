@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es-CL">
 
 <head>
     <meta charset="UTF-8">
@@ -23,6 +23,10 @@
                     <span class="nav-icon">📊</span>
                     <span class="nav-text">Reportes</span>
                 </a>
+                <a href="historial.html" class="nav-item" id="nav-historial">
+                    <span class="nav-icon">📁</span>
+                    <span class="nav-text">Historial</span>
+                </a>
             </nav>
         </aside>
         <main class="main-content">
@@ -39,11 +43,16 @@
                 </div>
 
                 <form id="reportForm">
-                    <div class="form-row">
+                    <div class="form-group">
+                        <label for="indiceReporte">Índice de almacenamiento</label>
+                        <input type="text" id="indiceReporte" placeholder="Ej: 222222" maxlength="20">
+                    </div>
+
+                    <div class="form-row form-row--3col">
                         <div class="form-group">
-                            <label for="valorHora">Valor de la Hora Normal (global para todos los días)</label>
+                            <label for="valorHora">Valor Hora Normal</label>
                             <select id="valorHora" required>
-                                <option value="">Seleccione un valor...</option>
+                                <option value="">Seleccione...</option>
                                 <option value="95000">$95.000</option>
                                 <option value="110000">$110.000</option>
                                 <option value="120000">$120.000</option>
@@ -62,15 +71,23 @@
                                 <option value="custom">Otro valor...</option>
                             </select>
                         </div>
-
                         <div class="form-group">
-                            <label for="horasMinimas">Mínimo de Horas (por día)</label>
+                            <label for="horasMinimas">Mínimo Horas</label>
                             <select id="horasMinimas" required>
                                 <option value="0">Sin mínimo</option>
                                 <option value="5">5 horas</option>
                                 <option value="6">6 horas</option>
                                 <option value="8">8 horas</option>
                                 <option value="9">9 horas</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="recargoPorcentaje">% Recargo</label>
+                            <select id="recargoPorcentaje" required>
+                                <option value="0">Sin recargo</option>
+                                <option value="10">10%</option>
+                                <option value="20">20%</option>
+                                <option value="30" selected>30%</option>
                             </select>
                         </div>
                     </div>
@@ -83,6 +100,7 @@
                     <div class="report-table">
                         <div class="report-table-header">
                             <span class="col-dia">Día</span>
+                            <span class="col-fecha">Fecha</span>
                             <span class="col-hora">Hora Inicio</span>
                             <span class="col-hora">Hora Término</span>
                             <span class="col-colacion">Colación</span>
@@ -94,6 +112,7 @@
                                 <span class="day-name">Lunes</span>
                                 <span class="day-tag">Normal</span>
                             </span>
+                            <span class="col-fecha"><input type="date" class="fecha-dia" data-day-index="0"></span>
                             <span class="col-hora"><input type="time" class="hora-inicio"></span>
                             <span class="col-hora"><input type="time" class="hora-termino"></span>
                             <span class="col-colacion">
@@ -118,6 +137,7 @@
                                 <span class="day-name">Martes</span>
                                 <span class="day-tag">Normal</span>
                             </span>
+                            <span class="col-fecha"><input type="date" class="fecha-dia" data-day-index="1"></span>
                             <span class="col-hora"><input type="time" class="hora-inicio"></span>
                             <span class="col-hora"><input type="time" class="hora-termino"></span>
                             <span class="col-colacion">
@@ -142,6 +162,7 @@
                                 <span class="day-name">Miércoles</span>
                                 <span class="day-tag">Normal</span>
                             </span>
+                            <span class="col-fecha"><input type="date" class="fecha-dia" data-day-index="2"></span>
                             <span class="col-hora"><input type="time" class="hora-inicio"></span>
                             <span class="col-hora"><input type="time" class="hora-termino"></span>
                             <span class="col-colacion">
@@ -166,6 +187,7 @@
                                 <span class="day-name">Jueves</span>
                                 <span class="day-tag">Normal</span>
                             </span>
+                            <span class="col-fecha"><input type="date" class="fecha-dia" data-day-index="3"></span>
                             <span class="col-hora"><input type="time" class="hora-inicio"></span>
                             <span class="col-hora"><input type="time" class="hora-termino"></span>
                             <span class="col-colacion">
@@ -190,6 +212,7 @@
                                 <span class="day-name">Viernes</span>
                                 <span class="day-tag">Normal</span>
                             </span>
+                            <span class="col-fecha"><input type="date" class="fecha-dia" data-day-index="4"></span>
                             <span class="col-hora"><input type="time" class="hora-inicio"></span>
                             <span class="col-hora"><input type="time" class="hora-termino"></span>
                             <span class="col-colacion">
@@ -214,6 +237,7 @@
                                 <span class="day-name">Sábado</span>
                                 <span class="day-tag sabado">Sábado</span>
                             </span>
+                            <span class="col-fecha"><input type="date" class="fecha-dia" data-day-index="5"></span>
                             <span class="col-hora"><input type="time" class="hora-inicio"></span>
                             <span class="col-hora"><input type="time" class="hora-termino"></span>
                             <span class="col-colacion">
@@ -238,6 +262,7 @@
                                 <span class="day-name">Domingo</span>
                                 <span class="day-tag domingo">Festivo</span>
                             </span>
+                            <span class="col-fecha"><input type="date" class="fecha-dia" data-day-index="6"></span>
                             <span class="col-hora"><input type="time" class="hora-inicio"></span>
                             <span class="col-hora"><input type="time" class="hora-termino"></span>
                             <span class="col-colacion">
@@ -264,6 +289,9 @@
 
                 <!-- Totales semanales -->
                 <div class="results" id="totalResults">
+                    <div class="result-actions">
+                        <button type="button" id="guardarReporteBtn" class="btn-save">💾 Guardar Registro</button>
+                    </div>
                     <h2>📈 Totales Semanales</h2>
                     <div class="result-item">
                         <span class="result-label">Días incluidos en el cálculo</span>
@@ -300,17 +328,7 @@
         </main>
     </div>
 
-    <script>
-        // Highlight current page in sidebar based on URL
-        const currentPath = window.location.pathname.split('/').pop() || 'index.html';
-        if (currentPath === 'ordenes.html') {
-            document.getElementById('nav-ordenes').classList.add('active');
-        } else if (currentPath === 'reportes.html') {
-            document.getElementById('nav-reportes').classList.add('active');
-        }
-    </script>
-    <script src="shared.js"></script>
-    <script src="reportes.js"></script>
+    <script type="module" src="/src/reportes.js"></script>
 </body>
 
 </html>

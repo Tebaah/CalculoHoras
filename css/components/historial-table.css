@@ -1,0 +1,241 @@
+/* ======================================
+   Component: Historial Table
+   ====================================== */
+
+.historial-table-container {
+    margin-top: 30px;
+    overflow-x: auto;
+    background: var(--color-bg-white);
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.historial-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+}
+
+.historial-table thead {
+    background: var(--color-bg-sidebar);
+    color: var(--color-text-white);
+}
+
+.historial-table th {
+    padding: 20px 24px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 15px;
+    white-space: nowrap;
+}
+
+.historial-table td {
+    padding: 17px 24px;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text-primary);
+    font-size: 14px;
+}
+
+.historial-table tbody tr:hover {
+    background: var(--color-bg-hover, rgba(0, 0, 0, 0.03));
+}
+
+.historial-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.cell-indice {
+    font-weight: 700;
+    color: var(--color-primary-dark);
+    font-family: monospace;
+    font-size: 17px;
+}
+
+.cell-monto {
+    font-weight: 700;
+    color: var(--color-primary-dark);
+    font-size: 15px;
+}
+
+.cell-acciones {
+    white-space: nowrap;
+    text-align: center;
+}
+
+.empty-message {
+    text-align: center;
+    padding: 50px 25px !important;
+    color: var(--color-text-secondary);
+    font-style: italic;
+    font-size: 15px;
+}
+
+/* Botones de acción en la tabla (solo icono) */
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    transition: var(--transition-normal);
+    background: transparent;
+    color: var(--color-text-secondary);
+}
+
+.btn-icon:hover {
+    transform: scale(1.15);
+}
+
+.btn-icon.btn-ver:hover {
+    background: var(--powder-blue);
+    color: var(--color-text-primary);
+}
+
+.btn-icon.btn-editar:hover {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.btn-icon.btn-eliminar:hover {
+    background: var(--color-error-bg, #fde8e8);
+    color: var(--color-error, #c53030);
+}
+
+/* Barra de acciones del historial */
+.historial-actions {
+    margin-bottom: 17px;
+}
+
+.form-row--actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 15px;
+    align-items: end;
+}
+
+.form-row--actions .form-group {
+    margin-bottom: 0;
+}
+
+.form-group--actions .action-btns {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    height: 100%;
+}
+
+/* Botones pequeños (exportar/importar) */
+.btn-sm {
+    padding: 6px 12px;
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    font-family: var(--font-family);
+    background: var(--color-bg-white);
+    color: var(--color-text-primary);
+    transition: var(--transition-normal);
+    white-space: nowrap;
+    line-height: 1.4;
+}
+
+.btn-sm:hover {
+    border-color: var(--powder-blue);
+    background: var(--alice-blue);
+}
+
+.btn-sm-export:hover {
+    border-color: var(--color-primary);
+    background: var(--color-bg-highlight);
+}
+
+.btn-sm-import:hover {
+    border-color: #2e7d32;
+    background: #e8f5e9;
+}
+
+@media (max-width: 768px) {
+    .form-row--actions {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group--actions .action-btns {
+        justify-content: flex-start;
+    }
+}
+
+/* Botón de guardar en resultados */
+.result-actions {
+    margin-bottom: 20px;
+    padding-bottom: 17px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.btn-save {
+    padding: 12px 27px;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    background: var(--color-primary, #2b6cb0);
+    color: white;
+    transition: var(--transition-normal);
+    font-family: var(--font-family);
+}
+
+.btn-save:hover {
+    background: var(--color-primary-dark, #1a365d);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+/* Detalle en la página de historial */
+#detailResults h3 {
+    margin: 17px 0 12px;
+    font-size: 17px;
+    color: var(--color-text-secondary);
+    border-bottom: 2px solid var(--color-border);
+    padding-bottom: 8px;
+}
+
+#detailResults .result-item {
+    padding: 14px 0;
+}
+
+#detailResults .result-label {
+    font-size: 14px;
+}
+
+#detailResults .result-value {
+    font-size: 15px;
+}
+
+.error-msg {
+    color: var(--color-error, #c53030);
+    text-align: center;
+    padding: 25px;
+    font-size: 15px;
+}
+
+@media (max-width: 768px) {
+
+    .historial-table th,
+    .historial-table td {
+        padding: 14px 16px;
+        font-size: 15px;
+    }
+
+    .cell-acciones {
+        display: flex;
+        gap: 4px;
+        justify-content: center;
+    }
+}

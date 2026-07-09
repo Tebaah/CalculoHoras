@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial - Cálculo de Horas</title>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>⏱️ Cálculo de Horas</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="ordenes.html" class="nav-item" id="nav-ordenes">
+                    <span class="nav-icon">📋</span>
+                    <span class="nav-text">Órdenes de Trabajo</span>
+                </a>
+                <a href="reportes.html" class="nav-item" id="nav-reportes">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">Reportes</span>
+                </a>
+                <a href="historial.html" class="nav-item" id="nav-historial">
+                    <span class="nav-icon">📁</span>
+                    <span class="nav-text">Historial</span>
+                </a>
+            </nav>
+        </aside>
+        <main class="main-content">
+            <div class="container container--wide">
+                <h1>📁 Historial de Registros</h1>
+
+                <div class="historial-actions">
+                    <div class="form-row form-row--actions">
+                        <div class="form-group">
+                            <label for="filtroIndice">Buscar por índice</label>
+                            <input type="text" id="filtroIndice" placeholder="Ingrese índice a buscar..."
+                                maxlength="20">
+                        </div>
+                        <div class="form-group">
+                            <label for="filtroTipo">Filtrar por tipo</label>
+                            <select id="filtroTipo">
+                                <option value="todos">Todos</option>
+                                <option value="orden">Órdenes</option>
+                                <option value="reporte">Reportes</option>
+                            </select>
+                        </div>
+                        <div class="form-group form-group--actions">
+                            <label>&nbsp;</label>
+                            <div class="action-btns">
+                                <button type="button" id="exportarBtn" class="btn-sm btn-sm-export">⬇️ Exportar</button>
+                                <button type="button" id="importarBtn" class="btn-sm btn-sm-import">⬆️ Importar</button>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="file" id="fileInput" accept=".json" style="display: none;">
+                </div>
+
+                <div class="historial-table-container">
+                    <table class="historial-table" id="historialTable">
+                        <thead>
+                            <tr>
+                                <th>Índice</th>
+                                <th>Tipo</th>
+                                <th>Fecha</th>
+                                <th>Horas Sin Recargo</th>
+                                <th>Horas Con Recargo</th>
+                                <th>Monto Total</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historialBody">
+                            <tr>
+                                <td colspan="7" class="empty-message">No hay registros almacenados. Realice cálculos en
+                                    Órdenes de Trabajo o Reportes y guárdelos con un índice.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="results" id="detailResults">
+                    <div id="detailContent"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="/src/historial.js"></script>
+</body>
+
+</html>

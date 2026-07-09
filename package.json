@@ -1,0 +1,14 @@
+{
+    "name": "calculo-horas",
+    "version": "1.0.0",
+    "description": "Sistema de Cálculo de Horas y Costos",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview"
+    },
+    "devDependencies": {
+        "vite": "^6.3.5"
+    }
+}

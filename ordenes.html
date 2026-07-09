@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es-CL">
 
 <head>
     <meta charset="UTF-8">
@@ -23,6 +23,10 @@
                     <span class="nav-icon">📊</span>
                     <span class="nav-text">Reportes</span>
                 </a>
+                <a href="historial.html" class="nav-item" id="nav-historial">
+                    <span class="nav-icon">📁</span>
+                    <span class="nav-text">Historial</span>
+                </a>
             </nav>
         </aside>
         <main class="main-content">
@@ -38,24 +42,45 @@
                 </div>
 
                 <form id="calculatorForm">
-                    <div class="form-group">
-                        <label for="tipoDia">Tipo de Día</label>
-                        <select id="tipoDia" required>
-                            <option value="normal">Día normal</option>
-                            <option value="sabado">Día Sábado</option>
-                            <option value="domingoFestivo">Día domingo y festivo</option>
-                        </select>
+                    <div class="form-row form-row--3col">
+                        <div class="form-group">
+                            <label for="indiceOrden">Índice de almacenamiento</label>
+                            <input type="text" id="indiceOrden" placeholder="Ej: 111111" maxlength="20">
+                        </div>
+                        <div class="form-group">
+                            <label for="fechaDia">Fecha del servicio</label>
+                            <input type="date" id="fechaDia" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="tipoDia">Tipo de Día</label>
+                            <select id="tipoDia" required>
+                                <option value="normal">Día normal</option>
+                                <option value="sabado">Día Sábado</option>
+                                <option value="domingoFestivo">Día domingo y festivo</option>
+                            </select>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="horasMinimas">Mínimo de Horas</label>
-                        <select id="horasMinimas" required>
-                            <option value="0">Sin mínimo</option>
-                            <option value="5">5 horas</option>
-                            <option value="6">6 horas</option>
-                            <option value="8">8 horas</option>
-                            <option value="9">9 horas</option>
-                        </select>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="horasMinimas">Mínimo de Horas</label>
+                            <select id="horasMinimas" required>
+                                <option value="0">Sin mínimo</option>
+                                <option value="5">5 horas</option>
+                                <option value="6">6 horas</option>
+                                <option value="8">8 horas</option>
+                                <option value="9">9 horas</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="recargoPorcentaje">% Recargo</label>
+                            <select id="recargoPorcentaje" required>
+                                <option value="0">Sin recargo</option>
+                                <option value="10">10%</option>
+                                <option value="20">20%</option>
+                                <option value="30" selected>30%</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="form-row">
@@ -122,6 +147,9 @@
                 </form>
 
                 <div class="results" id="results">
+                    <div class="result-actions">
+                        <button type="button" id="guardarOrdenBtn" class="btn-save">💾 Guardar Registro</button>
+                    </div>
                     <h2>📊 Resultados</h2>
                     <div class="result-item">
                         <span class="result-label" id="labelSinRecargo">Horas sin recargo (07:00 - 18:00)</span>
@@ -149,17 +177,7 @@
         </main>
     </div>
 
-    <script>
-        // Highlight current page in sidebar based on URL
-        const currentPath = window.location.pathname.split('/').pop() || 'index.html';
-        if (currentPath === 'ordenes.html') {
-            document.getElementById('nav-ordenes').classList.add('active');
-        } else if (currentPath === 'reportes.html') {
-            document.getElementById('nav-reportes').classList.add('active');
-        }
-    </script>
-    <script src="shared.js"></script>
-    <script src="app.js"></script>
+    <script type="module" src="/src/ordenes.js"></script>
 </body>
 
 </html>
