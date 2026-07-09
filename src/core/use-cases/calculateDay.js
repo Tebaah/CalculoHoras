@@ -29,6 +29,7 @@ export function calculateDay(dayData, valorHora) {
         colacionTramo: dayData.colacionTramo,
         horasMinimas: dayData.horasMinimas,
         valorHora,
+        recargoPorcentaje: dayData.recargoPorcentaje,
     });
 
     // Calcular operador
@@ -50,5 +51,7 @@ export function calculateDay(dayData, valorHora) {
         horasDobles: operatorResult.horasDobles,
         horasTotales: serviceResult.horasSinRecargo + serviceResult.horasConRecargo,
         montoTotal: serviceResult.montoTotal,
+        recargoPorcentaje: serviceResult.recargoPorcentaje,
+        valorConRecargo: serviceResult.valorConRecargo,
     };
 }
