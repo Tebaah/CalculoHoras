@@ -23,6 +23,10 @@
                     <span class="nav-icon">📊</span>
                     <span class="nav-text">Reportes</span>
                 </a>
+                <a href="historial.html" class="nav-item" id="nav-historial">
+                    <span class="nav-icon">📁</span>
+                    <span class="nav-text">Historial</span>
+                </a>
             </nav>
         </aside>
         <main class="main-content">
@@ -39,6 +43,11 @@
                 </div>
 
                 <form id="reportForm">
+                    <div class="form-group">
+                        <label for="indiceReporte">Índice de almacenamiento</label>
+                        <input type="text" id="indiceReporte" placeholder="Ej: 222222" maxlength="20">
+                    </div>
+
                     <div class="form-row form-row--3col">
                         <div class="form-group">
                             <label for="valorHora">Valor Hora Normal</label>
@@ -280,6 +289,9 @@
 
                 <!-- Totales semanales -->
                 <div class="results" id="totalResults">
+                    <div class="result-actions">
+                        <button type="button" id="guardarReporteBtn" class="btn-save">💾 Guardar Registro</button>
+                    </div>
                     <h2>📈 Totales Semanales</h2>
                     <div class="result-item">
                         <span class="result-label">Días incluidos en el cálculo</span>

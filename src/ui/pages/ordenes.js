@@ -9,6 +9,7 @@ import { calculateSingleDay } from '../../store/actions/calculatorActions.js';
 import { renderResults } from '../render/renderResults.js';
 import { initSidebar } from '../components/sidebar.js';
 import { getDayTypeFromDate } from '../../core/utils/dateUtils.js';
+import { saveRecord } from '../../store/storageManager.js';
 
 // Elementos del DOM
 const form = document.getElementById('calculatorForm');
@@ -26,6 +27,11 @@ const colacionTramoGroup = document.getElementById('colacionTramoGroup');
 const colacionTramoSelect = document.getElementById('colacionTramo');
 const errorDiv = document.getElementById('errorMessage');
 const resultsDiv = document.getElementById('results');
+const indiceInput = document.getElementById('indiceOrden');
+const guardarBtn = document.getElementById('guardarOrdenBtn');
+
+// Último resultado calculado para poder guardarlo
+let lastCalculatedResult = null;
 
 /**
  * Actualiza el tipo de día automáticamente según la fecha seleccionada
@@ -91,8 +97,68 @@ function handleSubmit(e) {
         const multiplicadorRecargo = 1 + (formData.recargoPorcentaje / 100);
         result.valorConRecargo = formData.valorHora * multiplicadorRecargo;
 
+        // Guardar el resultado y datos del formulario para poder guardar después
+        lastCalculatedResult = {
+            formData: { ...formData },
+            result: { ...result },
+        };
+
         renderResults(result);
         resultsDiv.classList.add('show');
+
+    } catch (error) {
+        errorDiv.textContent = '\u274C ' + error.message;
+        errorDiv.classList.add('show');
+    }
+}
+
+/**
+ * Maneja el guardado del registro actual
+ */
+function handleSave() {
+    errorDiv.classList.remove('show');
+
+    if (!lastCalculatedResult) {
+        errorDiv.textContent = '\u274C Primero debe realizar un cálculo antes de guardar.';
+        errorDiv.classList.add('show');
+        return;
+    }
+
+    const indice = indiceInput.value.trim();
+    if (!indice) {
+        errorDiv.textContent = '\u274C Debe ingresar un índice de almacenamiento.';
+        errorDiv.classList.add('show');
+        return;
+    }
+
+    try {
+        const { formData, result } = lastCalculatedResult;
+
+        const record = {
+            indice,
+            tipo: 'orden',
+            fecha: formData.fecha,
+            horaInicio: formData.horaInicio,
+            horaTermino: formData.horaTermino,
+            colacion: formData.colacion,
+            colacionTramo: formData.colacionTramo,
+            tipoDia: formData.tipoDia,
+            valorHora: formData.valorHora,
+            horasMinimas: formData.horasMinimas,
+            recargoPorcentaje: formData.recargoPorcentaje,
+            horasSinRecargo: result.horasSinRecargo,
+            horasConRecargo: result.horasConRecargo,
+            montoTotal: result.montoTotal,
+        };
+
+        saveRecord(record);
+
+        // Feedback visual
+        const originalText = guardarBtn.textContent;
+        guardarBtn.textContent = '\u2705 Guardado';
+        setTimeout(() => {
+            guardarBtn.textContent = originalText;
+        }, 2000);
 
     } catch (error) {
         errorDiv.textContent = '\u274C ' + error.message;
@@ -126,4 +192,63 @@ export function initOrdenesPage() {
     colacionSelect.addEventListener('change', (e) => {
         colacionTramoGroup.style.display = parseInt(e.target.value) > 0 ? 'block' : 'none';
     });
+
+    guardarBtn.addEventListener('click', handleSave);
+
+    // Cargar datos desde sessionStorage si venimos desde historial (editar)
+    loadEditData();
+}
+
+/**
+ * Carga los datos de edición desde sessionStorage
+ */
+function loadEditData() {
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has('editar')) return;
+
+    const storedData = sessionStorage.getItem('editarRegistro');
+    if (!storedData) return;
+
+    try {
+        const record = JSON.parse(storedData);
+        if (record.tipo !== 'orden') return;
+
+        // Poblar el formulario con los datos del registro
+        if (record.fecha) fechaDiaInput.value = record.fecha;
+        if (record.tipoDia) tipoDiaSelect.value = record.tipoDia;
+        if (record.horaInicio) horaInicioInput.value = record.horaInicio;
+        if (record.horaTermino) horaTerminoInput.value = record.horaTermino;
+        if (record.indice) indiceInput.value = record.indice;
+        if (record.colacion !== undefined) {
+            colacionSelect.value = String(record.colacion);
+            if (record.colacion > 0) {
+                colacionTramoGroup.style.display = 'block';
+                if (record.colacionTramo) colacionTramoSelect.value = record.colacionTramo;
+            }
+        }
+        if (record.horasMinimas !== undefined) horasMinimasSelect.value = String(record.horasMinimas);
+        if (record.recargoPorcentaje !== undefined) recargoPorcentajeSelect.value = String(record.recargoPorcentaje);
+        if (record.valorHora) {
+            const valorPreset = document.querySelector('#valorHora option[value="' + record.valorHora + '"]');
+            if (valorPreset) {
+                valorHoraSelect.value = String(record.valorHora);
+            } else {
+                valorHoraSelect.value = 'custom';
+                customValueGroup.style.display = 'block';
+                customValueInput.value = record.valorHora;
+            }
+        }
+
+        // Actualizar tipo de día según la fecha
+        updateDayTypeFromDate();
+
+        // Limpiar sessionStorage después de cargar
+        sessionStorage.removeItem('editarRegistro');
+
+        // Remover query param de la URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+
+    } catch (error) {
+        console.error('Error al cargar datos de edición:', error);
+    }
 }
