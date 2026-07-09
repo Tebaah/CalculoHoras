@@ -23,6 +23,10 @@
                     <span class="nav-icon">📊</span>
                     <span class="nav-text">Reportes</span>
                 </a>
+                <a href="historial.html" class="nav-item" id="nav-historial">
+                    <span class="nav-icon">📁</span>
+                    <span class="nav-text">Historial</span>
+                </a>
             </nav>
         </aside>
         <main class="main-content">
@@ -38,7 +42,11 @@
                 </div>
 
                 <form id="calculatorForm">
-                    <div class="form-row">
+                    <div class="form-row form-row--3col">
+                        <div class="form-group">
+                            <label for="indiceOrden">Índice de almacenamiento</label>
+                            <input type="text" id="indiceOrden" placeholder="Ej: 111111" maxlength="20">
+                        </div>
                         <div class="form-group">
                             <label for="fechaDia">Fecha del servicio</label>
                             <input type="date" id="fechaDia" required>
@@ -139,6 +147,9 @@
                 </form>
 
                 <div class="results" id="results">
+                    <div class="result-actions">
+                        <button type="button" id="guardarOrdenBtn" class="btn-save">💾 Guardar Registro</button>
+                    </div>
                     <h2>📊 Resultados</h2>
                     <div class="result-item">
                         <span class="result-label" id="labelSinRecargo">Horas sin recargo (07:00 - 18:00)</span>
