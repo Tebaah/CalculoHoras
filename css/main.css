@@ -21,6 +21,7 @@
 @import url('components/results.css');
 @import url('components/welcome-card.css');
 @import url('components/report-table.css');
+@import url('components/historial-table.css');
 
 /* Pages */
 @import url('pages/home.css');
