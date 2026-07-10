@@ -126,14 +126,6 @@ function handleViewDetail(indice) {
             '<span class="result-label">Total horas con recargo</span>' +
             '<span class="result-value">' + formatHours(totales.totalConRecargo || 0) + '</span>' +
             '</div>' +
-            '<div class="result-item">' +
-            '<span class="result-label">Total horas normales operador</span>' +
-            '<span class="result-value">' + formatHours(totales.totalNormalesOp || 0) + '</span>' +
-            '</div>' +
-            '<div class="result-item">' +
-            '<span class="result-label">Total horas dobles operador</span>' +
-            '<span class="result-value">' + formatHours(totales.totalDoblesOp || 0) + '</span>' +
-            '</div>' +
             '<div class="result-item total">' +
             '<span class="result-label">Monto Total</span>' +
             '<span class="result-value">' + formatCurrency(totales.totalMonto || 0) + '</span>' +

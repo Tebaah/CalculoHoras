@@ -30,50 +30,50 @@ const totalResultsDiv = document.getElementById('totalResults');
 const diasIncluidosEl = document.getElementById('diasIncluidos');
 const totalSinRecargoEl = document.getElementById('totalSinRecargo');
 const totalConRecargoEl = document.getElementById('totalConRecargo');
-const totalNormalesOpEl = document.getElementById('totalNormalesOp');
-const totalDoblesOpEl = document.getElementById('totalDoblesOp');
 const totalMontoEl = document.getElementById('totalMonto');
 const pagoDetalleItemsEl = document.getElementById('pagoDetalleItems');
 
 // Estado interno
-let itemsAgregados = []; // Array de registros completos
-let ultimoResultadoBusqueda = null; // Último registro encontrado en la búsqueda
+let itemsAgregados = [];
+let ultimoResultadoBusqueda = null;
 
 /**
  * Renderiza el detalle de un registro encontrado en la búsqueda
- * @param {Object} record - Registro completo
  */
 function renderSearchResult(record) {
     let html = '<div class="search-result-card">';
     html += '<div class="search-result-header">';
-    html += '<span class="search-result-type">' + (record.tipo === 'orden' ? '📋 Orden de Trabajo' : '📊 Reporte Semanal') + '</span>';
+    const tipoTexto = record.tipo === 'orden' ? '📋 Orden de Trabajo' : '📊 Reporte Semanal';
+    html += '<span class="search-result-type">' + tipoTexto + '</span>';
     html += '<span class="search-result-indice">#' + record.indice + '</span>';
     html += '</div>';
 
     if (record.tipo === 'orden') {
         html += '<div class="search-result-body">';
         html += '<div class="result-item"><span class="result-label">Fecha</span><span class="result-value">' + (record.fecha || '—') + '</span></div>';
-        html += '<div class="result-item"><span class="result-label">Hora Inicio</span><span class="result-value">' + (record.horaInicio || '—') + '</span></div>';
-        html += '<div class="result-item"><span class="result-label">Hora Término</span><span class="result-value">' + (record.horaTermino || '—') + '</span></div>';
+        html += '<div class="result-item"><span class="result-label">Horario</span><span class="result-value">' + (record.horaInicio || '—') + ' - ' + (record.horaTermino || '—') + '</span></div>';
         html += '<div class="result-item"><span class="result-label">Colación</span><span class="result-value">' + (record.colacion || 0) + ' min</span></div>';
+        html += '<div class="result-item"><span class="result-label">Valor hora</span><span class="result-value">' + formatHourRate(record.valorHora || 0) + '</span></div>';
         html += '<div class="result-item"><span class="result-label">Horas sin recargo</span><span class="result-value">' + formatHours(record.horasSinRecargo || 0) + '</span></div>';
         html += '<div class="result-item"><span class="result-label">Horas con recargo</span><span class="result-value">' + formatHours(record.horasConRecargo || 0) + '</span></div>';
-        html += '<div class="result-item"><span class="result-label">Valor hora normal</span><span class="result-value">' + formatHourRate(record.valorHora || 0) + '</span></div>';
         html += '<div class="result-item total"><span class="result-label">Monto Total</span><span class="result-value">' + formatCurrency(record.montoTotal || 0) + '</span></div>';
         html += '</div>';
     } else {
         // Reporte
         html += '<div class="search-result-body">';
-        html += '<div class="result-item"><span class="result-label">Días incluidos</span><span class="result-value">' + (record.dias ? record.dias.length : 0) + '</span></div>';
+        html += '<div class="result-item"><span class="result-label">Valor hora</span><span class="result-value">' + formatHourRate(record.valorHora || 0) + '</span></div>';
 
         if (record.dias && record.dias.length > 0) {
+            html += '<h3 style="font-size:14px;margin:10px 0 6px;color:var(--color-text-secondary);">Días del reporte</h3>';
             html += '<div class="search-result-dias">';
             record.dias.forEach((dia, i) => {
                 const nombreDia = NOMBRES_DIAS[dia.dia] || dia.dia || 'Día ' + (i + 1);
                 const fechaStr = dia.fecha ? ' (' + dia.fecha + ')' : '';
+                const hSR = formatHours(dia.horasSinRecargo || 0);
+                const hCR = formatHours(dia.horasConRecargo || 0);
                 html += '<div class="result-item result-item--small">';
                 html += '<span class="result-label">' + nombreDia + fechaStr + '</span>';
-                html += '<span class="result-value">' + (dia.horaInicio || '—') + ' - ' + (dia.horaTermino || '—') + ' | Col: ' + (dia.colacion || 0) + ' min</span>';
+                html += '<span class="result-value">' + (dia.horaInicio || '—') + ' - ' + (dia.horaTermino || '—') + ' | Col: ' + (dia.colacion || 0) + ' min | SR: ' + hSR + ' / CR: ' + hCR + '</span>';
                 html += '</div>';
             });
             html += '</div>';
@@ -82,7 +82,6 @@ function renderSearchResult(record) {
         const totales = record.totales || {};
         html += '<div class="result-item"><span class="result-label">Total horas sin recargo</span><span class="result-value">' + formatHours(totales.horasSinRecargo || 0) + '</span></div>';
         html += '<div class="result-item"><span class="result-label">Total horas con recargo</span><span class="result-value">' + formatHours(totales.horasConRecargo || 0) + '</span></div>';
-        html += '<div class="result-item"><span class="result-label">Valor hora normal</span><span class="result-value">' + formatHourRate(record.valorHora || 0) + '</span></div>';
         html += '<div class="result-item total"><span class="result-label">Monto Total</span><span class="result-value">' + formatCurrency(totales.montoTotal || 0) + '</span></div>';
         html += '</div>';
     }
@@ -93,9 +92,6 @@ function renderSearchResult(record) {
     agregarItemBtn.style.display = 'inline-flex';
 }
 
-/**
- * Maneja la búsqueda de un registro por índice
- */
 function handleSearch() {
     errorDiv.classList.remove('show');
     searchResult.style.display = 'none';
@@ -121,7 +117,6 @@ function handleSearch() {
         return;
     }
 
-    // Verificar si ya está agregado
     const yaAgregado = itemsAgregados.some(item => item.indice === record.indice);
     if (yaAgregado) {
         errorDiv.textContent = '\u274C Este registro ya está agregado al estado de pago.';
@@ -133,9 +128,6 @@ function handleSearch() {
     renderSearchResult(record);
 }
 
-/**
- * Agrega el último registro buscado a la lista de items
- */
 function handleAddItem() {
     if (!ultimoResultadoBusqueda) return;
 
@@ -148,10 +140,6 @@ function handleAddItem() {
     calcularTotales();
 }
 
-/**
- * Elimina un item de la lista por su índice
- * @param {string} indice
- */
 function handleRemoveItem(indice) {
     itemsAgregados = itemsAgregados.filter(item => item.indice !== indice);
     actualizarItemsList();
@@ -159,8 +147,36 @@ function handleRemoveItem(indice) {
 }
 
 /**
- * Actualiza la visualización de la lista de items
+ * Obtiene el desglose de horas por día para un reporte
  */
+function obtenerDiasReporte(item) {
+    if (item.tipo === 'orden') {
+        return [{
+            nombre: NOMBRES_DIAS[item.tipoDia] || item.tipoDia || 'Día',
+            fecha: item.fecha || '—',
+            horaInicio: item.horaInicio || '—',
+            horaTermino: item.horaTermino || '—',
+            colacion: item.colacion || 0,
+            horasSinRecargo: item.horasSinRecargo || 0,
+            horasConRecargo: item.horasConRecargo || 0,
+        }];
+    }
+
+    if (item.dias && item.dias.length > 0) {
+        return item.dias.map(dia => ({
+            nombre: NOMBRES_DIAS[dia.dia] || dia.dia || 'Día',
+            fecha: dia.fecha || '—',
+            horaInicio: dia.horaInicio || '—',
+            horaTermino: dia.horaTermino || '—',
+            colacion: dia.colacion || 0,
+            horasSinRecargo: dia.horasSinRecargo || 0,
+            horasConRecargo: dia.horasConRecargo || 0,
+        }));
+    }
+
+    return [];
+}
+
 function actualizarItemsList() {
     if (itemsAgregados.length === 0) {
         pagoItemsList.style.display = 'none';
@@ -174,60 +190,37 @@ function actualizarItemsList() {
     itemsCount.textContent = '(' + itemsAgregados.length + ')';
 
     let html = '';
-    itemsAgregados.forEach((item, index) => {
+    itemsAgregados.forEach((item) => {
         const tipoIcono = item.tipo === 'orden' ? '📋' : '📊';
         const tipoLabel = item.tipo === 'orden' ? 'Orden de Trabajo' : 'Reporte Semanal';
 
         html += '<div class="pago-item-card">';
         html += '<div class="pago-item-header">';
         html += '<span class="pago-item-title">' + tipoIcono + ' ' + tipoLabel + ' #' + item.indice + '</span>';
+        html += '<span class="pago-item-valorhora">Valor hora: ' + formatHourRate(item.valorHora || 0) + '</span>';
         html += '<button type="button" class="btn-remove-item" data-indice="' + item.indice + '" title="Eliminar">🗑️</button>';
         html += '</div>';
         html += '<div class="pago-item-body">';
 
-        if (item.tipo === 'orden') {
-            html += '<div class="result-item"><span class="result-label">Fecha</span><span class="result-value">' + (item.fecha || '—') + '</span></div>';
-            html += '<div class="result-item"><span class="result-label">Horario</span><span class="result-value">' + (item.horaInicio || '—') + ' - ' + (item.horaTermino || '—') + '</span></div>';
-            html += '<div class="result-item"><span class="result-label">Colación</span><span class="result-value">' + (item.colacion || 0) + ' min</span></div>';
-            html += '<div class="result-item"><span class="result-label">Horas sin recargo</span><span class="result-value">' + formatHours(item.horasSinRecargo || 0) + '</span></div>';
-            html += '<div class="result-item"><span class="result-label">Horas con recargo</span><span class="result-value">' + formatHours(item.horasConRecargo || 0) + '</span></div>';
-            html += '<div class="result-item total"><span class="result-label">Monto</span><span class="result-value">' + formatCurrency(item.montoTotal || 0) + '</span></div>';
-        } else {
-            html += '<div class="result-item"><span class="result-label">Días incluidos</span><span class="result-value">' + (item.dias ? item.dias.length : 0) + '</span></div>';
-
-            if (item.dias && item.dias.length > 0) {
-                html += '<div class="pago-item-dias">';
-                item.dias.forEach((dia, i) => {
-                    const nombreDia = NOMBRES_DIAS[dia.dia] || dia.dia || 'Día ' + (i + 1);
-                    const fechaStr = dia.fecha ? ' (' + dia.fecha + ')' : '';
-                    html += '<div class="result-item result-item--small">';
-                    html += '<span class="result-label">' + nombreDia + fechaStr + '</span>';
-                    html += '<span class="result-value">' + (dia.horaInicio || '—') + ' - ' + (dia.horaTermino || '—') + ' | Col: ' + (dia.colacion || 0) + ' min</span>';
-                    html += '</div>';
-                });
-                html += '</div>';
-            }
-
-            const totales = item.totales || {};
-            html += '<div class="result-item"><span class="result-label">Total horas sin recargo</span><span class="result-value">' + formatHours(totales.horasSinRecargo || 0) + '</span></div>';
-            html += '<div class="result-item"><span class="result-label">Total horas con recargo</span><span class="result-value">' + formatHours(totales.horasConRecargo || 0) + '</span></div>';
-            html += '<div class="result-item total"><span class="result-label">Monto</span><span class="result-value">' + formatCurrency(totales.montoTotal || 0) + '</span></div>';
-        }
+        // Mostrar cada día con sus horas
+        const dias = obtenerDiasReporte(item);
+        dias.forEach((dia) => {
+            html += '<div class="result-item result-item--day">';
+            html += '<span class="result-label">' + dia.nombre + (dia.fecha !== '—' ? ' (' + dia.fecha + ')' : '') + '</span>';
+            html += '<span class="result-value">' + dia.horaInicio + ' - ' + dia.horaTermino + ' | Col: ' + dia.colacion + ' min | ' + formatHours(dia.horasSinRecargo) + ' SR / ' + formatHours(dia.horasConRecargo) + ' CR</span>';
+            html += '</div>';
+        });
 
         html += '</div></div>';
     });
 
     itemsContainer.innerHTML = html;
 
-    // Asignar event listeners a los botones de eliminar
     itemsContainer.querySelectorAll('.btn-remove-item').forEach((btn) => {
         btn.addEventListener('click', () => handleRemoveItem(btn.dataset.indice));
     });
 }
 
-/**
- * Calcula los totales consolidados de todos los items agregados
- */
 function calcularTotales() {
     if (itemsAgregados.length === 0) {
         totalResultsDiv.classList.remove('show');
@@ -236,8 +229,6 @@ function calcularTotales() {
 
     let totalSinRecargo = 0;
     let totalConRecargo = 0;
-    let totalNormalesOp = 0;
-    let totalDoblesOp = 0;
     let totalMonto = 0;
     const detalleItems = [];
 
@@ -246,30 +237,29 @@ function calcularTotales() {
             totalSinRecargo += item.horasSinRecargo || 0;
             totalConRecargo += item.horasConRecargo || 0;
             totalMonto += item.montoTotal || 0;
-            // Órdenes no tienen desglose de operador, asumimos 0
+            const valorConRecargo = (item.valorHora || 0) * (1 + ((item.recargoPorcentaje || 30) / 100));
             detalleItems.push({
                 indice: item.indice,
                 tipo: 'orden',
                 horasSinRecargo: item.horasSinRecargo || 0,
                 horasConRecargo: item.horasConRecargo || 0,
                 valorHora: item.valorHora || 0,
-                valueConRecargo: (item.valorHora || 0) * (1 + ((item.recargoPorcentaje || 30) / 100)),
+                valorConRecargo,
                 monto: item.montoTotal || 0,
             });
         } else {
             const totales = item.totales || {};
             totalSinRecargo += totales.horasSinRecargo || 0;
             totalConRecargo += totales.horasConRecargo || 0;
-            totalNormalesOp += totales.horasNormalesOp || 0;
-            totalDoblesOp += totales.horasDobles || 0;
             totalMonto += totales.montoTotal || 0;
+            const valorConRecargo = (item.valorHora || 0) * (1 + ((item.recargoPorcentaje || 30) / 100));
             detalleItems.push({
                 indice: item.indice,
                 tipo: 'reporte',
                 horasSinRecargo: totales.horasSinRecargo || 0,
                 horasConRecargo: totales.horasConRecargo || 0,
                 valorHora: item.valorHora || 0,
-                valueConRecargo: (item.valorHora || 0) * (1 + ((item.recargoPorcentaje || 30) / 100)),
+                valorConRecargo,
                 monto: totales.montoTotal || 0,
             });
         }
@@ -284,7 +274,7 @@ function calcularTotales() {
         detalleHtml += '<div class="result-item"><span class="result-label">Horas sin recargo</span><span class="result-value">' + formatHours(det.horasSinRecargo) + '</span></div>';
         detalleHtml += '<div class="result-item"><span class="result-label">Horas con recargo</span><span class="result-value">' + formatHours(det.horasConRecargo) + '</span></div>';
         detalleHtml += '<div class="result-item"><span class="result-label">Valor hora normal</span><span class="result-value">' + formatHourRate(det.valorHora) + '</span></div>';
-        detalleHtml += '<div class="result-item"><span class="result-label">Valor hora con recargo</span><span class="result-value">' + formatHourRate(det.valueConRecargo) + '</span></div>';
+        detalleHtml += '<div class="result-item"><span class="result-label">Valor hora con recargo</span><span class="result-value">' + formatHourRate(det.valorConRecargo) + '</span></div>';
         detalleHtml += '<div class="result-item total"><span class="result-label">Monto</span><span class="result-value">' + formatCurrency(det.monto) + '</span></div>';
         detalleHtml += '</div>';
     });
@@ -293,16 +283,11 @@ function calcularTotales() {
     diasIncluidosEl.textContent = itemsAgregados.length + ' elemento(s)';
     totalSinRecargoEl.textContent = formatHours(totalSinRecargo);
     totalConRecargoEl.textContent = formatHours(totalConRecargo);
-    totalNormalesOpEl.textContent = formatHours(totalNormalesOp);
-    totalDoblesOpEl.textContent = formatHours(totalDoblesOp);
     totalMontoEl.textContent = formatCurrency(totalMonto);
 
     totalResultsDiv.classList.add('show');
 }
 
-/**
- * Maneja el guardado del estado de pago
- */
 function handleSavePago() {
     errorDiv.classList.remove('show');
 
@@ -320,11 +305,8 @@ function handleSavePago() {
     }
 
     try {
-        // Calcular totales para guardar
         let totalSinRecargo = 0;
         let totalConRecargo = 0;
-        let totalNormalesOp = 0;
-        let totalDoblesOp = 0;
         let totalMonto = 0;
         const detalleItems = [];
 
@@ -347,8 +329,6 @@ function handleSavePago() {
                 const totales = item.totales || {};
                 totalSinRecargo += totales.horasSinRecargo || 0;
                 totalConRecargo += totales.horasConRecargo || 0;
-                totalNormalesOp += totales.horasNormalesOp || 0;
-                totalDoblesOp += totales.horasDobles || 0;
                 totalMonto += totales.montoTotal || 0;
                 const valorConRecargo = (item.valorHora || 0) * (1 + ((item.recargoPorcentaje || 30) / 100));
                 detalleItems.push({
@@ -370,8 +350,6 @@ function handleSavePago() {
             totales: {
                 totalSinRecargo,
                 totalConRecargo,
-                totalNormalesOp,
-                totalDoblesOp,
                 totalMonto,
                 detalleItems,
             },
@@ -379,7 +357,6 @@ function handleSavePago() {
 
         saveRecord(record);
 
-        // Feedback visual
         const originalText = guardarBtn.textContent;
         guardarBtn.textContent = '\u2705 Guardado';
         setTimeout(() => {
@@ -392,13 +369,9 @@ function handleSavePago() {
     }
 }
 
-/**
- * Inicializa los event listeners de la página de estados de pago
- */
 export function initPagosPage() {
     initSidebar();
 
-    // Prevenir que el formulario se envíe (los botones manejan todo manualmente)
     document.getElementById('pagoForm').addEventListener('submit', (e) => {
         e.preventDefault();
     });
@@ -414,13 +387,9 @@ export function initPagosPage() {
 
     guardarBtn.addEventListener('click', handleSavePago);
 
-    // Cargar datos desde sessionStorage si venimos desde historial (editar)
     loadEditData();
 }
 
-/**
- * Carga los datos de edición desde sessionStorage
- */
 function loadEditData() {
     const params = new URLSearchParams(window.location.search);
     if (!params.has('editar')) return;
@@ -432,20 +401,15 @@ function loadEditData() {
         const record = JSON.parse(storedData);
         if (record.tipo !== 'pago') return;
 
-        // Poblar índice
         if (record.indice) indicePagoInput.value = record.indice;
 
-        // Cargar items
         if (record.items && record.items.length > 0) {
             itemsAgregados = record.items.map(item => ({ ...item }));
             actualizarItemsList();
             calcularTotales();
         }
 
-        // Limpiar sessionStorage después de cargar
         sessionStorage.removeItem('editarRegistro');
-
-        // Remover query param de la URL
         window.history.replaceState({}, document.title, window.location.pathname);
 
     } catch (error) {
