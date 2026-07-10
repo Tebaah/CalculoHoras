@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estados de Pago - Cálculo de Horas</title>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>⏱️ Cálculo de Horas</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="ordenes.html" class="nav-item" id="nav-ordenes">
+                    <span class="nav-icon">📋</span>
+                    <span class="nav-text">Órdenes de Trabajo</span>
+                </a>
+                <a href="reportes.html" class="nav-item" id="nav-reportes">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">Reportes</span>
+                </a>
+                <a href="pagos.html" class="nav-item active" id="nav-pagos">
+                    <span class="nav-icon">💰</span>
+                    <span class="nav-text">Estados de Pago</span>
+                </a>
+                <a href="historial.html" class="nav-item" id="nav-historial">
+                    <span class="nav-icon">📁</span>
+                    <span class="nav-text">Historial</span>
+                </a>
+            </nav>
+        </aside>
+        <main class="main-content">
+            <div class="container pagos-container">
+                <h1>💰 Estado de Pago</h1>
+
+                <div class="info-box">
+                    <strong>Instrucciones:</strong> Busque registros existentes (órdenes de trabajo o reportes
+                    semanales)
+                    por su índice para agregarlos a este estado de pago. Luego guarde el conjunto como un nuevo
+                    registro.
+                </div>
+
+                <form id="pagoForm">
+                    <div class="form-group">
+                        <label for="indicePago">Índice de almacenamiento</label>
+                        <input type="text" id="indicePago" placeholder="Ej: 333333" maxlength="20">
+                    </div>
+
+                    <div class="pago-items-header">
+                        <h2>📋 Elementos del Estado de Pago</h2>
+                    </div>
+
+                    <!-- Buscador de registros -->
+                    <div class="pago-search-row">
+                        <div class="form-group form-group--inline">
+                            <label for="buscarIndice">Buscar registro por índice</label>
+                            <div class="search-input-group">
+                                <input type="text" id="buscarIndice" placeholder="Ingrese el índice del registro..."
+                                    maxlength="20">
+                                <button type="button" id="buscarBtn" class="btn-search">🔍 Buscar</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resultado de la búsqueda -->
+                    <div class="pago-search-result" id="searchResult" style="display: none;">
+                        <div id="searchResultContent"></div>
+                        <div class="pago-search-actions">
+                            <button type="button" id="agregarItemBtn" class="btn-add">➕ Agregar a lista</button>
+                        </div>
+                    </div>
+
+                    <!-- Lista de items agregados -->
+                    <div class="pago-items-list" id="pagoItemsList" style="display: none;">
+                        <h3>Elementos agregados <span id="itemsCount">(0)</span></h3>
+                        <div id="itemsContainer"></div>
+                    </div>
+
+                    <div id="pagoEmptyMessage" class="pago-empty">No hay elementos agregados. Busque y agregue registros
+                        usando el campo superior.</div>
+
+                    <div class="error" id="errorMessage"></div>
+                </form>
+
+                <!-- Totales del estado de pago -->
+                <div class="results" id="totalResults">
+                    <h2>📈 Totales del Estado de Pago</h2>
+
+                    <div class="result-item">
+                        <span class="result-label">Elementos incluidos</span>
+                        <span class="result-value" id="diasIncluidos">0</span>
+                    </div>
+
+                    <div class="pago-detalle-items" id="pagoDetalleItems"></div>
+
+                    <div class="result-item">
+                        <span class="result-label">Total horas sin recargo</span>
+                        <span class="result-value" id="totalSinRecargo">0.00 h</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Total horas con recargo</span>
+                        <span class="result-value" id="totalConRecargo">0.00 h</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Total horas normales operador</span>
+                        <span class="result-value" id="totalNormalesOp">0.00 h</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Total horas dobles operador</span>
+                        <span class="result-value" id="totalDoblesOp">0.00 h</span>
+                    </div>
+                    <div class="result-item total">
+                        <span class="result-label">Monto Total</span>
+                        <span class="result-value" id="totalMonto">$0</span>
+                    </div>
+
+                    <div class="result-actions">
+                        <button type="button" id="guardarPagoBtn" class="btn-save">💾 Guardar Estado de Pago</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="/src/pagos.js"></script>
+</body>
+
+</html>
