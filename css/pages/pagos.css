@@ -40,7 +40,7 @@
 .search-input-group {
     display: flex;
     gap: 8px;
-    align-items: stretch;
+    align-items: center;
     width: 100%;
 }
 
