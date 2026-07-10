@@ -268,17 +268,7 @@ function calcularTotales() {
         }
     });
 
-    // Mostrar items incluidos con sus montos
-    let resumenHtml = '<h3>Elementos incluidos</h3>';
-    detalleItems.forEach((det) => {
-        const tipoLabel = det.tipo === 'orden' ? '📋 Orden' : '📊 Reporte';
-        resumenHtml += '<div class="result-item">';
-        resumenHtml += '<span class="result-label">' + tipoLabel + ' #' + det.indice + '</span>';
-        resumenHtml += '<span class="result-value">' + formatCurrency(det.monto) + '</span>';
-        resumenHtml += '</div>';
-    });
-
-    pagoDetalleItemsEl.innerHTML = resumenHtml;
+    pagoDetalleItemsEl.innerHTML = '';
     diasIncluidosEl.textContent = itemsAgregados.length + ' elemento(s)';
 
     // Mostrar valor hora en los labels (usar el primer item como referencia)
