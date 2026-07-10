@@ -10,6 +10,7 @@ import { initSidebar } from '../components/sidebar.js';
 import { getRecordDetail, saveRecord } from '../../store/storageManager.js';
 import { formatCurrency, formatHours, formatHourRate } from '../../core/utils/formatUtils.js';
 import { NOMBRES_DIAS } from '../../core/constants.js';
+import { timeToMinutes } from '../../core/utils/timeUtils.js';
 
 // Elementos del DOM
 const indicePagoInput = document.getElementById('indicePago');
@@ -149,31 +150,56 @@ function handleRemoveItem(indice) {
 }
 
 /**
+ * Calcula las horas totales de un día a partir de hora inicio y término
+ * (compatibilidad con registros antiguos que no guardan horas por día)
+ */
+function calcularHorasDesdeHorario(horaInicio, horaTermino) {
+    if (!horaInicio || !horaTermino) return 0;
+    try {
+        const startMin = timeToMinutes(horaInicio);
+        const endMin = timeToMinutes(horaTermino);
+        const cruzaMedianoche = endMin < startMin;
+        const totalMinutos = cruzaMedianoche ? (endMin + 1440 - startMin) : (endMin - startMin);
+        return totalMinutos / 60;
+    } catch (e) {
+        return 0;
+    }
+}
+
+/**
  * Obtiene el desglose de horas por día para un reporte
  */
 function obtenerDiasReporte(item) {
     if (item.tipo === 'orden') {
+        const hr = item.horasSinRecargo || 0;
+        const hc = item.horasConRecargo || 0;
         return [{
             nombre: NOMBRES_DIAS[item.tipoDia] || item.tipoDia || 'Día',
             fecha: item.fecha || '—',
             horaInicio: item.horaInicio || '—',
             horaTermino: item.horaTermino || '—',
             colacion: item.colacion || 0,
-            horasSinRecargo: item.horasSinRecargo || 0,
-            horasConRecargo: item.horasConRecargo || 0,
+            horasSinRecargo: hr,
+            horasConRecargo: hc,
+            horasTotales: hr + hc || calcularHorasDesdeHorario(item.horaInicio, item.horaTermino),
         }];
     }
 
     if (item.dias && item.dias.length > 0) {
-        return item.dias.map(dia => ({
-            nombre: NOMBRES_DIAS[dia.dia] || dia.dia || 'Día',
-            fecha: dia.fecha || '—',
-            horaInicio: dia.horaInicio || '—',
-            horaTermino: dia.horaTermino || '—',
-            colacion: dia.colacion || 0,
-            horasSinRecargo: dia.horasSinRecargo || 0,
-            horasConRecargo: dia.horasConRecargo || 0,
-        }));
+        return item.dias.map(dia => {
+            const hr = dia.horasSinRecargo || 0;
+            const hc = dia.horasConRecargo || 0;
+            return {
+                nombre: NOMBRES_DIAS[dia.dia] || dia.dia || 'Día',
+                fecha: dia.fecha || '—',
+                horaInicio: dia.horaInicio || '—',
+                horaTermino: dia.horaTermino || '—',
+                colacion: dia.colacion || 0,
+                horasSinRecargo: hr,
+                horasConRecargo: hc,
+                horasTotales: hr + hc || calcularHorasDesdeHorario(dia.horaInicio, dia.horaTermino),
+            };
+        });
     }
 
     return [];
@@ -207,10 +233,9 @@ function actualizarItemsList() {
         // Mostrar cada día con sus horas (solo total de horas por día)
         const dias = obtenerDiasReporte(item);
         dias.forEach((dia) => {
-            const totalHoras = (dia.horasSinRecargo || 0) + (dia.horasConRecargo || 0);
             html += '<div class="result-item result-item--day">';
             html += '<span class="result-label">' + dia.nombre + (dia.fecha !== '—' ? ' (' + dia.fecha + ')' : '') + '</span>';
-            html += '<span class="result-value">' + dia.horaInicio + ' - ' + dia.horaTermino + ' | Col: ' + dia.colacion + ' min | ' + formatHours(totalHoras) + '</span>';
+            html += '<span class="result-value">' + dia.horaInicio + ' - ' + dia.horaTermino + ' | Colación: ' + dia.colacion + ' min | ' + formatHours(dia.horasTotales) + '</span>';
             html += '</div>';
         });
 
