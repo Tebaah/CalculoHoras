@@ -46,6 +46,8 @@
 
 .search-input-group input {
     flex: 1;
+    min-width: 0;
+    width: auto;
     padding: 12px 14px;
     border: 2px solid var(--color-border);
     border-radius: var(--radius-sm);
@@ -54,7 +56,6 @@
     transition: var(--transition-normal);
     background: var(--color-bg-white);
     color: var(--color-text-primary);
-    min-width: 0;
 }
 
 .search-input-group input:focus {
