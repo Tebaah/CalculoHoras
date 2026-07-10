@@ -1,4 +1,4 @@
-/**
+/**       
  * pagos.js - Lógica de la página "Estados de Pago"
  *
  * Permite agrupar órdenes de trabajo y reportes semanales existentes
@@ -31,6 +31,8 @@ const diasIncluidosEl = document.getElementById('diasIncluidos');
 const totalSinRecargoEl = document.getElementById('totalSinRecargo');
 const totalConRecargoEl = document.getElementById('totalConRecargo');
 const totalMontoEl = document.getElementById('totalMonto');
+const labelSinRecargoEl = document.getElementById('labelSinRecargo');
+const labelConRecargoEl = document.getElementById('labelConRecargo');
 const pagoDetalleItemsEl = document.getElementById('pagoDetalleItems');
 
 // Estado interno
@@ -202,12 +204,13 @@ function actualizarItemsList() {
         html += '</div>';
         html += '<div class="pago-item-body">';
 
-        // Mostrar cada día con sus horas
+        // Mostrar cada día con sus horas (solo total de horas por día)
         const dias = obtenerDiasReporte(item);
         dias.forEach((dia) => {
+            const totalHoras = (dia.horasSinRecargo || 0) + (dia.horasConRecargo || 0);
             html += '<div class="result-item result-item--day">';
             html += '<span class="result-label">' + dia.nombre + (dia.fecha !== '—' ? ' (' + dia.fecha + ')' : '') + '</span>';
-            html += '<span class="result-value">' + dia.horaInicio + ' - ' + dia.horaTermino + ' | Col: ' + dia.colacion + ' min | ' + formatHours(dia.horasSinRecargo) + ' SR / ' + formatHours(dia.horasConRecargo) + ' CR</span>';
+            html += '<span class="result-value">' + dia.horaInicio + ' - ' + dia.horaTermino + ' | Col: ' + dia.colacion + ' min | ' + formatHours(totalHoras) + '</span>';
             html += '</div>';
         });
 
@@ -265,22 +268,34 @@ function calcularTotales() {
         }
     });
 
-    // Renderizar detalle por item
-    let detalleHtml = '<h3>Detalle por elemento</h3>';
+    // Mostrar items incluidos con sus montos
+    let resumenHtml = '<h3>Elementos incluidos</h3>';
     detalleItems.forEach((det) => {
         const tipoLabel = det.tipo === 'orden' ? '📋 Orden' : '📊 Reporte';
-        detalleHtml += '<div class="pago-detalle-item">';
-        detalleHtml += '<div class="pago-detalle-item-header">' + tipoLabel + ' #' + det.indice + '</div>';
-        detalleHtml += '<div class="result-item"><span class="result-label">Horas sin recargo</span><span class="result-value">' + formatHours(det.horasSinRecargo) + '</span></div>';
-        detalleHtml += '<div class="result-item"><span class="result-label">Horas con recargo</span><span class="result-value">' + formatHours(det.horasConRecargo) + '</span></div>';
-        detalleHtml += '<div class="result-item"><span class="result-label">Valor hora normal</span><span class="result-value">' + formatHourRate(det.valorHora) + '</span></div>';
-        detalleHtml += '<div class="result-item"><span class="result-label">Valor hora con recargo</span><span class="result-value">' + formatHourRate(det.valorConRecargo) + '</span></div>';
-        detalleHtml += '<div class="result-item total"><span class="result-label">Monto</span><span class="result-value">' + formatCurrency(det.monto) + '</span></div>';
-        detalleHtml += '</div>';
+        resumenHtml += '<div class="result-item">';
+        resumenHtml += '<span class="result-label">' + tipoLabel + ' #' + det.indice + '</span>';
+        resumenHtml += '<span class="result-value">' + formatCurrency(det.monto) + '</span>';
+        resumenHtml += '</div>';
     });
 
-    pagoDetalleItemsEl.innerHTML = detalleHtml;
+    pagoDetalleItemsEl.innerHTML = resumenHtml;
     diasIncluidosEl.textContent = itemsAgregados.length + ' elemento(s)';
+
+    // Mostrar valor hora en los labels (usar el primer item como referencia)
+    let valorHoraNormal = 0;
+    let valorConRecargo = 0;
+    if (detalleItems.length > 0) {
+        valorHoraNormal = detalleItems[0].valorHora;
+        valorConRecargo = detalleItems[0].valorConRecargo;
+    }
+
+    if (labelSinRecargoEl && valorHoraNormal > 0) {
+        labelSinRecargoEl.textContent = 'Total horas sin recargo (' + formatHourRate(valorHoraNormal) + ')';
+    }
+    if (labelConRecargoEl && valorConRecargo > 0) {
+        labelConRecargoEl.textContent = 'Total horas con recargo (' + formatHourRate(valorConRecargo) + ')';
+    }
+
     totalSinRecargoEl.textContent = formatHours(totalSinRecargo);
     totalConRecargoEl.textContent = formatHours(totalConRecargo);
     totalMontoEl.textContent = formatCurrency(totalMonto);
