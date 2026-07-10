@@ -54,6 +54,30 @@
                         <h2>📋 Elementos del Estado de Pago</h2>
                     </div>
 
+                    <!-- Costos adicionales -->
+                    <div class="pago-costos-adicionales">
+                        <div class="form-row form-row--2col">
+                            <div class="form-group">
+                                <label for="costoTipo1">Tipo de costo 1</label>
+                                <select id="costoTipo1">
+                                    <option value="">Seleccione...</option>
+                                    <option value="trasladoContrapesos">Traslado de contrapesos</option>
+                                    <option value="trasladoEquipo">Traslado de equipo</option>
+                                </select>
+                                <input type="number" id="costoValor1" placeholder="Valor $ (opcional)" min="0" step="1">
+                            </div>
+                            <div class="form-group">
+                                <label for="costoTipo2">Tipo de costo 2</label>
+                                <select id="costoTipo2">
+                                    <option value="">Seleccione...</option>
+                                    <option value="planIzaje">Plan izaje</option>
+                                    <option value="otros">Otros</option>
+                                </select>
+                                <input type="number" id="costoValor2" placeholder="Valor $ (opcional)" min="0" step="1">
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Buscador de registros -->
                     <div class="pago-search-row">
                         <div class="form-group form-group--inline">

@@ -36,6 +36,12 @@ const labelSinRecargoEl = document.getElementById('labelSinRecargo');
 const labelConRecargoEl = document.getElementById('labelConRecargo');
 const pagoDetalleItemsEl = document.getElementById('pagoDetalleItems');
 
+// Elementos de costos adicionales
+const costoTipo1El = document.getElementById('costoTipo1');
+const costoValor1El = document.getElementById('costoValor1');
+const costoTipo2El = document.getElementById('costoTipo2');
+const costoValor2El = document.getElementById('costoValor2');
+
 // Estado interno
 let itemsAgregados = [];
 let ultimoResultadoBusqueda = null;
@@ -255,6 +261,23 @@ function calcularTotales() {
         return;
     }
 
+    // Obtener costos adicionales
+    const costos = [];
+    if (costoTipo1El && costoValor1El) {
+        const tipo1 = costoTipo1El.value;
+        const valor1 = parseFloat(costoValor1El.value) || 0;
+        if (tipo1 && valor1 > 0) {
+            costos.push({ tipo: tipo1, valor: valor1 });
+        }
+    }
+    if (costoTipo2El && costoValor2El) {
+        const tipo2 = costoTipo2El.value;
+        const valor2 = parseFloat(costoValor2El.value) || 0;
+        if (tipo2 && valor2 > 0) {
+            costos.push({ tipo: tipo2, valor: valor2 });
+        }
+    }
+
     let totalSinRecargo = 0;
     let totalConRecargo = 0;
     let totalMonto = 0;
@@ -292,6 +315,10 @@ function calcularTotales() {
             });
         }
     });
+
+    // Sumar costos adicionales al monto total
+    const totalCostos = costos.reduce((sum, c) => sum + c.valor, 0);
+    totalMonto += totalCostos;
 
     pagoDetalleItemsEl.innerHTML = '';
     diasIncluidosEl.textContent = itemsAgregados.length + ' elemento(s)';
@@ -335,6 +362,23 @@ function handleSavePago() {
     }
 
     try {
+        // Obtener costos adicionales
+        const costos = [];
+        if (costoTipo1El && costoValor1El) {
+            const tipo1 = costoTipo1El.value;
+            const valor1 = parseFloat(costoValor1El.value) || 0;
+            if (tipo1 && valor1 > 0) {
+                costos.push({ tipo: tipo1, valor: valor1 });
+            }
+        }
+        if (costoTipo2El && costoValor2El) {
+            const tipo2 = costoTipo2El.value;
+            const valor2 = parseFloat(costoValor2El.value) || 0;
+            if (tipo2 && valor2 > 0) {
+                costos.push({ tipo: tipo2, valor: valor2 });
+            }
+        }
+
         let totalSinRecargo = 0;
         let totalConRecargo = 0;
         let totalMonto = 0;
@@ -373,10 +417,15 @@ function handleSavePago() {
             }
         });
 
+        // Sumar costos adicionales al monto total
+        const totalCostos = costos.reduce((sum, c) => sum + c.valor, 0);
+        totalMonto += totalCostos;
+
         const record = {
             indice,
             tipo: 'pago',
             items: itemsAgregados.map(item => ({ ...item })),
+            costos: costos.length > 0 ? costos : undefined,
             totales: {
                 totalSinRecargo,
                 totalConRecargo,

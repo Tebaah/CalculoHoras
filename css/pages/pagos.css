@@ -24,6 +24,48 @@
     margin: 0;
 }
 
+/* Costos adicionales */
+.pago-costos-adicionales {
+    margin: 20px 0;
+    padding: 15px;
+    background: var(--color-bg-muted);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+
+.form-row--2col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.pago-costos-adicionales .form-group {
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.pago-costos-adicionales select,
+.pago-costos-adicionales input[type="number"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-base);
+    font-family: var(--font-family);
+    background: var(--color-bg-white);
+    color: var(--color-text-primary);
+    transition: var(--transition-normal);
+}
+
+.pago-costos-adicionales select:focus,
+.pago-costos-adicionales input[type="number"]:focus {
+    outline: none;
+    border-color: var(--powder-blue);
+    box-shadow: 0 0 0 3px rgba(173, 191, 206, 0.25);
+}
+
 /* Barra de búsqueda */
 .pago-search-row {
     margin: 20px 0;
@@ -372,5 +414,9 @@
 
     .btn-add {
         width: 100%;
+    }
+
+    .form-row--2col {
+        grid-template-columns: 1fr;
     }
 }
