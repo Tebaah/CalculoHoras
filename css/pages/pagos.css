@@ -39,8 +39,10 @@
 
 .search-input-group {
     display: flex;
+    justify-content: space-around;
+    align-content: space-around;
     gap: 8px;
-    align-items: center;
+    /* align-items: center; */
     width: 100%;
 }
 
@@ -346,6 +348,12 @@
     margin-bottom: 20px;
     padding-bottom: 17px;
     border-bottom: 1px solid var(--color-border);
+}
+
+#totalResults .result-actions button {
+    width: auto;
+    min-width: 200px;
+    margin-top: 0;
 }
 
 /* Responsive */
