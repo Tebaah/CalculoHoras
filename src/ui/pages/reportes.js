@@ -8,7 +8,7 @@
 import { calculateWeeklyReport } from '../../store/actions/calculatorActions.js';
 import { renderReportTotals } from '../render/renderReport.js';
 import { initSidebar } from '../components/sidebar.js';
-import { getDayTypeFromDate, addDays, toDateInputValue, getDayId } from '../../core/utils/dateUtils.js';
+import { getDayTypeFromDate, addDays, toDateInputValue, getDayId, DAY_ID_TO_NAME } from '../../core/utils/dateUtils.js';
 import { TIPOS_DIA } from '../../core/constants.js';
 import { saveRecord } from '../../store/storageManager.js';
 
@@ -27,13 +27,25 @@ const guardarBtn = document.getElementById('guardarReporteBtn');
 let lastCalculatedReport = null;
 
 /**
- * Actualiza el tipo de día (data-tipo) y la etiqueta visual de una fila
+ * Actualiza el identificador de día (data-dia), el nombre visible,
+ * el tipo de día (data-tipo) y la etiqueta visual de una fila
  * según la fecha seleccionada
  *
  * @param {HTMLElement} row - Fila del reporte
  * @param {Date} date - Fecha asociada
  */
 function updateRowDayType(row, date) {
+    // Actualizar identificador de día según la fecha real
+    const dayId = getDayId(date);
+    row.dataset.dia = dayId;
+
+    // Actualizar el nombre visible del día
+    const dayName = row.querySelector('.day-name');
+    if (dayName) {
+        dayName.textContent = DAY_ID_TO_NAME[dayId] || dayId;
+    }
+
+    // Actualizar tipo de día (normal, sabado, domingoFestivo)
     const dayType = getDayTypeFromDate(date);
     row.dataset.tipo = dayType;
 
