@@ -398,6 +398,11 @@ function handleSavePago() {
 export function initPagosPage() {
     initSidebar();
 
+    // Prevenir que el formulario se envíe (los botones manejan todo manualmente)
+    document.getElementById('pagoForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+    });
+
     buscarBtn.addEventListener('click', handleSearch);
     buscarIndiceInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
