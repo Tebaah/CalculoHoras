@@ -399,6 +399,96 @@ function handleSavePago() {
     }
 }
 
+/**
+ * Genera e imprime un PDF con el detalle del estado de pago
+ */
+function handlePrintPDF() {
+    if (itemsAgregados.length === 0) {
+        errorDiv.textContent = '\u274C No hay elementos para imprimir. Agregue registros al estado de pago.';
+        errorDiv.classList.add('show');
+        return;
+    }
+
+    const indice = indicePagoInput.value.trim() || 'N/D';
+    const win = window.open('', '_blank');
+    if (!win) {
+        errorDiv.textContent = '\u274C No se pudo abrir la ventana de impresión. Permita ventanas emergentes.';
+        errorDiv.classList.add('show');
+        return;
+    }
+
+    let html = '<!DOCTYPE html><html><head><meta charset="UTF-8">';
+    html += '<title>Estado de Pago #' + indice + '</title>';
+    html += '<style>';
+    html += 'body { font-family: Arial, sans-serif; margin: 30px; color: #333; }';
+    html += 'h1 { font-size: 22px; border-bottom: 2px solid #2b6cb0; padding-bottom: 10px; color: #2b6cb0; }';
+    html += 'h2 { font-size: 17px; margin-top: 25px; color: #444; border-bottom: 1px solid #ddd; padding-bottom: 6px; }';
+    html += 'table { width: 100%; border-collapse: collapse; margin: 10px 0; }';
+    html += 'th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #eee; font-size: 14px; }';
+    html += 'th { background: #f5f5f5; font-weight: 600; }';
+    html += '.item-header { font-weight: 600; font-size: 15px; margin-top: 15px; color: #2b6cb0; }';
+    html += '.totals { margin-top: 25px; border-top: 2px solid #2b6cb0; padding-top: 10px; }';
+    html += '.total-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 15px; }';
+    html += '.total-row.final { font-weight: 700; font-size: 18px; color: #2b6cb0; border-top: 2px solid #333; padding-top: 10px; margin-top: 5px; }';
+    html += '.value-hora { color: #666; font-size: 13px; }';
+    html += '@media print { body { margin: 15px; } }';
+    html += '</style></head><body>';
+
+    html += '<h1>\uD83D\uDCB0 Estado de Pago #' + indice + '</h1>';
+    html += '<p style="color:#666;font-size:14px;">Fecha: ' + new Date().toLocaleDateString('es-CL') + '</p>';
+
+    // Detalle de cada item
+    itemsAgregados.forEach((item) => {
+        const tipoLabel = item.tipo === 'orden' ? '\uD83D\uDCCB Orden de Trabajo' : '\uD83D\uDCCA Reporte Semanal';
+        html += '<div class="item-header">' + tipoLabel + ' #' + item.indice + ' - Valor hora: ' + formatHourRate(item.valorHora || 0) + '</div>';
+
+        const dias = obtenerDiasReporte(item);
+        if (dias.length > 0) {
+            html += '<table><thead><tr><th>D\u00EDa</th><th>Fecha</th><th>Horario</th><th>Colaci\u00F3n</th><th>Horas</th></tr></thead><tbody>';
+            dias.forEach((dia) => {
+                html += '<tr>';
+                html += '<td>' + dia.nombre + '</td>';
+                html += '<td>' + dia.fecha + '</td>';
+                html += '<td>' + dia.horaInicio + ' - ' + dia.horaTermino + '</td>';
+                html += '<td>' + dia.colacion + ' min</td>';
+                html += '<td>' + formatHours(dia.horasTotales) + '</td>';
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+        }
+    });
+
+    // Totales
+    const totalSinRecargo = parseFloat(totalSinRecargoEl.textContent) || 0;
+    const totalConRecargo = parseFloat(totalConRecargoEl.textContent) || 0;
+    const totalMonto = totalMontoEl.textContent || '$0';
+
+    let valorHoraNormal = 0;
+    let valorConRecargo = 0;
+    if (itemsAgregados.length > 0) {
+        const first = itemsAgregados[0];
+        valorHoraNormal = first.valorHora || 0;
+        valorConRecargo = (first.valorHora || 0) * (1 + ((first.recargoPorcentaje || 30) / 100));
+    }
+
+    html += '<div class="totals">';
+    html += '<h2>Totales del Estado de Pago</h2>';
+    html += '<div class="total-row"><span>Total horas sin recargo (' + formatHourRate(valorHoraNormal) + ')</span><span>' + totalSinRecargoEl.textContent + '</span></div>';
+    html += '<div class="total-row"><span>Total horas con recargo (' + formatHourRate(valorConRecargo) + ')</span><span>' + totalConRecargoEl.textContent + '</span></div>';
+    html += '<div class="total-row final"><span>Monto Total</span><span>' + totalMonto + '</span></div>';
+    html += '</div>';
+
+    html += '</body></html>';
+
+    win.document.write(html);
+    win.document.close();
+
+    // Esperar a que cargue el contenido y luego imprimir
+    setTimeout(() => {
+        win.print();
+    }, 300);
+}
+
 export function initPagosPage() {
     initSidebar();
 
@@ -416,6 +506,11 @@ export function initPagosPage() {
     agregarItemBtn.addEventListener('click', handleAddItem);
 
     guardarBtn.addEventListener('click', handleSavePago);
+
+    const imprimirBtn = document.getElementById('imprimirPdfBtn');
+    if (imprimirBtn) {
+        imprimirBtn.addEventListener('click', handlePrintPDF);
+    }
 
     loadEditData();
 }
