@@ -27,3 +27,6 @@ TestResults.xml
 ### Node.js ###
 node_modules/
 dist/
+
+### Vite ###
+.vite/
