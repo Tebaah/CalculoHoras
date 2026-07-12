@@ -64,7 +64,12 @@
                                     <option value="trasladoContrapesos">Traslado de contrapesos</option>
                                     <option value="trasladoEquipo">Traslado de equipo</option>
                                 </select>
-                                <input type="number" id="costoValor1" placeholder="Valor $ (opcional)" min="0" step="1">
+                                <div class="costo-fields-row">
+                                    <input type="number" id="costoCantidad1" placeholder="Cantidad" min="0" step="1"
+                                        value="1">
+                                    <input type="number" id="costoValor1" placeholder="Valor unitario $" min="0"
+                                        step="1">
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label for="costoTipo2">Tipo de costo 2</label>
@@ -73,9 +78,16 @@
                                     <option value="planIzaje">Plan izaje</option>
                                     <option value="otros">Otros</option>
                                 </select>
-                                <input type="number" id="costoValor2" placeholder="Valor $ (opcional)" min="0" step="1">
+                                <div class="costo-fields-row">
+                                    <input type="number" id="costoCantidad2" placeholder="Cantidad" min="0" step="1"
+                                        value="1">
+                                    <input type="number" id="costoValor2" placeholder="Valor unitario $" min="0"
+                                        step="1">
+                                </div>
                             </div>
                         </div>
+                        <button type="button" id="agregarCostosBtn" class="btn-add-costos">➕ Agregar costos a
+                            totales</button>
                     </div>
 
                     <!-- Buscador de registros -->
@@ -121,14 +133,28 @@
 
                     <div class="pago-detalle-items" id="pagoDetalleItems"></div>
 
-                    <div class="result-item">
+                    <div class="result-item result-item--3col">
                         <span class="result-label" id="labelSinRecargo">Total horas sin recargo</span>
                         <span class="result-value" id="totalSinRecargo">0.00 h</span>
+                        <span class="result-value result-value--calc" id="totalSinRecargoCalc">$0</span>
                     </div>
-                    <div class="result-item">
+                    <div class="result-item result-item--3col">
                         <span class="result-label" id="labelConRecargo">Total horas con recargo</span>
                         <span class="result-value" id="totalConRecargo">0.00 h</span>
+                        <span class="result-value result-value--calc" id="totalConRecargoCalc">$0</span>
                     </div>
+
+                    <div class="result-item result-item--3col result-item--costo" id="costoRow1" style="display:none;">
+                        <span class="result-label" id="costoLabel1"></span>
+                        <span class="result-value result-value--costo-qty" id="costoCantidadDisplay1"></span>
+                        <span class="result-value result-value--costo-total" id="costoValorDisplay1">$0</span>
+                    </div>
+                    <div class="result-item result-item--3col result-item--costo" id="costoRow2" style="display:none;">
+                        <span class="result-label" id="costoLabel2"></span>
+                        <span class="result-value result-value--costo-qty" id="costoCantidadDisplay2"></span>
+                        <span class="result-value result-value--costo-total" id="costoValorDisplay2">$0</span>
+                    </div>
+
                     <div class="result-item total">
                         <span class="result-label">Monto Total</span>
                         <span class="result-value" id="totalMonto">$0</span>

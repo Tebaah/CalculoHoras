@@ -31,6 +31,8 @@ const totalResultsDiv = document.getElementById('totalResults');
 const diasIncluidosEl = document.getElementById('diasIncluidos');
 const totalSinRecargoEl = document.getElementById('totalSinRecargo');
 const totalConRecargoEl = document.getElementById('totalConRecargo');
+const totalSinRecargoCalcEl = document.getElementById('totalSinRecargoCalc');
+const totalConRecargoCalcEl = document.getElementById('totalConRecargoCalc');
 const totalMontoEl = document.getElementById('totalMonto');
 const labelSinRecargoEl = document.getElementById('labelSinRecargo');
 const labelConRecargoEl = document.getElementById('labelConRecargo');
@@ -39,8 +41,20 @@ const pagoDetalleItemsEl = document.getElementById('pagoDetalleItems');
 // Elementos de costos adicionales
 const costoTipo1El = document.getElementById('costoTipo1');
 const costoValor1El = document.getElementById('costoValor1');
-const costoTipo2El = document.getElementById('costoTipo2');
 const costoValor2El = document.getElementById('costoValor2');
+const costoTipo2El = document.getElementById('costoTipo2');
+const costoCantidad1El = document.getElementById('costoCantidad1');
+const costoCantidad2El = document.getElementById('costoCantidad2');
+
+// Elementos de costos en resultados
+const costoRow1El = document.getElementById('costoRow1');
+const costoRow2El = document.getElementById('costoRow2');
+const costoLabel1El = document.getElementById('costoLabel1');
+const costoLabel2El = document.getElementById('costoLabel2');
+const costoValorDisplay1El = document.getElementById('costoValorDisplay1');
+const costoValorDisplay2El = document.getElementById('costoValorDisplay2');
+const costoCantidadDisplay1El = document.getElementById('costoCantidadDisplay1');
+const costoCantidadDisplay2El = document.getElementById('costoCantidadDisplay2');
 
 // Estado interno
 let itemsAgregados = [];
@@ -231,7 +245,6 @@ function actualizarItemsList() {
         html += '<div class="pago-item-card">';
         html += '<div class="pago-item-header">';
         html += '<span class="pago-item-title">' + tipoIcono + ' ' + tipoLabel + ' #' + item.indice + '</span>';
-        html += '<span class="pago-item-valorhora">Valor hora: ' + formatHourRate(item.valorHora || 0) + '</span>';
         html += '<button type="button" class="btn-remove-item" data-indice="' + item.indice + '" title="Eliminar">🗑️</button>';
         html += '</div>';
         html += '<div class="pago-item-body">';
@@ -266,15 +279,17 @@ function calcularTotales() {
     if (costoTipo1El && costoValor1El) {
         const tipo1 = costoTipo1El.value;
         const valor1 = parseFloat(costoValor1El.value) || 0;
+        const cantidad1 = parseFloat(costoCantidad1El.value) || 1;
         if (tipo1 && valor1 > 0) {
-            costos.push({ tipo: tipo1, valor: valor1 });
+            costos.push({ tipo: tipo1, valor: valor1, cantidad: cantidad1 });
         }
     }
     if (costoTipo2El && costoValor2El) {
         const tipo2 = costoTipo2El.value;
         const valor2 = parseFloat(costoValor2El.value) || 0;
+        const cantidad2 = parseFloat(costoCantidad2El.value) || 1;
         if (tipo2 && valor2 > 0) {
-            costos.push({ tipo: tipo2, valor: valor2 });
+            costos.push({ tipo: tipo2, valor: valor2, cantidad: cantidad2 });
         }
     }
 
@@ -316,33 +331,77 @@ function calcularTotales() {
         }
     });
 
-    // Sumar costos adicionales al monto total
-    const totalCostos = costos.reduce((sum, c) => sum + c.valor, 0);
-    totalMonto += totalCostos;
+    // Calcular montos por tipo de hora
+    let valorHoraNormal = 0;
+    let valorConRecargoUnit = 0;
+    if (detalleItems.length > 0) {
+        valorHoraNormal = detalleItems[0].valorHora;
+        valorConRecargoUnit = detalleItems[0].valorConRecargo;
+    }
+
+    const montoSinRecargo = totalSinRecargo * valorHoraNormal;
+    const montoConRecargo = totalConRecargo * valorConRecargoUnit;
+
+    // Sumar costos adicionales al monto total (cantidad × valor unitario)
+    const totalCostos = costos.reduce((sum, c) => sum + (c.cantidad * c.valor), 0);
+    totalMonto = montoSinRecargo + montoConRecargo + totalCostos;
 
     pagoDetalleItemsEl.innerHTML = '';
     diasIncluidosEl.textContent = itemsAgregados.length + ' elemento(s)';
 
-    // Mostrar valor hora en los labels (usar el primer item como referencia)
-    let valorHoraNormal = 0;
-    let valorConRecargo = 0;
-    if (detalleItems.length > 0) {
-        valorHoraNormal = detalleItems[0].valorHora;
-        valorConRecargo = detalleItems[0].valorConRecargo;
-    }
-
+    // Mostrar valor hora en los labels
     if (labelSinRecargoEl && valorHoraNormal > 0) {
-        labelSinRecargoEl.textContent = 'Total horas sin recargo (' + formatHourRate(valorHoraNormal) + ')';
+        labelSinRecargoEl.textContent = 'Total horas sin recargo ($' + formatHourRate(valorHoraNormal) + '/h)';
     }
-    if (labelConRecargoEl && valorConRecargo > 0) {
-        labelConRecargoEl.textContent = 'Total horas con recargo (' + formatHourRate(valorConRecargo) + ')';
+    if (labelConRecargoEl && valorConRecargoUnit > 0) {
+        labelConRecargoEl.textContent = 'Total horas con recargo ($' + formatHourRate(valorConRecargoUnit) + '/h)';
     }
 
     totalSinRecargoEl.textContent = formatHours(totalSinRecargo);
     totalConRecargoEl.textContent = formatHours(totalConRecargo);
+    totalSinRecargoCalcEl.textContent = formatCurrency(montoSinRecargo);
+    totalConRecargoCalcEl.textContent = formatCurrency(montoConRecargo);
     totalMontoEl.textContent = formatCurrency(totalMonto);
 
+    // Mostrar costos adicionales
+    const costosDisplay = [
+        { row: costoRow1El, label: costoLabel1El, qty: costoCantidadDisplay1El, value: costoValorDisplay1El },
+        { row: costoRow2El, label: costoLabel2El, qty: costoCantidadDisplay2El, value: costoValorDisplay2El },
+    ];
+
+    costos.forEach((costo, i) => {
+        if (i < costosDisplay.length) {
+            const display = costosDisplay[i];
+            const tipoTexto = getCostoLabelText(costo.tipo);
+            const valorUnitario = costo.valor;
+            const cantidad = costo.cantidad || 1;
+            const totalCosto = valorUnitario * cantidad;
+            display.label.textContent = tipoTexto + ' ($' + formatHourRate(valorUnitario) + '/u)';
+            display.qty.textContent = cantidad + ' u';
+            display.value.textContent = formatCurrency(totalCosto);
+            display.row.style.display = 'grid';
+        }
+    });
+
+    // Ocultar filas de costo no usadas
+    for (let i = costos.length; i < costosDisplay.length; i++) {
+        costosDisplay[i].row.style.display = 'none';
+    }
+
     totalResultsDiv.classList.add('show');
+}
+
+/**
+ * Convierte el key interno de tipo de costo a texto legible
+ */
+function getCostoLabelText(tipo) {
+    const labels = {
+        'trasladoContrapesos': 'Traslado de contrapesos',
+        'trasladoEquipo': 'Traslado de equipo',
+        'planIzaje': 'Plan izaje',
+        'otros': 'Otros',
+    };
+    return labels[tipo] || tipo;
 }
 
 function handleSavePago() {
@@ -367,15 +426,17 @@ function handleSavePago() {
         if (costoTipo1El && costoValor1El) {
             const tipo1 = costoTipo1El.value;
             const valor1 = parseFloat(costoValor1El.value) || 0;
+            const cantidad1 = parseFloat(costoCantidad1El.value) || 1;
             if (tipo1 && valor1 > 0) {
-                costos.push({ tipo: tipo1, valor: valor1 });
+                costos.push({ tipo: tipo1, valor: valor1, cantidad: cantidad1 });
             }
         }
         if (costoTipo2El && costoValor2El) {
             const tipo2 = costoTipo2El.value;
             const valor2 = parseFloat(costoValor2El.value) || 0;
+            const cantidad2 = parseFloat(costoCantidad2El.value) || 1;
             if (tipo2 && valor2 > 0) {
-                costos.push({ tipo: tipo2, valor: valor2 });
+                costos.push({ tipo: tipo2, valor: valor2, cantidad: cantidad2 });
             }
         }
 
@@ -417,8 +478,8 @@ function handleSavePago() {
             }
         });
 
-        // Sumar costos adicionales al monto total
-        const totalCostos = costos.reduce((sum, c) => sum + c.valor, 0);
+        // Sumar costos adicionales al monto total (cantidad × valor unitario)
+        const totalCostos = costos.reduce((sum, c) => sum + (c.cantidad * c.valor), 0);
         totalMonto += totalCostos;
 
         const record = {
@@ -489,7 +550,7 @@ function handlePrintPDF() {
     // Detalle de cada item
     itemsAgregados.forEach((item) => {
         const tipoLabel = item.tipo === 'orden' ? '\uD83D\uDCCB Orden de Trabajo' : '\uD83D\uDCCA Reporte Semanal';
-        html += '<div class="item-header">' + tipoLabel + ' #' + item.indice + ' - Valor hora: ' + formatHourRate(item.valorHora || 0) + '</div>';
+        html += '<div class="item-header">' + tipoLabel + ' #' + item.indice + '</div>';
 
         const dias = obtenerDiasReporte(item);
         if (dias.length > 0) {
@@ -513,18 +574,33 @@ function handlePrintPDF() {
     const totalMonto = totalMontoEl.textContent || '$0';
 
     let valorHoraNormal = 0;
-    let valorConRecargo = 0;
+    let valorConRecargoUnit = 0;
     if (itemsAgregados.length > 0) {
         const first = itemsAgregados[0];
         valorHoraNormal = first.valorHora || 0;
-        valorConRecargo = (first.valorHora || 0) * (1 + ((first.recargoPorcentaje || 30) / 100));
+        valorConRecargoUnit = (first.valorHora || 0) * (1 + ((first.recargoPorcentaje || 30) / 100));
     }
+
+    // Calcular montos
+    const totalHorasSinR = parseFloat(totalSinRecargoEl.textContent) || 0;
+    const totalHorasConR = parseFloat(totalConRecargoEl.textContent) || 0;
+    const montoSinRecargo = totalHorasSinR * valorHoraNormal;
+    const montoConRecargo = totalHorasConR * valorConRecargoUnit;
 
     html += '<div class="totals">';
     html += '<h2>Totales del Estado de Pago</h2>';
-    html += '<div class="total-row"><span>Total horas sin recargo (' + formatHourRate(valorHoraNormal) + ')</span><span>' + totalSinRecargoEl.textContent + '</span></div>';
-    html += '<div class="total-row"><span>Total horas con recargo (' + formatHourRate(valorConRecargo) + ')</span><span>' + totalConRecargoEl.textContent + '</span></div>';
-    html += '<div class="total-row final"><span>Monto Total</span><span>' + totalMonto + '</span></div>';
+    html += '<div class="total-row"><span>Total horas sin recargo (' + formatHourRate(valorHoraNormal) + ')</span><span>' + totalSinRecargoEl.textContent + '</span><span>' + formatCurrency(montoSinRecargo) + '</span></div>';
+    html += '<div class="total-row"><span>Total horas con recargo (' + formatHourRate(valorConRecargoUnit) + ')</span><span>' + totalConRecargoEl.textContent + '</span><span>' + formatCurrency(montoConRecargo) + '</span></div>';
+
+    // Mostrar costos en PDF
+    if (costoRow1El && costoRow1El.style.display !== 'none' && costoLabel1El && costoValorDisplay1El && costoCantidadDisplay1El) {
+        html += '<div class="total-row"><span>' + costoLabel1El.textContent + '</span><span>' + costoCantidadDisplay1El.textContent + '</span><span>' + costoValorDisplay1El.textContent + '</span></div>';
+    }
+    if (costoRow2El && costoRow2El.style.display !== 'none' && costoLabel2El && costoValorDisplay2El && costoCantidadDisplay2El) {
+        html += '<div class="total-row"><span>' + costoLabel2El.textContent + '</span><span>' + costoCantidadDisplay2El.textContent + '</span><span>' + costoValorDisplay2El.textContent + '</span></div>';
+    }
+
+    html += '<div class="total-row final"><span>Monto Total</span><span style="grid-column:span 2;text-align:right;">' + totalMonto + '</span></div>';
     html += '</div>';
 
     html += '</body></html>';
@@ -544,6 +620,13 @@ export function initPagosPage() {
     document.getElementById('pagoForm').addEventListener('submit', (e) => {
         e.preventDefault();
     });
+
+    const agregarCostosBtn = document.getElementById('agregarCostosBtn');
+    if (agregarCostosBtn) {
+        agregarCostosBtn.addEventListener('click', () => {
+            calcularTotales();
+        });
+    }
 
     buscarBtn.addEventListener('click', handleSearch);
     buscarIndiceInput.addEventListener('keypress', (e) => {
@@ -576,6 +659,21 @@ function loadEditData() {
         if (record.tipo !== 'pago') return;
 
         if (record.indice) indicePagoInput.value = record.indice;
+
+        // Restaurar costos adicionales guardados
+        if (record.costos && record.costos.length > 0) {
+            record.costos.forEach((costo, i) => {
+                if (i === 0) {
+                    if (costo.tipo) costoTipo1El.value = costo.tipo;
+                    if (costo.valor) costoValor1El.value = costo.valor;
+                    if (costo.cantidad) costoCantidad1El.value = costo.cantidad;
+                } else if (i === 1) {
+                    if (costo.tipo) costoTipo2El.value = costo.tipo;
+                    if (costo.valor) costoValor2El.value = costo.valor;
+                    if (costo.cantidad) costoCantidad2El.value = costo.cantidad;
+                }
+            });
+        }
 
         if (record.items && record.items.length > 0) {
             itemsAgregados = record.items.map(item => ({ ...item }));

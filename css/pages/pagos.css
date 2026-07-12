@@ -66,6 +66,55 @@
     box-shadow: 0 0 0 3px rgba(173, 191, 206, 0.25);
 }
 
+/* Campos de costo en fila (cantidad + valor unitario) */
+.costo-fields-row {
+    display: flex;
+    gap: 8px;
+}
+
+.costo-fields-row input[type="number"] {
+    flex: 1;
+    min-width: 0;
+    padding: 10px 12px;
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-base);
+    font-family: var(--font-family);
+    background: var(--color-bg-white);
+    color: var(--color-text-primary);
+    transition: var(--transition-normal);
+}
+
+.costo-fields-row input[type="number"]:focus {
+    outline: none;
+    border-color: var(--powder-blue);
+    box-shadow: 0 0 0 3px rgba(173, 191, 206, 0.25);
+}
+
+/* Botón agregar costos a totales */
+.btn-add-costos {
+    display: block;
+    width: 100%;
+    margin-top: 12px;
+    padding: 10px 22px;
+    border: 2px dashed var(--color-primary);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    background: var(--color-bg-white);
+    color: var(--color-primary);
+    transition: var(--transition-normal);
+    font-family: var(--font-family);
+}
+
+.btn-add-costos:hover {
+    background: var(--color-bg-highlight);
+    border-style: solid;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
 /* Barra de búsqueda */
 .pago-search-row {
     margin: 20px 0;
