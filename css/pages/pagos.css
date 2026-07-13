@@ -2,10 +2,6 @@
    Page: Estados de Pago (pagos.html)
    ====================================== */
 
-.pagos-container {
-    max-width: 960px;
-}
-
 #pagoForm {
     width: 100%;
 }

@@ -16,6 +16,23 @@
     max-width: 1920px;
 }
 
+.container--split {
+    max-width: 1400px;
+}
+
+/* Container without margin-top when inside split layout */
+.split-left>.container,
+.split-right>.container {
+    margin-top: 0;
+}
+
+@media (max-width: 1200px) {
+    .container--split {
+        max-width: 100%;
+        padding: 30px;
+    }
+}
+
 @media (max-width: 1024px) {
     .container {
         max-width: 700px;
