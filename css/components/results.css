@@ -21,6 +21,7 @@
         opacity: 0;
         transform: translateY(-10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -65,7 +66,55 @@
     font-size: 18px;
 }
 
+.result-value--calc {
+    font-size: 16px;
+    color: var(--color-primary);
+}
+
 .result-item.total .result-value {
     color: var(--color-primary-dark);
     font-size: 22px;
+}
+
+/* 3-column result items for horas (label | hours | calculated amount) */
+.result-item--3col {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.result-item--3col .result-value {
+    text-align: right;
+}
+
+/* Cost rows (label | quantity | calculated total) */
+.result-item--costo {
+    display: none;
+    padding: 8px 0 8px 16px;
+    border-bottom: 1px dashed var(--color-border-light);
+    font-size: var(--font-size-sm);
+    grid-template-columns: 1fr auto auto;
+    gap: 12px;
+    align-items: center;
+}
+
+.result-item--costo .result-label {
+    font-weight: 400;
+    font-size: var(--font-size-sm);
+}
+
+.result-item--costo .result-value--costo-qty {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    text-align: right;
+}
+
+.result-item--costo .result-value--costo-total {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-primary);
 }

@@ -2,10 +2,6 @@
    Page: Reportes (reportes.html)
    ====================================== */
 
-.report-container {
-    max-width: 960px;
-}
-
 #totalResults .result-value#diasIncluidos {
     font-size: var(--font-size-base);
     color: var(--color-text-secondary);
