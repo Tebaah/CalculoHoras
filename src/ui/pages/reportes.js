@@ -256,7 +256,15 @@ function handleSaveReport() {
         const diasConFechas = daysData.map((day, index) => {
             const fechaInputs = document.querySelectorAll('.fecha-dia');
             const fecha = fechaInputs[index] ? fechaInputs[index].value : '';
-            return { ...day, fecha };
+            // Incluir resultados por día (horas sin/con recargo)
+            const result = report.results[index] || {};
+            return {
+                ...day,
+                fecha,
+                horasSinRecargo: result.horasSinRecargo || 0,
+                horasConRecargo: result.horasConRecargo || 0,
+                horasTotales: result.horasTotales || 0,
+            };
         });
 
         const record = {

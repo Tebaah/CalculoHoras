@@ -6,7 +6,7 @@
 
 import { initSidebar } from '../components/sidebar.js';
 import { getRecordsSummary, getRecordDetail, deleteRecord, exportRecordsToJSON, importRecordsFromJSON } from '../../store/storageManager.js';
-import { formatCurrency, formatHours } from '../../core/utils/formatUtils.js';
+import { formatCurrency, formatHours, formatHourRate } from '../../core/utils/formatUtils.js';
 
 // Elementos del DOM
 const historialBody = document.getElementById('historialBody');
@@ -30,7 +30,14 @@ function renderTable(records) {
 
     let html = '';
     records.forEach((record) => {
-        const tipoLabel = record.tipo === 'orden' ? '📋 Orden' : '📊 Reporte';
+        let tipoLabel;
+        if (record.tipo === 'orden') {
+            tipoLabel = '📋 Orden';
+        } else if (record.tipo === 'pago') {
+            tipoLabel = '💰 Pago';
+        } else {
+            tipoLabel = '📊 Reporte';
+        }
         const fecha = record.fecha || '—';
         const hSinRecargo = formatHours(record.horasSinRecargo || 0);
         const hConRecargo = formatHours(record.horasConRecargo || 0);
@@ -81,7 +88,49 @@ function handleViewDetail(indice) {
 
     let html = '<h2>📄 Detalle del Registro #' + record.indice + '</h2>';
 
-    if (record.tipo === 'orden') {
+    if (record.tipo === 'pago') {
+        const totales = record.totales || {};
+        html += '<div class="result-item">' +
+            '<span class="result-label">Tipo</span>' +
+            '<span class="result-value">💰 Estado de Pago</span>' +
+            '</div>' +
+            '<div class="result-item">' +
+            '<span class="result-label">Elementos incluidos</span>' +
+            '<span class="result-value">' + (record.items ? record.items.length : 0) + '</span>' +
+            '</div>';
+
+        if (totales.detalleItems && totales.detalleItems.length > 0) {
+            html += '<h3>Detalle por elemento</h3>';
+            totales.detalleItems.forEach((det) => {
+                const tipoLabel = det.tipo === 'orden' ? '📋 Orden' : '📊 Reporte';
+                html += '<div class="result-item">' +
+                    '<span class="result-label">' + tipoLabel + ' #' + det.indice + '</span>' +
+                    '<span class="result-value">' + formatCurrency(det.monto) + '</span>' +
+                    '</div>';
+                html += '<div class="result-item" style="padding-left: 20px;">' +
+                    '<span class="result-label">Horas sin/con recargo</span>' +
+                    '<span class="result-value">' + formatHours(det.horasSinRecargo) + ' / ' + formatHours(det.horasConRecargo) + '</span>' +
+                    '</div>';
+                html += '<div class="result-item" style="padding-left: 20px;">' +
+                    '<span class="result-label">Valor hora normal / con recargo</span>' +
+                    '<span class="result-value">' + formatHourRate(det.valorHora || 0) + ' / ' + formatHourRate(det.valorConRecargo || 0) + '</span>' +
+                    '</div>';
+            });
+        }
+
+        html += '<div class="result-item">' +
+            '<span class="result-label">Total horas sin recargo</span>' +
+            '<span class="result-value">' + formatHours(totales.totalSinRecargo || 0) + '</span>' +
+            '</div>' +
+            '<div class="result-item">' +
+            '<span class="result-label">Total horas con recargo</span>' +
+            '<span class="result-value">' + formatHours(totales.totalConRecargo || 0) + '</span>' +
+            '</div>' +
+            '<div class="result-item total">' +
+            '<span class="result-label">Monto Total</span>' +
+            '<span class="result-value">' + formatCurrency(totales.totalMonto || 0) + '</span>' +
+            '</div>';
+    } else if (record.tipo === 'orden') {
         html += '<div class="result-item">' +
             '<span class="result-label">Tipo</span>' +
             '<span class="result-value">Orden de Trabajo</span>' +
@@ -173,6 +222,8 @@ function handleEdit(indice) {
 
     if (record.tipo === 'orden') {
         window.location.href = 'ordenes.html?editar=' + indice;
+    } else if (record.tipo === 'pago') {
+        window.location.href = 'pagos.html?editar=' + indice;
     } else {
         window.location.href = 'reportes.html?editar=' + indice;
     }
@@ -269,6 +320,15 @@ export function initHistorialPage() {
     applyFilters();
 
     filtroIndiceInput.addEventListener('input', applyFilters);
+    // Agregar opción "Pagos" al filtro si no existe
+    const optionExiste = filtroTipoSelect.querySelector('option[value="pago"]');
+    if (!optionExiste) {
+        const pagoOption = document.createElement('option');
+        pagoOption.value = 'pago';
+        pagoOption.textContent = '💰 Estados de Pago';
+        filtroTipoSelect.appendChild(pagoOption);
+    }
+
     filtroTipoSelect.addEventListener('change', applyFilters);
 
     exportarBtn.addEventListener('click', handleExport);

@@ -12,6 +12,7 @@ export function initSidebar() {
 
     const navOrdenes = document.getElementById('nav-ordenes');
     const navReportes = document.getElementById('nav-reportes');
+    const navPagos = document.getElementById('nav-pagos');
     const navHistorial = document.getElementById('nav-historial');
 
     if (navOrdenes) {
@@ -19,6 +20,9 @@ export function initSidebar() {
     }
     if (navReportes) {
         navReportes.classList.toggle('active', currentPath === 'reportes.html');
+    }
+    if (navPagos) {
+        navPagos.classList.toggle('active', currentPath === 'pagos.html');
     }
     if (navHistorial) {
         navHistorial.classList.toggle('active', currentPath === 'historial.html');
