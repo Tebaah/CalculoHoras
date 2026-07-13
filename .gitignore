@@ -21,6 +21,12 @@ rad.json
 #Test results file
 TestResults.xml
 
+### .clinerules ###
+.clinerules/
+
 ### Node.js ###
 node_modules/
 dist/
+
+### Vite ###
+.vite/
