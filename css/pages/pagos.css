@@ -66,15 +66,25 @@
     box-shadow: 0 0 0 3px rgba(173, 191, 206, 0.25);
 }
 
-/* Campos de costo en fila (cantidad + valor unitario) */
-.costo-fields-row {
-    display: flex;
+/* Input row para agregar costo dinámico */
+.costo-input-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
     gap: 8px;
+    align-items: end;
+    margin: 12px 0;
 }
 
-.costo-fields-row input[type="number"] {
-    flex: 1;
-    min-width: 0;
+.costo-input-row .form-group {
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.costo-input-row select,
+.costo-input-row input[type="number"] {
+    width: 100%;
     padding: 10px 12px;
     border: 2px solid var(--color-border);
     border-radius: var(--radius-sm);
@@ -85,34 +95,103 @@
     transition: var(--transition-normal);
 }
 
-.costo-fields-row input[type="number"]:focus {
+.costo-input-row select:focus,
+.costo-input-row input[type="number"]:focus {
     outline: none;
     border-color: var(--powder-blue);
     box-shadow: 0 0 0 3px rgba(173, 191, 206, 0.25);
 }
 
-/* Botón agregar costos a totales */
-.btn-add-costos {
-    display: block;
-    width: 100%;
-    margin-top: 12px;
-    padding: 10px 22px;
-    border: 2px dashed var(--color-primary);
+.form-group--btn {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.btn-add-costo {
+    padding: 10px 18px;
+    border: 2px solid var(--color-primary);
     border-radius: var(--radius-sm);
     cursor: pointer;
     font-size: var(--font-size-base);
     font-weight: 600;
-    background: var(--color-bg-white);
-    color: var(--color-primary);
+    background: var(--color-primary);
+    color: white;
     transition: var(--transition-normal);
     font-family: var(--font-family);
+    white-space: nowrap;
 }
 
-.btn-add-costos:hover {
-    background: var(--color-bg-highlight);
-    border-style: solid;
+.btn-add-costo:hover {
+    background: var(--color-primary-dark);
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Lista de costos agregados (debajo del input) */
+.costos-list {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.costos-list-empty {
+    color: var(--color-text-secondary);
+    font-style: italic;
+    font-size: var(--font-size-sm);
+    padding: 8px 0;
+    text-align: center;
+}
+
+.costo-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--color-bg-white);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    gap: 10px;
+}
+
+.costo-item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+}
+
+.costo-item-tipo {
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+}
+
+.costo-item-detalle {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+}
+
+.btn-remove-costo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 16px;
+    transition: var(--transition-normal);
+    background: transparent;
+    flex-shrink: 0;
+}
+
+.btn-remove-costo:hover {
+    background: var(--color-error-bg, #fde8e8);
+    transform: scale(1.15);
 }
 
 /* Barra de búsqueda */
@@ -467,5 +546,13 @@
 
     .form-row--2col {
         grid-template-columns: 1fr;
+    }
+
+    .costo-input-row {
+        grid-template-columns: 1fr;
+    }
+
+    .costo-input-row .form-group--btn .btn-add-costo {
+        width: 100%;
     }
 }

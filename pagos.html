@@ -56,38 +56,32 @@
 
                     <!-- Costos adicionales -->
                     <div class="pago-costos-adicionales">
-                        <div class="form-row form-row--2col">
+                        <h3>Costos adicionales</h3>
+                        <div class="costo-input-row">
                             <div class="form-group">
-                                <label for="costoTipo1">Tipo de costo 1</label>
-                                <select id="costoTipo1">
+                                <label for="costoTipo">Tipo de costo</label>
+                                <select id="costoTipo">
                                     <option value="">Seleccione...</option>
                                     <option value="trasladoContrapesos">Traslado de contrapesos</option>
                                     <option value="trasladoEquipo">Traslado de equipo</option>
-                                </select>
-                                <div class="costo-fields-row">
-                                    <input type="number" id="costoCantidad1" placeholder="Cantidad" min="0" step="1"
-                                        value="1">
-                                    <input type="number" id="costoValor1" placeholder="Valor unitario $" min="0"
-                                        step="1">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="costoTipo2">Tipo de costo 2</label>
-                                <select id="costoTipo2">
-                                    <option value="">Seleccione...</option>
                                     <option value="planIzaje">Plan izaje</option>
                                     <option value="otros">Otros</option>
                                 </select>
-                                <div class="costo-fields-row">
-                                    <input type="number" id="costoCantidad2" placeholder="Cantidad" min="0" step="1"
-                                        value="1">
-                                    <input type="number" id="costoValor2" placeholder="Valor unitario $" min="0"
-                                        step="1">
-                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="costoCantidad">Cantidad</label>
+                                <input type="number" id="costoCantidad" placeholder="Cantidad" min="0" step="1"
+                                    value="1">
+                            </div>
+                            <div class="form-group">
+                                <label for="costoValor">Valor unitario $</label>
+                                <input type="number" id="costoValor" placeholder="Valor unitario $" min="0" step="1">
+                            </div>
+                            <div class="form-group form-group--btn">
+                                <button type="button" id="agregarCostoBtn" class="btn-add-costo">➕ Agregar</button>
                             </div>
                         </div>
-                        <button type="button" id="agregarCostosBtn" class="btn-add-costos">➕ Agregar costos a
-                            totales</button>
+                        <div id="costosList" class="costos-list"></div>
                     </div>
 
                     <!-- Buscador de registros -->
@@ -144,16 +138,7 @@
                         <span class="result-value result-value--calc" id="totalConRecargoCalc">$0</span>
                     </div>
 
-                    <div class="result-item result-item--3col result-item--costo" id="costoRow1" style="display:none;">
-                        <span class="result-label" id="costoLabel1"></span>
-                        <span class="result-value result-value--costo-qty" id="costoCantidadDisplay1"></span>
-                        <span class="result-value result-value--costo-total" id="costoValorDisplay1">$0</span>
-                    </div>
-                    <div class="result-item result-item--3col result-item--costo" id="costoRow2" style="display:none;">
-                        <span class="result-label" id="costoLabel2"></span>
-                        <span class="result-value result-value--costo-qty" id="costoCantidadDisplay2"></span>
-                        <span class="result-value result-value--costo-total" id="costoValorDisplay2">$0</span>
-                    </div>
+                    <div id="costosResultsContainer"></div>
 
                     <div class="result-item total">
                         <span class="result-label">Monto Total</span>

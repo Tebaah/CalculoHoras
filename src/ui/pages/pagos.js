@@ -38,27 +38,18 @@ const labelSinRecargoEl = document.getElementById('labelSinRecargo');
 const labelConRecargoEl = document.getElementById('labelConRecargo');
 const pagoDetalleItemsEl = document.getElementById('pagoDetalleItems');
 
-// Elementos de costos adicionales
-const costoTipo1El = document.getElementById('costoTipo1');
-const costoValor1El = document.getElementById('costoValor1');
-const costoValor2El = document.getElementById('costoValor2');
-const costoTipo2El = document.getElementById('costoTipo2');
-const costoCantidad1El = document.getElementById('costoCantidad1');
-const costoCantidad2El = document.getElementById('costoCantidad2');
-
-// Elementos de costos en resultados
-const costoRow1El = document.getElementById('costoRow1');
-const costoRow2El = document.getElementById('costoRow2');
-const costoLabel1El = document.getElementById('costoLabel1');
-const costoLabel2El = document.getElementById('costoLabel2');
-const costoValorDisplay1El = document.getElementById('costoValorDisplay1');
-const costoValorDisplay2El = document.getElementById('costoValorDisplay2');
-const costoCantidadDisplay1El = document.getElementById('costoCantidadDisplay1');
-const costoCantidadDisplay2El = document.getElementById('costoCantidadDisplay2');
+// Elementos de costo dinámico
+const costoTipoEl = document.getElementById('costoTipo');
+const costoValorEl = document.getElementById('costoValor');
+const costoCantidadEl = document.getElementById('costoCantidad');
+const agregarCostoBtn = document.getElementById('agregarCostoBtn');
+const costosListEl = document.getElementById('costosList');
+const costosResultsContainer = document.getElementById('costosResultsContainer');
 
 // Estado interno
 let itemsAgregados = [];
 let ultimoResultadoBusqueda = null;
+let costosAgregados = []; // Array de { tipo, cantidad, valor }
 
 /**
  * Renderiza el detalle de un registro encontrado en la búsqueda
@@ -268,29 +259,73 @@ function actualizarItemsList() {
     });
 }
 
+/**
+ * Renderiza la lista de costos agregados (en la sección de input)
+ */
+function renderCostosList() {
+    if (costosAgregados.length === 0) {
+        costosListEl.innerHTML = '<div class="costos-list-empty">No hay costos agregados.</div>';
+        return;
+    }
+
+    let html = '';
+    costosAgregados.forEach((costo, index) => {
+        const tipoTexto = getCostoLabelText(costo.tipo);
+        html += '<div class="costo-item">';
+        html += '<div class="costo-item-info">';
+        html += '<span class="costo-item-tipo">' + tipoTexto + '</span>';
+        html += '<span class="costo-item-detalle">' + (costo.cantidad || 1) + ' u × $' + formatHourRate(costo.valor) + ' = ' + formatCurrency((costo.cantidad || 1) * costo.valor) + '</span>';
+        html += '</div>';
+        html += '<button type="button" class="btn-remove-costo" data-index="' + index + '" title="Eliminar costo">🗑️</button>';
+        html += '</div>';
+    });
+
+    costosListEl.innerHTML = html;
+
+    costosListEl.querySelectorAll('.btn-remove-costo').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const index = parseInt(btn.dataset.index, 10);
+            costosAgregados.splice(index, 1);
+            renderCostosList();
+            calcularTotales();
+        });
+    });
+}
+
+function handleAddCosto() {
+    const tipo = costoTipoEl.value;
+    const valor = parseFloat(costoValorEl.value) || 0;
+    const cantidad = parseFloat(costoCantidadEl.value) || 1;
+
+    if (!tipo) {
+        errorDiv.textContent = '\u274C Debe seleccionar un tipo de costo.';
+        errorDiv.classList.add('show');
+        return;
+    }
+
+    if (valor <= 0) {
+        errorDiv.textContent = '\u274C Debe ingresar un valor unitario mayor a 0.';
+        errorDiv.classList.add('show');
+        return;
+    }
+
+    errorDiv.classList.remove('show');
+
+    costosAgregados.push({ tipo, cantidad, valor });
+
+    // Limpiar campos
+    costoTipoEl.value = '';
+    costoValorEl.value = '';
+    costoCantidadEl.value = '1';
+
+    renderCostosList();
+    calcularTotales();
+}
+
 function calcularTotales() {
     if (itemsAgregados.length === 0) {
         totalResultsDiv.classList.remove('show');
         return;
-    }
-
-    // Obtener costos adicionales
-    const costos = [];
-    if (costoTipo1El && costoValor1El) {
-        const tipo1 = costoTipo1El.value;
-        const valor1 = parseFloat(costoValor1El.value) || 0;
-        const cantidad1 = parseFloat(costoCantidad1El.value) || 1;
-        if (tipo1 && valor1 > 0) {
-            costos.push({ tipo: tipo1, valor: valor1, cantidad: cantidad1 });
-        }
-    }
-    if (costoTipo2El && costoValor2El) {
-        const tipo2 = costoTipo2El.value;
-        const valor2 = parseFloat(costoValor2El.value) || 0;
-        const cantidad2 = parseFloat(costoCantidad2El.value) || 1;
-        if (tipo2 && valor2 > 0) {
-            costos.push({ tipo: tipo2, valor: valor2, cantidad: cantidad2 });
-        }
     }
 
     let totalSinRecargo = 0;
@@ -343,7 +378,7 @@ function calcularTotales() {
     const montoConRecargo = totalConRecargo * valorConRecargoUnit;
 
     // Sumar costos adicionales al monto total (cantidad × valor unitario)
-    const totalCostos = costos.reduce((sum, c) => sum + (c.cantidad * c.valor), 0);
+    const totalCostos = costosAgregados.reduce((sum, c) => sum + (c.cantidad * c.valor), 0);
     totalMonto = montoSinRecargo + montoConRecargo + totalCostos;
 
     pagoDetalleItemsEl.innerHTML = '';
@@ -363,30 +398,20 @@ function calcularTotales() {
     totalConRecargoCalcEl.textContent = formatCurrency(montoConRecargo);
     totalMontoEl.textContent = formatCurrency(totalMonto);
 
-    // Mostrar costos adicionales
-    const costosDisplay = [
-        { row: costoRow1El, label: costoLabel1El, qty: costoCantidadDisplay1El, value: costoValorDisplay1El },
-        { row: costoRow2El, label: costoLabel2El, qty: costoCantidadDisplay2El, value: costoValorDisplay2El },
-    ];
-
-    costos.forEach((costo, i) => {
-        if (i < costosDisplay.length) {
-            const display = costosDisplay[i];
-            const tipoTexto = getCostoLabelText(costo.tipo);
-            const valorUnitario = costo.valor;
-            const cantidad = costo.cantidad || 1;
-            const totalCosto = valorUnitario * cantidad;
-            display.label.textContent = tipoTexto + ' ($' + formatHourRate(valorUnitario) + '/u)';
-            display.qty.textContent = cantidad + ' u';
-            display.value.textContent = formatCurrency(totalCosto);
-            display.row.style.display = 'grid';
-        }
+    // Mostrar costos adicionales en resultados
+    let costosHtml = '';
+    costosAgregados.forEach((costo) => {
+        const tipoTexto = getCostoLabelText(costo.tipo);
+        const valorUnitario = costo.valor;
+        const cantidad = costo.cantidad || 1;
+        const totalCosto = valorUnitario * cantidad;
+        costosHtml += '<div class="result-item result-item--3col result-item--costo">';
+        costosHtml += '<span class="result-label">' + tipoTexto + ' ($' + formatHourRate(valorUnitario) + '/u)</span>';
+        costosHtml += '<span class="result-value result-value--costo-qty">' + cantidad + ' u</span>';
+        costosHtml += '<span class="result-value result-value--costo-total">' + formatCurrency(totalCosto) + '</span>';
+        costosHtml += '</div>';
     });
-
-    // Ocultar filas de costo no usadas
-    for (let i = costos.length; i < costosDisplay.length; i++) {
-        costosDisplay[i].row.style.display = 'none';
-    }
+    costosResultsContainer.innerHTML = costosHtml;
 
     totalResultsDiv.classList.add('show');
 }
@@ -421,25 +446,6 @@ function handleSavePago() {
     }
 
     try {
-        // Obtener costos adicionales
-        const costos = [];
-        if (costoTipo1El && costoValor1El) {
-            const tipo1 = costoTipo1El.value;
-            const valor1 = parseFloat(costoValor1El.value) || 0;
-            const cantidad1 = parseFloat(costoCantidad1El.value) || 1;
-            if (tipo1 && valor1 > 0) {
-                costos.push({ tipo: tipo1, valor: valor1, cantidad: cantidad1 });
-            }
-        }
-        if (costoTipo2El && costoValor2El) {
-            const tipo2 = costoTipo2El.value;
-            const valor2 = parseFloat(costoValor2El.value) || 0;
-            const cantidad2 = parseFloat(costoCantidad2El.value) || 1;
-            if (tipo2 && valor2 > 0) {
-                costos.push({ tipo: tipo2, valor: valor2, cantidad: cantidad2 });
-            }
-        }
-
         let totalSinRecargo = 0;
         let totalConRecargo = 0;
         let totalMonto = 0;
@@ -479,14 +485,14 @@ function handleSavePago() {
         });
 
         // Sumar costos adicionales al monto total (cantidad × valor unitario)
-        const totalCostos = costos.reduce((sum, c) => sum + (c.cantidad * c.valor), 0);
+        const totalCostos = costosAgregados.reduce((sum, c) => sum + (c.cantidad * c.valor), 0);
         totalMonto += totalCostos;
 
         const record = {
             indice,
             tipo: 'pago',
             items: itemsAgregados.map(item => ({ ...item })),
-            costos: costos.length > 0 ? costos : undefined,
+            costos: costosAgregados.length > 0 ? costosAgregados.map(c => ({ ...c })) : undefined,
             totales: {
                 totalSinRecargo,
                 totalConRecargo,
@@ -593,12 +599,13 @@ function handlePrintPDF() {
     html += '<div class="total-row"><span>Total horas con recargo (' + formatHourRate(valorConRecargoUnit) + ')</span><span>' + totalConRecargoEl.textContent + '</span><span>' + formatCurrency(montoConRecargo) + '</span></div>';
 
     // Mostrar costos en PDF
-    if (costoRow1El && costoRow1El.style.display !== 'none' && costoLabel1El && costoValorDisplay1El && costoCantidadDisplay1El) {
-        html += '<div class="total-row"><span>' + costoLabel1El.textContent + '</span><span>' + costoCantidadDisplay1El.textContent + '</span><span>' + costoValorDisplay1El.textContent + '</span></div>';
-    }
-    if (costoRow2El && costoRow2El.style.display !== 'none' && costoLabel2El && costoValorDisplay2El && costoCantidadDisplay2El) {
-        html += '<div class="total-row"><span>' + costoLabel2El.textContent + '</span><span>' + costoCantidadDisplay2El.textContent + '</span><span>' + costoValorDisplay2El.textContent + '</span></div>';
-    }
+    costosAgregados.forEach((costo) => {
+        const tipoTexto = getCostoLabelText(costo.tipo);
+        const cantidad = costo.cantidad || 1;
+        const valorUnitario = costo.valor;
+        const totalCosto = cantidad * valorUnitario;
+        html += '<div class="total-row"><span>' + tipoTexto + ' ($' + formatHourRate(valorUnitario) + '/u)</span><span>' + cantidad + ' u</span><span>' + formatCurrency(totalCosto) + '</span></div>';
+    });
 
     html += '<div class="total-row final"><span>Monto Total</span><span style="grid-column:span 2;text-align:right;">' + totalMonto + '</span></div>';
     html += '</div>';
@@ -621,12 +628,7 @@ export function initPagosPage() {
         e.preventDefault();
     });
 
-    const agregarCostosBtn = document.getElementById('agregarCostosBtn');
-    if (agregarCostosBtn) {
-        agregarCostosBtn.addEventListener('click', () => {
-            calcularTotales();
-        });
-    }
+    agregarCostoBtn.addEventListener('click', handleAddCosto);
 
     buscarBtn.addEventListener('click', handleSearch);
     buscarIndiceInput.addEventListener('keypress', (e) => {
@@ -662,17 +664,8 @@ function loadEditData() {
 
         // Restaurar costos adicionales guardados
         if (record.costos && record.costos.length > 0) {
-            record.costos.forEach((costo, i) => {
-                if (i === 0) {
-                    if (costo.tipo) costoTipo1El.value = costo.tipo;
-                    if (costo.valor) costoValor1El.value = costo.valor;
-                    if (costo.cantidad) costoCantidad1El.value = costo.cantidad;
-                } else if (i === 1) {
-                    if (costo.tipo) costoTipo2El.value = costo.tipo;
-                    if (costo.valor) costoValor2El.value = costo.valor;
-                    if (costo.cantidad) costoCantidad2El.value = costo.cantidad;
-                }
-            });
+            costosAgregados = record.costos.map(c => ({ ...c }));
+            renderCostosList();
         }
 
         if (record.items && record.items.length > 0) {
