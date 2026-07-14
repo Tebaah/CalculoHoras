@@ -3,22 +3,22 @@
    ====================================== */
 
 #totalResults .result-value#diasIncluidos {
-    font-size: var(--font-size-base);
+    font-size: var(--font-size-sm);
     color: var(--color-text-secondary);
     font-weight: 500;
 }
 
-/* Tabla de horas diarias dentro de resultados */
+/* Daily hours table inside results */
 .hours-daily-table {
-    margin: 10px 0;
+    margin: 0.75rem 0;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-sm);
     overflow: hidden;
 }
 
 .hours-daily-table .result-item {
-    padding: 8px 12px;
-    border-bottom: 1px solid var(--color-border);
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--color-border-light);
     background: var(--color-bg-white);
 }
 
@@ -26,13 +26,14 @@
     border-bottom: none;
 }
 
-.hours-daily-table .result-item.header {
-    background: var(--color-bg-highlight);
+.hours-daily-table .result-item:first-child {
+    background: var(--color-bg-elevated);
     font-weight: 600;
 }
 
-.hours-daily-table .result-item.header .result-label,
-.hours-daily-table .result-item.header .result-value {
-    font-weight: 600;
+.hours-daily-table .result-item:first-child .result-label,
+.hours-daily-table .result-item:first-child .result-value {
+    font-weight: 700;
     color: var(--color-text-primary);
+    font-size: var(--font-size-xs);
 }

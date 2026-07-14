@@ -5,44 +5,40 @@
 .container {
     background: var(--color-bg-card);
     border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-border);
     max-width: 900px;
     width: 100%;
-    padding: 40px;
-    margin-top: 20px;
+    padding: 2rem;
 }
 
 .container--wide {
-    max-width: 1920px;
+    max-width: 100%;
 }
 
 .container--split {
-    max-width: 1400px;
+    max-width: 100%;
+}
+
+.container--split > .container--wide {
+    max-width: 100%;
 }
 
 /* Container without margin-top when inside split layout */
-.split-left>.container,
-.split-right>.container {
+.split-left > .container,
+.split-right > .container {
     margin-top: 0;
-}
-
-@media (max-width: 1200px) {
-    .container--split {
-        max-width: 100%;
-        padding: 30px;
-    }
 }
 
 @media (max-width: 1024px) {
     .container {
-        max-width: 700px;
-        padding: 30px;
+        max-width: 100%;
+        padding: 1.5rem;
     }
 }
 
 @media (max-width: 768px) {
     .container {
-        max-width: 100%;
-        padding: 20px;
+        padding: 1.25rem;
     }
 }
