@@ -1,81 +1,84 @@
 /* ======================================
-   CSS Custom Properties (Variables)
+   CSS Custom Properties
    ====================================== */
 
 :root {
-    /* Brand Colors */
-    --alice-blue: #f4faff;
-    --alabaster-grey: #dee3e8;
-    --powder-blue: #adbfce;
-    --blue-slate: #4f6170;
-    --charcoal: #525456;
+    /* Colors */
+    --color-primary: #065A82;
+    --color-primary-light: #1C7293;
+    --color-primary-dark: #054a6a;
+    --color-primary-50: #e6f1f6;
+    --color-primary-100: #cce3ed;
+    --color-primary-200: #99c7db;
 
-    /* Semantic Colors */
-    --color-primary: var(--blue-slate);
-    --color-primary-light: var(--powder-blue);
-    --color-primary-dark: #3a4d5a;
-    --color-primary-gradient: linear-gradient(135deg, var(--blue-slate) 0%, var(--powder-blue) 100%);
-
-    --color-bg: var(--alice-blue);
-    --color-bg-white: #ffffff;
+    --color-bg: #f0f4f7;
     --color-bg-card: #ffffff;
-    --color-bg-sidebar: #2c3e50;
-    --color-bg-sidebar-hover: #34495e;
-    --color-bg-sidebar-active: var(--blue-slate);
-    --color-bg-muted: #f0f4f8;
-    --color-bg-highlight: #eaf0f6;
+    --color-bg-elevated: #f7f9fb;
+    --color-bg-sidebar: #21295C;
+    --color-bg-sidebar-hover: #1B3B6F;
+    --color-bg-sidebar-active: #065A82;
 
-    --color-text-primary: var(--charcoal);
-    --color-text-secondary: #6b7a85;
-    --color-text-light: #8a9aa8;
-    --color-text-sidebar: #b0bec5;
-    --color-text-sidebar-hover: #ffffff;
+    --color-text-primary: #1a1f2e;
+    --color-text-secondary: #4a5568;
+    --color-text-muted: #7a8a9a;
+    --color-text-sidebar: #9aacbe;
+    --color-text-sidebar-hover: #d4dde6;
     --color-text-sidebar-active: #ffffff;
     --color-text-white: #ffffff;
 
-    --color-border: var(--alabaster-grey);
-    --color-border-light: #eef2f6;
-    --color-border-focus: var(--powder-blue);
+    --color-border: #c5d0d8;
+    --color-border-light: #e2e8ed;
+    --color-border-focus: #1C7293;
 
-    --color-accent-saturday: #d48c3a;
-    --color-accent-saturday-bg: #fef3e2;
-    --color-accent-sunday: #c0392b;
-    --color-accent-sunday-bg: #fde8e8;
+    --color-accent-saturday: #d97706;
+    --color-accent-saturday-bg: #fef3c7;
+    --color-accent-sunday: #dc2626;
+    --color-accent-sunday-bg: #fee2e2;
 
-    --color-error: #c0392b;
-    --color-error-bg: #fde8e8;
-    --color-error-border: #c0392b;
+    --color-success: #5B8E7D;
+    --color-success-bg: #eaf5f0;
+    --color-error: #BC4B51;
+    --color-error-bg: #fdf0f1;
+    --color-error-border: #e0a0a4;
 
-    --color-info-bg: #e3f2fd;
-    --color-info-border: var(--powder-blue);
-    --color-info-text: var(--blue-slate);
+    --color-info-bg: #e6f1f6;
+    --color-info-border: #9EB3C2;
+    --color-info-text: #065A82;
 
-    --color-result-bg: #f8fafc;
-    --color-result-border: var(--powder-blue);
+    --color-result-bg: #f7f9fb;
+    --color-result-border: #065A82;
 
     /* Shadows */
-    --shadow-sm: 0 1px 3px rgba(79, 97, 112, 0.12);
-    --shadow-md: 0 4px 12px rgba(79, 97, 112, 0.15);
-    --shadow-lg: 0 10px 40px rgba(79, 97, 112, 0.18);
-    --shadow-hover: 0 8px 25px rgba(79, 97, 112, 0.2);
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.07), 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.04);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.05), 0 4px 6px rgba(0, 0, 0, 0.03);
+    --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.07), 0 8px 10px rgba(0, 0, 0, 0.03);
 
     /* Border Radius */
-    --radius-sm: 4px;
-    --radius-md: 8px;
-    --radius-lg: 12px;
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 18px;
 
     /* Transitions */
-    --transition-fast: all 0.15s ease;
-    --transition-normal: all 0.2s ease;
-    --transition-slow: all 0.3s ease;
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-normal: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
 
     /* Font */
-    --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    --font-size-xs: 12px;
-    --font-size-sm: 13px;
-    --font-size-base: 14px;
-    --font-size-md: 16px;
-    --font-size-lg: 20px;
-    --font-size-xl: 24px;
-    --font-size-2xl: 28px;
+    --font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --font-family-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.8125rem;
+    --font-size-base: 0.875rem;
+    --font-size-md: 0.9375rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
+    --font-size-2xl: 1.5rem;
+    --font-size-3xl: 2rem;
+
+    /* Section demarcation */
+    --section-gap: 1.5rem;
+    --section-padding: 1.5rem;
 }
