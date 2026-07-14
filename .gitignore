@@ -24,6 +24,9 @@ TestResults.xml
 ### .clinerules ###
 .clinerules/
 
+### OpenCode ###
+AGENTS.md
+
 ### Node.js ###
 node_modules/
 dist/
