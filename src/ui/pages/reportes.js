@@ -167,7 +167,6 @@ function getDaysData() {
 function handleReportSubmit(e) {
     e.preventDefault();
     errorDiv.classList.remove('show');
-    document.getElementById('totalResults').classList.remove('show');
 
     try {
         let valorHora = valorHoraSelect.value;
@@ -220,9 +219,6 @@ function handleReportSubmit(e) {
 
         // Renderizar resultados
         renderReportTotals(report, valorHora, recargoPorcentaje);
-        document.getElementById('totalResults').classList.add('show');
-
-        document.getElementById('totalResults').scrollIntoView({ behavior: 'smooth', block: 'start' });
 
     } catch (error) {
         errorDiv.textContent = '\u274C ' + error.message;

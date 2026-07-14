@@ -220,7 +220,6 @@ function actualizarItemsList() {
     if (itemsAgregados.length === 0) {
         pagoItemsList.style.display = 'none';
         pagoEmptyMessage.style.display = 'block';
-        totalResultsDiv.classList.remove('show');
         return;
     }
 
@@ -324,7 +323,6 @@ function handleAddCosto() {
 
 function calcularTotales() {
     if (itemsAgregados.length === 0) {
-        totalResultsDiv.classList.remove('show');
         return;
     }
 
@@ -412,8 +410,6 @@ function calcularTotales() {
         costosHtml += '</div>';
     });
     costosResultsContainer.innerHTML = costosHtml;
-
-    totalResultsDiv.classList.add('show');
 }
 
 /**

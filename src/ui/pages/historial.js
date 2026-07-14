@@ -32,11 +32,11 @@ function renderTable(records) {
     records.forEach((record) => {
         let tipoLabel;
         if (record.tipo === 'orden') {
-            tipoLabel = '📋 Orden';
+            tipoLabel = 'Orden';
         } else if (record.tipo === 'pago') {
-            tipoLabel = '💰 Pago';
+            tipoLabel = 'Pago';
         } else {
-            tipoLabel = '📊 Reporte';
+            tipoLabel = 'Reporte';
         }
         const fecha = record.fecha || '—';
         const hSinRecargo = formatHours(record.horasSinRecargo || 0);
@@ -51,9 +51,17 @@ function renderTable(records) {
             '<td>' + hConRecargo + '</td>' +
             '<td class="cell-monto">' + monto + '</td>' +
             '<td class="cell-acciones">' +
-            '<button class="btn-icon btn-ver" title="Ver detalle" data-indice="' + record.indice + '">👁️</button>' +
-            '<button class="btn-icon btn-editar" title="Modificar" data-indice="' + record.indice + '">✏️</button>' +
-            '<button class="btn-icon btn-eliminar" title="Eliminar" data-indice="' + record.indice + '">🗑️</button>' +
+            '<div class="actions-col">' +
+            '<button class="btn-action" title="Ver detalle" data-indice="' + record.indice + '">' +
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>' +
+            'Ver</button>' +
+            '<button class="btn-action" title="Modificar" data-indice="' + record.indice + '">' +
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
+            'Editar</button>' +
+            '<button class="btn-action btn-danger" title="Eliminar" data-indice="' + record.indice + '">' +
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>' +
+            'Eliminar</button>' +
+            '</div>' +
             '</td>' +
             '</tr>';
     });
@@ -61,15 +69,15 @@ function renderTable(records) {
     historialBody.innerHTML = html;
 
     // Asignar event listeners a los botones
-    historialBody.querySelectorAll('.btn-ver').forEach((btn) => {
+    historialBody.querySelectorAll('.btn-action[title="Ver detalle"]').forEach((btn) => {
         btn.addEventListener('click', () => handleViewDetail(btn.dataset.indice));
     });
 
-    historialBody.querySelectorAll('.btn-editar').forEach((btn) => {
+    historialBody.querySelectorAll('.btn-action[title="Modificar"]').forEach((btn) => {
         btn.addEventListener('click', () => handleEdit(btn.dataset.indice));
     });
 
-    historialBody.querySelectorAll('.btn-eliminar').forEach((btn) => {
+    historialBody.querySelectorAll('.btn-action[title="Eliminar"]').forEach((btn) => {
         btn.addEventListener('click', () => handleDelete(btn.dataset.indice));
     });
 }
