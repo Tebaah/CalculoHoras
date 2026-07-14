@@ -12,23 +12,49 @@
     <div class="layout">
         <aside class="sidebar">
             <div class="sidebar-header">
-                <h2>⏱️ Cálculo de Horas</h2>
+                <h2>Cálculo de Horas</h2>
             </div>
             <nav class="sidebar-nav">
                 <a href="ordenes.html" class="nav-item" id="nav-ordenes">
-                    <span class="nav-icon">📋</span>
+                    <span class="nav-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="8" y="2" width="8" height="4" rx="1" />
+                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+                            <path d="M12 11v6" />
+                            <path d="M9 14h6" />
+                        </svg>
+                    </span>
                     <span class="nav-text">Órdenes de Trabajo</span>
                 </a>
                 <a href="reportes.html" class="nav-item" id="nav-reportes">
-                    <span class="nav-icon">📊</span>
+                    <span class="nav-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 3v18h18" />
+                            <path d="M7 16l4-8 4 4 4-6" />
+                        </svg>
+                    </span>
                     <span class="nav-text">Reportes</span>
                 </a>
                 <a href="pagos.html" class="nav-item active" id="nav-pagos">
-                    <span class="nav-icon">💰</span>
+                    <span class="nav-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8" />
+                            <path d="M12 18V6" />
+                        </svg>
+                    </span>
                     <span class="nav-text">Estados de Pago</span>
                 </a>
                 <a href="historial.html" class="nav-item" id="nav-historial">
-                    <span class="nav-icon">📁</span>
+                    <span class="nav-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                        </svg>
+                    </span>
                     <span class="nav-text">Historial</span>
                 </a>
             </nav>
@@ -36,126 +62,144 @@
         <main class="main-content">
             <div class="container container--split">
                 <div class="split-full">
-                    <h1>💰 Estado de Pago</h1>
+                    <h1 class="page-heading">Estado de Pago</h1>
 
                     <div class="info-box">
-                        <strong>Instrucciones:</strong> Busque registros existentes (órdenes de trabajo o reportes
-                        semanales)
-                        por su índice para agregarlos a este estado de pago. Luego guarde el conjunto como un nuevo
-                        registro.
+                        <strong>Instrucciones</strong>
+                        Busque registros existentes (órdenes de trabajo o reportes semanales) por su índice para
+                        agregarlos a este estado de pago. Luego guarde el conjunto como un nuevo registro.
                     </div>
                 </div>
 
                 <div class="split-left">
-                    <form id="pagoForm">
-                        <div class="form-group">
-                            <label for="indicePago">Índice de almacenamiento</label>
-                            <input type="text" id="indicePago" placeholder="Ej: 333333" maxlength="20">
+                    <div class="section-panel">
+                        <div class="section-header">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                <circle cx="9" cy="7" r="4" />
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+                            </svg>
+                            Composición del Estado de Pago
                         </div>
-
-                        <div class="pago-items-header">
-                            <h2>📋 Elementos del Estado de Pago</h2>
-                        </div>
-
-                        <!-- Costos adicionales -->
-                        <div class="pago-costos-adicionales">
-                            <h3>Costos adicionales</h3>
-                            <div class="costo-input-row">
+                        <div class="section-body">
+                            <form id="pagoForm">
                                 <div class="form-group">
-                                    <label for="costoTipo">Tipo de costo</label>
-                                    <select id="costoTipo">
-                                        <option value="">Seleccione...</option>
-                                        <option value="trasladoContrapesos">Traslado de contrapesos</option>
-                                        <option value="trasladoEquipo">Traslado de equipo</option>
-                                        <option value="planIzaje">Plan izaje</option>
-                                        <option value="otros">Otros</option>
-                                    </select>
+                                    <label for="indicePago">Índice de almacenamiento</label>
+                                    <input type="text" id="indicePago" placeholder="Ej: 333333" maxlength="20">
                                 </div>
-                                <div class="form-group">
-                                    <label for="costoCantidad">Cantidad</label>
-                                    <input type="number" id="costoCantidad" placeholder="Cantidad" min="0" step="1"
-                                        value="1">
+
+                                <div class="pago-items-header">
+                                    <h2>Elementos del Estado de Pago</h2>
                                 </div>
-                                <div class="form-group">
-                                    <label for="costoValor">Valor unitario $</label>
-                                    <input type="number" id="costoValor" placeholder="Valor unitario $" min="0"
-                                        step="1">
+
+                                <div class="pago-costos-adicionales">
+                                    <h3>Costos adicionales</h3>
+                                    <div class="costo-input-row">
+                                        <div class="form-group">
+                                            <label for="costoTipo">Tipo de costo</label>
+                                            <select id="costoTipo">
+                                                <option value="">Seleccione...</option>
+                                                <option value="trasladoContrapesos">Traslado de contrapesos</option>
+                                                <option value="trasladoEquipo">Traslado de equipo</option>
+                                                <option value="planIzaje">Plan izaje</option>
+                                                <option value="otros">Otros</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="costoCantidad">Cantidad</label>
+                                            <input type="number" id="costoCantidad" placeholder="Cantidad" min="0"
+                                                step="1" value="1">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="costoValor">Valor unitario $</label>
+                                            <input type="number" id="costoValor" placeholder="Valor unitario $" min="0"
+                                                step="1">
+                                        </div>
+                                        <div class="form-group form-group--btn">
+                                            <button type="button" id="agregarCostoBtn"
+                                                class="btn-add-costo">Agregar</button>
+                                        </div>
+                                    </div>
+                                    <div id="costosList" class="costos-list"></div>
                                 </div>
-                                <div class="form-group form-group--btn">
-                                    <button type="button" id="agregarCostoBtn" class="btn-add-costo">➕ Agregar</button>
+
+                                <div class="pago-search-row">
+                                    <div class="form-group form-group--inline">
+                                        <label for="buscarIndice">Buscar registro por índice</label>
+                                        <div class="search-input-group">
+                                            <input type="text" id="buscarIndice"
+                                                placeholder="Ingrese el índice del registro..." maxlength="20">
+                                            <button type="button" id="buscarBtn" class="btn-search">Buscar</button>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div id="costosList" class="costos-list"></div>
+
+                                <div class="pago-search-result" id="searchResult" style="display: none;">
+                                    <div id="searchResultContent"></div>
+                                    <div class="pago-search-actions">
+                                        <button type="button" id="agregarItemBtn" class="btn-add">Agregar a
+                                            lista</button>
+                                    </div>
+                                </div>
+
+                                <div class="pago-items-list" id="pagoItemsList" style="display: none;">
+                                    <h3>Elementos agregados <span id="itemsCount">(0)</span></h3>
+                                    <div id="itemsContainer"></div>
+                                </div>
+
+                                <div id="pagoEmptyMessage" class="pago-empty">No hay elementos agregados. Busque y
+                                    agregue
+                                    registros usando el campo superior.</div>
+
+                                <div class="error" id="errorMessage"></div>
+                            </form>
                         </div>
-
-                        <!-- Buscador de registros -->
-                        <div class="pago-search-row">
-                            <div class="form-group form-group--inline">
-                                <label for="buscarIndice">Buscar registro por índice</label>
-                                <div class="search-input-group">
-                                    <input type="text" id="buscarIndice" placeholder="Ingrese el índice del registro..."
-                                        maxlength="20">
-                                    <button type="button" id="buscarBtn" class="btn-search">🔍 Buscar</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Resultado de la búsqueda -->
-                        <div class="pago-search-result" id="searchResult" style="display: none;">
-                            <div id="searchResultContent"></div>
-                            <div class="pago-search-actions">
-                                <button type="button" id="agregarItemBtn" class="btn-add">➕ Agregar a lista</button>
-                            </div>
-                        </div>
-
-                        <!-- Lista de items agregados -->
-                        <div class="pago-items-list" id="pagoItemsList" style="display: none;">
-                            <h3>Elementos agregados <span id="itemsCount">(0)</span></h3>
-                            <div id="itemsContainer"></div>
-                        </div>
-
-                        <div id="pagoEmptyMessage" class="pago-empty">No hay elementos agregados. Busque y agregue
-                            registros
-                            usando el campo superior.</div>
-
-                        <div class="error" id="errorMessage"></div>
-                    </form>
+                    </div>
                 </div>
 
                 <div class="split-right">
-                    <!-- Totales del estado de pago -->
-                    <div class="results" id="totalResults">
-                        <h2>📈 Totales del Estado de Pago</h2>
-
-                        <div class="result-item">
-                            <span class="result-label">Elementos incluidos</span>
-                            <span class="result-value" id="diasIncluidos">0</span>
+                    <div class="section-panel">
+                        <div class="section-header">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 12l2 2 4-4" />
+                                <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z" />
+                            </svg>
+                            Resultados
                         </div>
+                        <div class="section-body">
+                            <div class="results" id="totalResults">
+                                <div class="result-item">
+                                    <span class="result-label">Elementos incluidos</span>
+                                    <span class="result-value" id="diasIncluidos">0</span>
+                                </div>
 
-                        <div class="pago-detalle-items" id="pagoDetalleItems"></div>
+                                <div class="pago-detalle-items" id="pagoDetalleItems"></div>
 
-                        <div class="result-item result-item--3col">
-                            <span class="result-label" id="labelSinRecargo">Total horas sin recargo</span>
-                            <span class="result-value" id="totalSinRecargo">0.00 h</span>
-                            <span class="result-value result-value--calc" id="totalSinRecargoCalc">$0</span>
-                        </div>
-                        <div class="result-item result-item--3col">
-                            <span class="result-label" id="labelConRecargo">Total horas con recargo</span>
-                            <span class="result-value" id="totalConRecargo">0.00 h</span>
-                            <span class="result-value result-value--calc" id="totalConRecargoCalc">$0</span>
-                        </div>
+                                <div class="result-item result-item--3col">
+                                    <span class="result-label" id="labelSinRecargo">Total horas sin recargo</span>
+                                    <span class="result-value" id="totalSinRecargo">0.00 h</span>
+                                    <span class="result-value result-value--calc" id="totalSinRecargoCalc">$0</span>
+                                </div>
+                                <div class="result-item result-item--3col">
+                                    <span class="result-label" id="labelConRecargo">Total horas con recargo</span>
+                                    <span class="result-value" id="totalConRecargo">0.00 h</span>
+                                    <span class="result-value result-value--calc" id="totalConRecargoCalc">$0</span>
+                                </div>
 
-                        <div id="costosResultsContainer"></div>
+                                <div id="costosResultsContainer"></div>
 
-                        <div class="result-item total">
-                            <span class="result-label">Monto Total</span>
-                            <span class="result-value" id="totalMonto">$0</span>
-                        </div>
+                                <div class="result-item total">
+                                    <span class="result-label">Monto Total</span>
+                                    <span class="result-value" id="totalMonto">$0</span>
+                                </div>
 
-                        <div class="result-actions">
-                            <button type="button" id="guardarPagoBtn" class="btn-save">💾 Guardar Estado de
-                                Pago</button>
-                            <button type="button" id="imprimirPdfBtn" class="btn-pdf">🖨️ Imprimir PDF</button>
+                                <div class="result-actions">
+                                    <button type="button" id="guardarPagoBtn" class="btn-save">Guardar </button>
+                                    <button type="button" id="imprimirPdfBtn" class="btn-pdf">Imprimir </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

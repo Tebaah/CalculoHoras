@@ -12,23 +12,31 @@
     <div class="layout">
         <aside class="sidebar">
             <div class="sidebar-header">
-                <h2>⏱️ Cálculo de Horas</h2>
+                <h2>Cálculo de Horas</h2>
             </div>
             <nav class="sidebar-nav">
                 <a href="ordenes.html" class="nav-item active" id="nav-ordenes">
-                    <span class="nav-icon">📋</span>
+                    <span class="nav-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11v6"/><path d="M9 14h6"/></svg>
+                    </span>
                     <span class="nav-text">Órdenes de Trabajo</span>
                 </a>
                 <a href="reportes.html" class="nav-item" id="nav-reportes">
-                    <span class="nav-icon">📊</span>
+                    <span class="nav-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 4 4-6"/></svg>
+                    </span>
                     <span class="nav-text">Reportes</span>
                 </a>
                 <a href="pagos.html" class="nav-item" id="nav-pagos">
-                    <span class="nav-icon">💰</span>
+                    <span class="nav-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/></svg>
+                    </span>
                     <span class="nav-text">Estados de Pago</span>
                 </a>
                 <a href="historial.html" class="nav-item" id="nav-historial">
-                    <span class="nav-icon">📁</span>
+                    <span class="nav-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                    </span>
                     <span class="nav-text">Historial</span>
                 </a>
             </nav>
@@ -36,153 +44,149 @@
         <main class="main-content">
             <div class="container container--split">
                 <div class="split-full">
-                    <h1>💼 Calculador de Horas y Costos</h1>
+                    <h1 class="page-heading">Calculador de Horas y Costos</h1>
 
                     <div class="info-box">
-                        <strong>Reglas de cálculo:</strong>
+                        <strong>Reglas de cálculo</strong>
                         <strong>Servicio:</strong> Sin recargo: Cualquier hora fuera del rango 18:00-07:00 | Con
-                        recargo:
-                        18:00-07:00 (cruza medianoche)<br>
-                        <strong>Operador:</strong> Normales: Total de horas trabajadas | Dobles: antes de las 07:00 y
-                        desde
+                        recargo: 18:00-07:00 (cruza medianoche)<br>
+                        <strong>Operador:</strong> Normales: Total de horas trabajadas | Dobles: antes de las 07:00 y desde
                         las 19:00 en adelante
                     </div>
                 </div>
 
                 <div class="split-left">
-                    <form id="calculatorForm">
-                        <div class="form-row form-row--3col">
-                            <div class="form-group">
-                                <label for="indiceOrden">Índice de almacenamiento</label>
-                                <input type="text" id="indiceOrden" placeholder="Ej: 111111" maxlength="20">
-                            </div>
-                            <div class="form-group">
-                                <label for="fechaDia">Fecha del servicio</label>
-                                <input type="date" id="fechaDia" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="tipoDia">Tipo de Día</label>
-                                <select id="tipoDia" required>
-                                    <option value="normal">Día normal</option>
-                                    <option value="sabado">Día Sábado</option>
-                                    <option value="domingoFestivo">Día domingo y festivo</option>
-                                </select>
-                            </div>
+                    <div class="section-panel">
+                        <div class="section-header">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                            Datos del Servicio
                         </div>
+                        <div class="section-body">
+                            <form id="calculatorForm">
+                                <div class="form-row form-row--3col">
+                                    <div class="form-group">
+                                        <label for="indiceOrden">Índice de almacenamiento</label>
+                                        <input type="text" id="indiceOrden" placeholder="Ej: 111111" maxlength="20">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="fechaDia">Fecha del servicio</label>
+                                        <input type="date" id="fechaDia" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="tipoDia">Tipo de Día</label>
+                                        <select id="tipoDia" required>
+                                            <option value="normal">Día normal</option>
+                                            <option value="sabado">Día Sábado</option>
+                                            <option value="domingoFestivo">Día domingo y festivo</option>
+                                        </select>
+                                    </div>
+                                </div>
 
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="horasMinimas">Mínimo de Horas</label>
-                                <select id="horasMinimas" required>
-                                    <option value="0">Sin mínimo</option>
-                                    <option value="5">5 horas</option>
-                                    <option value="6">6 horas</option>
-                                    <option value="8">8 horas</option>
-                                    <option value="9">9 horas</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="recargoPorcentaje">% Recargo</label>
-                                <select id="recargoPorcentaje" required>
-                                    <option value="0">Sin recargo</option>
-                                    <option value="10">10%</option>
-                                    <option value="20">20%</option>
-                                    <option value="30" selected>30%</option>
-                                </select>
-                            </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="horasMinimas">Mínimo de Horas</label>
+                                        <select id="horasMinimas" required>
+                                            <option value="0">Sin mínimo</option>
+                                            <option value="5">5 horas</option>
+                                            <option value="6">6 horas</option>
+                                            <option value="8">8 horas</option>
+                                            <option value="9">9 horas</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="recargoPorcentaje">% Recargo</label>
+                                        <select id="recargoPorcentaje" required>
+                                            <option value="0">Sin recargo</option>
+                                            <option value="10">10%</option>
+                                            <option value="20">20%</option>
+                                            <option value="30" selected>30%</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="horaInicio">Hora de Inicio (HH:MM)</label>
+                                        <input type="time" id="horaInicio" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="horaTermino">Hora de Término (HH:MM)</label>
+                                        <input type="time" id="horaTermino" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="valorHora">Valor de la Hora Normal</label>
+                                        <select id="valorHora" required>
+                                            <option value="">Seleccione un valor...</option>
+                                            <option value="95000">$95.000</option>
+                                            <option value="110000">$110.000</option>
+                                            <option value="120000">$120.000</option>
+                                            <option value="140000">$140.000</option>
+                                            <option value="165000">$165.000</option>
+                                            <option value="190000">$190.000</option>
+                                            <option value="210000">$210.000</option>
+                                            <option value="235000">$235.000</option>
+                                            <option value="260000">$260.000</option>
+                                            <option value="265000">$265.000</option>
+                                            <option value="290000">$290.000</option>
+                                            <option value="345000">$345.000</option>
+                                            <option value="390000">$390.000</option>
+                                            <option value="460000">$460.000</option>
+                                            <option value="495000">$495.000</option>
+                                            <option value="custom">Otro valor...</option>
+                                        </select>
+                                        <div class="form-group" id="customValueGroup" style="display: none; margin-bottom: 0;">
+                                            <label for="customValue">Ingrese el valor de la hora</label>
+                                            <input type="number" id="customValue" min="0" step="0.01" placeholder="Ej: 7500">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="form-group">
+                                            <label for="colacion">Tiempo de Colación</label>
+                                            <select id="colacion">
+                                                <option value="0" selected>Sin colación (0 min)</option>
+                                                <option value="15">15 minutos</option>
+                                                <option value="30">30 minutos</option>
+                                                <option value="45">45 minutos</option>
+                                                <option value="60">60 minutos</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group" id="colacionTramoGroup" style="display: none;">
+                                            <label for="colacionTramo">Descontar colación de</label>
+                                            <select id="colacionTramo">
+                                                <option value="sinRecargo">Horas sin recargo</option>
+                                                <option value="conRecargo">Horas con recargo</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button type="submit">Calcular</button>
+                                <div class="error" id="errorMessage"></div>
+                            </form>
                         </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="horaInicio">Hora de Inicio (HH:MM)</label>
-                                <input type="time" id="horaInicio" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="horaTermino">Hora de Término (HH:MM)</label>
-                                <input type="time" id="horaTermino" required>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="valorHora">Valor de la Hora Normal</label>
-                            <select id="valorHora" required>
-                                <option value="">Seleccione un valor...</option>
-                                <option value="95000">$95.000</option>
-                                <option value="110000">$110.000</option>
-                                <option value="120000">$120.000</option>
-                                <option value="140000">$140.000</option>
-                                <option value="165000">$165.000</option>
-                                <option value="190000">$190.000</option>
-                                <option value="210000">$210.000</option>
-                                <option value="235000">$235.000</option>
-                                <option value="260000">$260.000</option>
-                                <option value="265000">$265.000</option>
-                                <option value="290000">$290.000</option>
-                                <option value="345000">$345.000</option>
-                                <option value="390000">$390.000</option>
-                                <option value="460000">$460.000</option>
-                                <option value="495000">$495.000</option>
-                                <option value="custom">Otro valor...</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group" id="customValueGroup" style="display: none;">
-                            <label for="customValue">Ingrese el valor de la hora</label>
-                            <input type="number" id="customValue" min="0" step="0.01" placeholder="Ej: 7500">
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="colacion">Tiempo de Colación</label>
-                                <select id="colacion">
-                                    <option value="0" selected>Sin colación (0 min)</option>
-                                    <option value="15">15 minutos</option>
-                                    <option value="30">30 minutos</option>
-                                    <option value="45">45 minutos</option>
-                                    <option value="60">60 minutos</option>
-                                </select>
-                            </div>
-                            <div class="form-group" id="colacionTramoGroup" style="display: none;">
-                                <label for="colacionTramo">Descontar colación de</label>
-                                <select id="colacionTramo">
-                                    <option value="sinRecargo">Horas sin recargo</option>
-                                    <option value="conRecargo">Horas con recargo</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <button type="submit">Calcular</button>
-                        <div class="error" id="errorMessage"></div>
-                    </form>
+                    </div>
                 </div>
 
                 <div class="split-right">
-                    <div class="results" id="results">
-                        <h2>📊 Resultados</h2>
-                        <div class="result-item">
-                            <span class="result-label" id="labelSinRecargo">Horas sin recargo (07:00 - 18:00)</span>
-                            <span class="result-value" id="horasSinRecargo">0.00 h</span>
+                    <div class="section-panel">
+                        <div class="section-header">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/></svg>
+                            Resultados
                         </div>
-                        <div class="result-item">
-                            <span class="result-label" id="labelConRecargo">Horas con recargo (18:00 - 07:00)</span>
-                            <span class="result-value" id="horasConRecargo">0.00 h</span>
-                        </div>
-                        <div class="result-item">
-                            <span class="result-label">Horas normales del operador (total horas trabajadas)</span>
-                            <span class="result-value" id="horasNormalesOp">0.00 h</span>
-                        </div>
-                        <div class="result-item">
-                            <span class="result-label" id="labelDoblesOp">Horas dobles del operador (antes 07:00 y
-                                después
-                                19:00)</span>
-                            <span class="result-value" id="horasDobles">0.00 h</span>
-                        </div>
-                        <div class="result-item total">
-                            <span class="result-label">Monto Total del Servicio</span>
-                            <span class="result-value" id="montoTotal">$0</span>
-                        </div>
-                        <div class="result-actions">
-                            <button type="button" id="guardarOrdenBtn" class="btn-save">💾 Guardar Registro</button>
+                        <div class="section-body">
+                            <div class="results" id="results">
+                                <div id="resultsContent">
+                                    <div class="placeholder-text">
+                                        Complete los datos y presione <strong>Calcular</strong> para ver los resultados aquí.
+                                    </div>
+                                </div>
+                                <div id="resultActions" class="result-actions" style="display: none;">
+                                    <button type="button" id="guardarOrdenBtn" class="btn-save">Guardar Registro</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
