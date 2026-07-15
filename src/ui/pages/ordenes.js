@@ -80,7 +80,6 @@ function getFormData() {
 function handleSubmit(e) {
     e.preventDefault();
     errorDiv.classList.remove('show');
-    resultsDiv.classList.remove('show');
 
     try {
         const formData = getFormData();
@@ -104,7 +103,6 @@ function handleSubmit(e) {
         };
 
         renderResults(result);
-        resultsDiv.classList.add('show');
 
     } catch (error) {
         errorDiv.textContent = '\u274C ' + error.message;

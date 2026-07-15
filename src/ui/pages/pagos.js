@@ -220,7 +220,6 @@ function actualizarItemsList() {
     if (itemsAgregados.length === 0) {
         pagoItemsList.style.display = 'none';
         pagoEmptyMessage.style.display = 'block';
-        totalResultsDiv.classList.remove('show');
         return;
     }
 
@@ -324,7 +323,6 @@ function handleAddCosto() {
 
 function calcularTotales() {
     if (itemsAgregados.length === 0) {
-        totalResultsDiv.classList.remove('show');
         return;
     }
 
@@ -412,8 +410,6 @@ function calcularTotales() {
         costosHtml += '</div>';
     });
     costosResultsContainer.innerHTML = costosHtml;
-
-    totalResultsDiv.classList.add('show');
 }
 
 /**
@@ -516,7 +512,20 @@ function handleSavePago() {
 }
 
 /**
- * Genera e imprime un PDF con el detalle del estado de pago
+ * Genera e imprime el comprobante de liquidación de servicios.
+ *
+ * Produce un documento formal con formato de cobro que incluye:
+ * - Encabezado institucional con número de documento y fecha de emisión.
+ * - Detalle pormenorizado por jornada (día, horario, colación, horas trabajadas).
+ * - Tabla resumen de conceptos: horas sin recargo, horas con recargo,
+ *   costos adicionales, monto neto, IVA (19 %) y total.
+ * - Pie de documento con condiciones de pago y validez tributaria.
+ *
+ * La paleta cromática se basa en las variables CSS del proyecto:
+ *   --color-primary (#065A82), --color-primary-50 (#e6f1f6),
+ *   --color-bg-sidebar (#21295C), --color-text-primary (#1a1f2e),
+ *   --color-text-secondary (#4a5568), --color-border-light (#e2e8ed),
+ *   --color-bg (#f0f4f7).
  */
 function handlePrintPDF() {
     if (itemsAgregados.length === 0) {
@@ -533,51 +542,238 @@ function handlePrintPDF() {
         return;
     }
 
-    let html = '<!DOCTYPE html><html><head><meta charset="UTF-8">';
-    html += '<title>Estado de Pago #' + indice + '</title>';
+    const fechaEmision = new Date().toLocaleDateString('es-CL', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+    });
+
+    let html = '<!DOCTYPE html><html lang="es-CL"><head><meta charset="UTF-8">';
+    html += '<title>Liquidación ' + indice + '</title>';
     html += '<style>';
-    html += 'body { font-family: Arial, sans-serif; margin: 30px; color: #333; }';
-    html += 'h1 { font-size: 22px; border-bottom: 2px solid #2b6cb0; padding-bottom: 10px; color: #2b6cb0; }';
-    html += 'h2 { font-size: 17px; margin-top: 25px; color: #444; border-bottom: 1px solid #ddd; padding-bottom: 6px; }';
-    html += 'table { width: 100%; border-collapse: collapse; margin: 10px 0; }';
-    html += 'th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #eee; font-size: 14px; }';
-    html += 'th { background: #f5f5f5; font-weight: 600; }';
-    html += '.item-header { font-weight: 600; font-size: 15px; margin-top: 15px; color: #2b6cb0; }';
-    html += '.totals { margin-top: 25px; border-top: 2px solid #2b6cb0; padding-top: 10px; }';
-    html += '.total-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 15px; }';
-    html += '.total-row.final { font-weight: 700; font-size: 18px; color: #2b6cb0; border-top: 2px solid #333; padding-top: 10px; margin-top: 5px; }';
-    html += '.value-hora { color: #666; font-size: 13px; }';
-    html += '@media print { body { margin: 15px; } }';
-    html += '</style></head><body>';
+    html += ':root {';
+    html += '  --c-primary: #065A82;';
+    html += '  --c-primary-50: #e6f1f6;';
+    html += '  --c-primary-100: #cce3ed;';
+    html += '  --c-sidebar: #21295C;';
+    html += '  --c-text: #1a1f2e;';
+    html += '  --c-text-secondary: #4a5568;';
+    html += '  --c-text-muted: #7a8a9a;';
+    html += '  --c-border: #c5d0d8;';
+    html += '  --c-border-light: #e2e8ed;';
+    html += '  --c-bg: #f0f4f7;';
+    html += '  --c-bg-card: #ffffff;';
+    html += '  --c-success: #5B8E7D;';
+    html += '}';
+    html += '* { margin: 0; padding: 0; box-sizing: border-box; }';
+    html += 'body {';
+    html += '  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;';
+    html += '  font-size: 12px;';
+    html += '  line-height: 1.6;';
+    html += '  color: var(--c-text);';
+    html += '  background: #fff;';
+    html += '  -webkit-print-color-adjust: exact;';
+    html += '  print-color-adjust: exact;';
+    html += '}';
+    html += '.page { max-width: 210mm; margin: 0 auto; padding: 15mm 12mm; }';
 
-    html += '<h1>\uD83D\uDCB0 Estado de Pago #' + indice + '</h1>';
-    html += '<p style="color:#666;font-size:14px;">Fecha: ' + new Date().toLocaleDateString('es-CL') + '</p>';
+    // ── Encabezado ──────────────────────────────
+    html += '.header {';
+    html += '  display: flex;';
+    html += '  justify-content: space-between;';
+    html += '  align-items: flex-start;';
+    html += '  padding-bottom: 20px;';
+    html += '  margin-bottom: 24px;';
+    html += '  border-bottom: 3px solid var(--c-primary);';
+    html += '}';
+    html += '.header-left h1 {';
+    html += '  font-size: 11px;';
+    html += '  font-weight: 600;';
+    html += '  letter-spacing: 0.12em;';
+    html += '  text-transform: uppercase;';
+    html += '  color: var(--c-primary);';
+    html += '  margin-bottom: 4px;';
+    html += '}';
+    html += '.header-left .org {';
+    html += '  font-size: 20px;';
+    html += '  font-weight: 700;';
+    html += '  color: var(--c-sidebar);';
+    html += '  line-height: 1.2;';
+    html += '}';
+    html += '.header-left .org-sub {';
+    html += '  font-size: 10px;';
+    html += '  color: var(--c-text-muted);';
+    html += '  margin-top: 2px;';
+    html += '}';
+    html += '.header-right {';
+    html += '  text-align: right;';
+    html += '  font-size: 10px;';
+    html += '}';
+    html += '.header-right .doc-label {';
+    html += '  font-weight: 600;';
+    html += '  color: var(--c-text-muted);';
+    html += '  letter-spacing: 0.06em;';
+    html += '  text-transform: uppercase;';
+    html += '}';
+    html += '.header-right .doc-number {';
+    html += '  font-size: 15px;';
+    html += '  font-weight: 700;';
+    html += '  color: var(--c-primary);';
+    html += '}';
+    html += '.header-right .doc-date {';
+    html += '  color: var(--c-text-secondary);';
+    html += '  margin-top: 6px;';
+    html += '}';
 
-    // Detalle de cada item
+    // ── Tablas de detalle ──────────────────────
+    html += '.item-section { margin-bottom: 22px; }';
+    html += '.item-title {';
+    html += '  font-size: 13px;';
+    html += '  font-weight: 700;';
+    html += '  color: var(--c-sidebar);';
+    html += '  margin-bottom: 8px;';
+    html += '  padding-bottom: 6px;';
+    html += '  border-bottom: 1px solid var(--c-border-light);';
+    html += '}';
+    html += 'table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }';
+    html += 'th {';
+    html += '  background: var(--c-primary-50);';
+    html += '  color: var(--c-primary);';
+    html += '  font-weight: 700;';
+    html += '  font-size: 9px;';
+    html += '  letter-spacing: 0.07em;';
+    html += '  text-transform: uppercase;';
+    html += '  padding: 7px 10px;';
+    html += '  text-align: center;';
+    html += '  border-bottom: 2px solid var(--c-primary-100);';
+    html += '}';
+    html += 'td {';
+    html += '  padding: 6px 10px;';
+    html += '  font-size: 11px;';
+    html += '  text-align: center;';
+    html += '  color: var(--c-text-secondary);';
+    html += '  border-bottom: 1px solid var(--c-border-light);';
+    html += '}';
+    html += 'tr:nth-child(even) td { background: var(--c-primary-50); }';
+    html += 'td:first-child, th:first-child { text-align: left; }';
+    html += 'td:last-child, th:last-child { text-align: right; font-weight: 600; }';
+
+    // ── Resumen ──────────────────────────────
+    html += '.totals {';
+    html += '  margin-top: 28px;';
+    html += '  padding-top: 20px;';
+    html += '  border-top: 2px solid var(--c-border);';
+    html += '}';
+    html += '.totals h2 {';
+    html += '  font-size: 12px;';
+    html += '  font-weight: 600;';
+    html += '  text-transform: uppercase;';
+    html += '  letter-spacing: 0.08em;';
+    html += '  color: var(--c-primary);';
+    html += '  margin-bottom: 12px;';
+    html += '}';
+    html += '.summary-table th {';
+    html += '  background: var(--c-sidebar);';
+    html += '  color: #ffffff;';
+    html += '  font-size: 9px;';
+    html += '  letter-spacing: 0.07em;';
+    html += '  text-transform: uppercase;';
+    html += '  padding: 8px 12px;';
+    html += '  border-bottom: none;';
+    html += '}';
+    html += '.summary-table th:first-child { text-align: left; }';
+    html += '.summary-table th:nth-child(2) { text-align: center; }';
+    html += '.summary-table th:last-child { text-align: right; }';
+    html += '.summary-table td { font-size: 11px; border-bottom: 1px solid var(--c-border-light); }';
+    html += '.summary-table td:first-child { text-align: left; color: var(--c-text-secondary); }';
+    html += '.summary-table td:nth-child(2) { text-align: center; }';
+    html += '.summary-table td:last-child { text-align: right; font-weight: 600; color: var(--c-text); }';
+    html += '.summary-table tr.separator td { padding: 4px 0; border-bottom: 2px solid var(--c-border); }';
+    html += '.summary-table tr.neto td {';
+    html += '  font-size: 13px;';
+    html += '  font-weight: 600;';
+    html += '  color: var(--c-text);';
+    html += '  padding: 10px 12px;';
+    html += '}';
+    html += '.summary-table tr.neto td:last-child { font-weight: 700; color: var(--c-primary); }';
+    html += '.summary-table tr.iva td {';
+    html += '  font-size: 12px;';
+    html += '  color: var(--c-text-muted);';
+    html += '  padding: 8px 12px;';
+    html += '}';
+    html += '.summary-table tr.iva td:last-child { color: var(--c-text-secondary); }';
+    html += '.summary-table tr.final td {';
+    html += '  font-size: 15px;';
+    html += '  font-weight: 700;';
+    html += '  color: var(--c-sidebar);';
+    html += '  border-top: 3px double var(--c-primary);';
+    html += '  padding: 12px 12px 8px;';
+    html += '}';
+    html += '.summary-table tr.final td:last-child { font-weight: 800; color: var(--c-primary); }';
+
+    // ── Pie ───────────────────────────────────
+    html += '.footer {';
+    html += '  margin-top: 36px;';
+    html += '  padding-top: 16px;';
+    html += '  border-top: 1px solid var(--c-border-light);';
+    html += '  font-size: 9px;';
+    html += '  color: var(--c-text-muted);';
+    html += '  line-height: 1.7;';
+    html += '}';
+    html += '.footer strong { color: var(--c-text-secondary); }';
+
+    // ── Impresión ─────────────────────────────
+    html += '@media print {';
+    html += '  @page { margin: 0; size: A4; }';
+    html += '  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }';
+    html += '  .page { padding: 12mm 10mm; }';
+    html += '}';
+    html += '</style></head><body><div class="page">';
+
+    // ══════ CABECERA ═══════════════════════════
+    const tipoDoc = 'Comprobante de Liquidación de Servicios';
+    html += '<div class="header">';
+    html += '<div class="header-left">';
+    html += '<div class="org">Estado de pago</div>';
+    html += '<div class="org-sub">Servicios Multiservice Grúas </div>';
+    html += '</div>';
+    html += '<div class="header-right">';
+    html += '<div class="doc-label">' + tipoDoc + '</div>';
+    html += '<div class="doc-number">N.° ' + indice + '</div>';
+    html += '<div class="doc-date">Emitido el ' + fechaEmision + '</div>';
+    html += '</div>';
+    html += '</div>';
+
+    // ══════ DETALLE POR ÍTEM ═══════════════════
     itemsAgregados.forEach((item) => {
-        const tipoLabel = item.tipo === 'orden' ? '\uD83D\uDCCB Orden de Trabajo' : '\uD83D\uDCCA Reporte Semanal';
-        html += '<div class="item-header">' + tipoLabel + ' #' + item.indice + '</div>';
+        const tipoLabel = item.tipo === 'orden'
+            ? 'Orden de Trabajo'
+            : 'Reporte Semanal';
+        html += '<div class="item-section">';
+        html += '<div class="item-title">' + tipoLabel + ' — Índice ' + item.indice + '</div>';
 
         const dias = obtenerDiasReporte(item);
         if (dias.length > 0) {
-            html += '<table><thead><tr><th>D\u00EDa</th><th>Fecha</th><th>Horario</th><th>Colaci\u00F3n</th><th>Horas</th></tr></thead><tbody>';
+            html += '<table><thead><tr>';
+            html += '<th>Jornada</th><th>Fecha</th><th>Horario</th><th>Colación</th><th>Horas</th>';
+            html += '</tr></thead><tbody>';
             dias.forEach((dia) => {
                 html += '<tr>';
                 html += '<td>' + dia.nombre + '</td>';
                 html += '<td>' + dia.fecha + '</td>';
-                html += '<td>' + dia.horaInicio + ' - ' + dia.horaTermino + '</td>';
+                html += '<td>' + dia.horaInicio + ' — ' + dia.horaTermino + '</td>';
                 html += '<td>' + dia.colacion + ' min</td>';
                 html += '<td>' + formatHours(dia.horasTotales) + '</td>';
                 html += '</tr>';
             });
             html += '</tbody></table>';
         }
+        html += '</div>';
     });
 
-    // Totales
-    const totalSinRecargo = parseFloat(totalSinRecargoEl.textContent) || 0;
-    const totalConRecargo = parseFloat(totalConRecargoEl.textContent) || 0;
-    const totalMonto = totalMontoEl.textContent || '$0';
+    // ══════ CÁLCULO DE MONTOS ═════════════════
+    const totalHorasSinR = parseFloat(totalSinRecargoEl.textContent) || 0;
+    const totalHorasConR = parseFloat(totalConRecargoEl.textContent) || 0;
 
     let valorHoraNormal = 0;
     let valorConRecargoUnit = 0;
@@ -587,38 +783,78 @@ function handlePrintPDF() {
         valorConRecargoUnit = (first.valorHora || 0) * (1 + ((first.recargoPorcentaje || 30) / 100));
     }
 
-    // Calcular montos
-    const totalHorasSinR = parseFloat(totalSinRecargoEl.textContent) || 0;
-    const totalHorasConR = parseFloat(totalConRecargoEl.textContent) || 0;
     const montoSinRecargo = totalHorasSinR * valorHoraNormal;
     const montoConRecargo = totalHorasConR * valorConRecargoUnit;
 
-    html += '<div class="totals">';
-    html += '<h2>Totales del Estado de Pago</h2>';
-    html += '<div class="total-row"><span>Total horas sin recargo (' + formatHourRate(valorHoraNormal) + ')</span><span>' + totalSinRecargoEl.textContent + '</span><span>' + formatCurrency(montoSinRecargo) + '</span></div>';
-    html += '<div class="total-row"><span>Total horas con recargo (' + formatHourRate(valorConRecargoUnit) + ')</span><span>' + totalConRecargoEl.textContent + '</span><span>' + formatCurrency(montoConRecargo) + '</span></div>';
-
-    // Mostrar costos en PDF
+    let totalCostosAdicionales = 0;
     costosAgregados.forEach((costo) => {
-        const tipoTexto = getCostoLabelText(costo.tipo);
-        const cantidad = costo.cantidad || 1;
-        const valorUnitario = costo.valor;
-        const totalCosto = cantidad * valorUnitario;
-        html += '<div class="total-row"><span>' + tipoTexto + ' ($' + formatHourRate(valorUnitario) + '/u)</span><span>' + cantidad + ' u</span><span>' + formatCurrency(totalCosto) + '</span></div>';
+        totalCostosAdicionales += (costo.cantidad || 1) * (costo.valor || 0);
     });
 
-    html += '<div class="total-row final"><span>Monto Total</span><span style="grid-column:span 2;text-align:right;">' + totalMonto + '</span></div>';
+    const montoNeto = montoSinRecargo + montoConRecargo + totalCostosAdicionales;
+    const iva = montoNeto * 0.19;
+    const total = montoNeto + iva;
+
+    // ══════ RESUMEN ════════════════════════════
+    html += '<div class="totals">';
+    html += '<h2>Liquidación</h2>';
+    html += '<table class="summary-table"><thead><tr>';
+    html += '<th>Concepto</th><th>Cantidad</th><th>Importe</th>';
+    html += '</tr></thead><tbody>';
+
+    html += '<tr>';
+    html += '<td>Horas sin recargo (valor hora: ' + formatHourRate(valorHoraNormal) + ')</td>';
+    html += '<td>' + formatHours(totalHorasSinR) + '</td>';
+    html += '<td>' + formatCurrency(montoSinRecargo) + '</td>';
+    html += '</tr>';
+
+    html += '<tr>';
+    html += '<td>Horas con recargo (valor hora: ' + formatHourRate(valorConRecargoUnit) + ')</td>';
+    html += '<td>' + formatHours(totalHorasConR) + '</td>';
+    html += '<td>' + formatCurrency(montoConRecargo) + '</td>';
+    html += '</tr>';
+
+    if (costosAgregados.length > 0) {
+        costosAgregados.forEach((costo) => {
+            const tipoTexto = getCostoLabelText(costo.tipo);
+            const cantidad = costo.cantidad || 1;
+            const valorUnitario = costo.valor;
+            const totalCosto = cantidad * valorUnitario;
+            html += '<tr>';
+            html += '<td>' + tipoTexto + ' ($' + valorUnitario.toLocaleString('es-CL') + '/u)</td>';
+            html += '<td>' + cantidad + ' u</td>';
+            html += '<td>' + formatCurrency(totalCosto) + '</td>';
+            html += '</tr>';
+        });
+    }
+
+    html += '<tr class="separator"><td colspan="3"></td></tr>';
+    html += '<tr class="neto"><td>Monto Neto</td><td></td><td>' + formatCurrency(montoNeto) + '</td></tr>';
+    html += '<tr class="iva"><td>IVA (19 %)</td><td></td><td>' + formatCurrency(iva) + '</td></tr>';
+    html += '<tr class="final"><td>Total a Pagar</td><td></td><td>' + formatCurrency(total) + '</td></tr>';
+    html += '</tbody></table>';
     html += '</div>';
 
-    html += '</body></html>';
+    // ══════ PIE ════════════════════════════════
+    html += '<div class="footer">';
+    html += '<strong>Datos comerciales:</strong><br>';
+    html += 'Multiservice F.L. Ltda.<br>';
+    html += 'Giro: Explotación de arrendamiento de maquinaria.<br>';
+    html += 'Dirección: Av. Presidente Jorge Alessandri 13059, San Bernardo.<br>';
+    html += 'Fono: 2 2591 5215';
+    html += '<br><br>';
+    html += '<strong>Condiciones:</strong> Transcurrido un plazo de 8 días en los que no se realice '
+        + 'alguna observación o se envíe OC, se llevará a cabo igualmente la facturación.';
+    html += '</div>';
+
+    html += '</div></body></html>';
 
     win.document.write(html);
     win.document.close();
 
-    // Esperar a que cargue el contenido y luego imprimir
     setTimeout(() => {
         win.print();
-    }, 300);
+    }, 400);
 }
 
 export function initPagosPage() {

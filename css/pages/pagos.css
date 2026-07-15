@@ -6,12 +6,12 @@
     width: 100%;
 }
 
-/* Encabezado de la sección de items */
 .pago-items-header {
-    margin-top: 30px;
-    margin-bottom: 10px;
-    border-bottom: 2px solid var(--color-border);
-    padding-bottom: 10px;
+    margin-top: 1.25rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .pago-items-header h2 {
@@ -20,82 +20,93 @@
     margin: 0;
 }
 
-/* Costos adicionales */
+/* Additional costs section */
 .pago-costos-adicionales {
-    margin: 20px 0;
-    padding: 15px;
-    background: var(--color-bg-muted);
+    margin: 1rem 0;
+    padding: 1rem 1.25rem;
+    background: var(--color-bg-elevated);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
+}
+
+.pago-costos-adicionales h3 {
+    font-size: var(--font-size-base);
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-bottom: 0.75rem;
 }
 
 .form-row--2col {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 15px;
+    gap: 1rem;
 }
 
 .pago-costos-adicionales .form-group {
     margin-bottom: 0;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 0.375rem;
 }
 
 .pago-costos-adicionales select,
 .pago-costos-adicionales input[type="number"] {
     width: 100%;
-    padding: 10px 12px;
-    border: 2px solid var(--color-border);
+    padding: 0.5rem 0.625rem;
+    border: 1.5px solid var(--color-border);
     border-radius: var(--radius-sm);
-    font-size: var(--font-size-base);
+    font-size: var(--font-size-sm);
     font-family: var(--font-family);
     background: var(--color-bg-white);
     color: var(--color-text-primary);
-    transition: var(--transition-normal);
+    transition: var(--transition-fast);
 }
 
 .pago-costos-adicionales select:focus,
 .pago-costos-adicionales input[type="number"]:focus {
     outline: none;
-    border-color: var(--powder-blue);
-    box-shadow: 0 0 0 3px rgba(173, 191, 206, 0.25);
+    border-color: var(--color-primary-light);
+    box-shadow: 0 0 0 3px rgba(6, 90, 130, 0.12);
 }
 
-/* Input row para agregar costo dinámico */
+/* Costo input row */
 .costo-input-row {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr auto;
-    gap: 8px;
+    gap: 0.5rem;
     align-items: end;
-    margin: 12px 0;
+    margin: 0.75rem 0;
 }
 
 .costo-input-row .form-group {
     margin-bottom: 0;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 0.25rem;
+}
+
+.costo-input-row .form-group label {
+    font-size: var(--font-size-xs);
 }
 
 .costo-input-row select,
 .costo-input-row input[type="number"] {
     width: 100%;
-    padding: 10px 12px;
-    border: 2px solid var(--color-border);
+    padding: 0.5rem 0.625rem;
+    border: 1.5px solid var(--color-border);
     border-radius: var(--radius-sm);
-    font-size: var(--font-size-base);
+    font-size: var(--font-size-sm);
     font-family: var(--font-family);
     background: var(--color-bg-white);
     color: var(--color-text-primary);
-    transition: var(--transition-normal);
+    transition: var(--transition-fast);
 }
 
 .costo-input-row select:focus,
 .costo-input-row input[type="number"]:focus {
     outline: none;
-    border-color: var(--powder-blue);
-    box-shadow: 0 0 0 3px rgba(173, 191, 206, 0.25);
+    border-color: var(--color-primary-light);
+    box-shadow: 0 0 0 3px rgba(6, 90, 130, 0.12);
 }
 
 .form-group--btn {
@@ -105,38 +116,26 @@
 }
 
 .btn-add-costo {
-    padding: 10px 18px;
-    border: 2px solid var(--color-primary);
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    font-size: var(--font-size-base);
-    font-weight: 600;
-    background: var(--color-primary);
-    color: white;
-    transition: var(--transition-normal);
-    font-family: var(--font-family);
-    white-space: nowrap;
+    width: auto;
+    min-width: 90px;
+    padding: 0.5rem 0.875rem;
+    font-size: var(--font-size-sm);
+    margin-top: 0;
 }
 
-.btn-add-costo:hover {
-    background: var(--color-primary-dark);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-/* Lista de costos agregados (debajo del input) */
+/* Costos list */
 .costos-list {
-    margin-top: 8px;
+    margin-top: 0.5rem;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 0.375rem;
 }
 
 .costos-list-empty {
-    color: var(--color-text-secondary);
+    color: var(--color-text-muted);
     font-style: italic;
     font-size: var(--font-size-sm);
-    padding: 8px 0;
+    padding: 0.5rem 0;
     text-align: center;
 }
 
@@ -144,11 +143,11 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 14px;
+    padding: 0.625rem 0.875rem;
     background: var(--color-bg-white);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-sm);
-    gap: 10px;
+    gap: 0.625rem;
 }
 
 .costo-item-info {
@@ -166,49 +165,25 @@
 
 .costo-item-detalle {
     font-size: var(--font-size-xs);
-    color: var(--color-text-secondary);
+    color: var(--color-text-muted);
 }
 
-.btn-remove-costo {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    border: none;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    font-size: 16px;
-    transition: var(--transition-normal);
-    background: transparent;
-    flex-shrink: 0;
-}
-
-.btn-remove-costo:hover {
-    background: var(--color-error-bg, #fde8e8);
-    transform: scale(1.15);
-}
-
-/* Barra de búsqueda */
+/* Search bar */
 .pago-search-row {
-    margin: 20px 0;
+    margin: 0.75rem 0;
     width: 100%;
 }
 
 .form-group--inline {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 0.25rem;
     width: 100%;
 }
 
 .search-input-group {
     display: flex;
-    justify-content: space-around;
-    align-content: space-around;
-    gap: 8px;
-    /* align-items: center; */
+    gap: 0.5rem;
     width: 100%;
 }
 
@@ -216,63 +191,51 @@
     flex: 1;
     min-width: 0;
     width: auto;
-    padding: 12px 14px;
-    border: 2px solid var(--color-border);
+    padding: 0.5rem 0.625rem;
+    border: 1.5px solid var(--color-border);
     border-radius: var(--radius-sm);
-    font-size: var(--font-size-base);
+    font-size: var(--font-size-sm);
     font-family: var(--font-family);
-    transition: var(--transition-normal);
+    transition: var(--transition-fast);
     background: var(--color-bg-white);
     color: var(--color-text-primary);
 }
 
 .search-input-group input:focus {
     outline: none;
-    border-color: var(--powder-blue);
-    box-shadow: 0 0 0 3px rgba(173, 191, 206, 0.25);
+    border-color: var(--color-primary-light);
+    box-shadow: 0 0 0 3px rgba(6, 90, 130, 0.12);
 }
 
 .btn-search {
-    padding: 12px 16px;
-    border: none;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
+    width: auto;
+    min-width: 80px;
+    padding: 0.5rem 0.875rem;
     font-size: var(--font-size-sm);
-    font-weight: 600;
-    background: var(--color-primary, #2b6cb0);
-    color: white;
-    transition: var(--transition-normal);
-    font-family: var(--font-family);
+    margin-top: 0;
     white-space: nowrap;
-    flex-shrink: 0;
 }
 
-.btn-search:hover {
-    background: var(--color-primary-dark, #1a365d);
-    transform: translateY(-1px);
-}
-
-/* Resultado de búsqueda */
+/* Search result */
 .pago-search-result {
-    margin: 15px 0;
-    padding: 15px;
+    margin: 0.75rem 0;
+    padding: 1rem;
     background: var(--color-bg-white);
-    border: 2px solid var(--color-border);
+    border: 1.5px solid var(--color-border);
     border-radius: var(--radius-md);
-    animation: slideIn 0.3s ease-out;
 }
 
 .search-result-card {
-    margin-bottom: 10px;
+    margin-bottom: 0.625rem;
 }
 
 .search-result-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-bottom: 10px;
+    padding-bottom: 0.625rem;
     border-bottom: 1px solid var(--color-border);
-    margin-bottom: 10px;
+    margin-bottom: 0.625rem;
 }
 
 .search-result-type {
@@ -282,64 +245,45 @@
 }
 
 .search-result-indice {
-    font-family: monospace;
-    font-size: 18px;
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-md);
     font-weight: 700;
     color: var(--color-primary-dark);
 }
 
 .search-result-body .result-item {
-    padding: 8px 0;
+    padding: 0.5rem 0;
 }
 
 .search-result-body .result-item--small {
-    padding: 4px 0;
+    padding: 0.25rem 0;
     font-size: var(--font-size-sm);
 }
 
 .search-result-dias {
-    margin: 8px 0;
-    padding: 8px 12px;
-    background: var(--color-bg-muted);
+    margin: 0.5rem 0;
+    padding: 0.5rem 0.75rem;
+    background: var(--color-bg-elevated);
     border-radius: var(--radius-sm);
     border-left: 3px solid var(--color-primary);
 }
 
 .pago-search-actions {
-    margin-top: 10px;
-    padding-top: 10px;
+    margin-top: 0.625rem;
+    padding-top: 0.625rem;
     border-top: 1px solid var(--color-border);
     text-align: right;
 }
 
-.btn-add {
-    padding: 10px 22px;
-    border: none;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    font-size: var(--font-size-base);
-    font-weight: 600;
-    background: #2e7d32;
-    color: white;
-    transition: var(--transition-normal);
-    font-family: var(--font-family);
-}
-
-.btn-add:hover {
-    background: #1b5e20;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-/* Lista de items agregados */
+/* Items list */
 .pago-items-list {
-    margin: 20px 0;
+    margin: 1rem 0;
 }
 
 .pago-items-list h3 {
     font-size: var(--font-size-base);
     color: var(--color-text-secondary);
-    margin-bottom: 12px;
+    margin-bottom: 0.75rem;
 }
 
 .pago-items-list h3 span {
@@ -347,10 +291,9 @@
     color: var(--color-text-secondary);
 }
 
-/* Tarjeta de item en la lista */
 .pago-item-card {
-    margin-bottom: 12px;
-    border: 2px solid var(--color-border);
+    margin-bottom: 0.75rem;
+    border: 1.5px solid var(--color-border);
     border-radius: var(--radius-md);
     overflow: hidden;
     background: var(--color-bg-white);
@@ -360,8 +303,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 16px;
-    background: var(--color-bg-muted);
+    padding: 0.625rem 1rem;
+    background: var(--color-bg-elevated);
     border-bottom: 1px solid var(--color-border);
 }
 
@@ -371,32 +314,12 @@
     color: var(--color-text-primary);
 }
 
-.btn-remove-item {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    border: none;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    font-size: 16px;
-    transition: var(--transition-normal);
-    background: transparent;
-}
-
-.btn-remove-item:hover {
-    background: var(--color-error-bg, #fde8e8);
-    transform: scale(1.15);
-}
-
 .pago-item-body {
-    padding: 10px 16px;
+    padding: 0.625rem 1rem;
 }
 
 .pago-item-body .result-item {
-    padding: 6px 0;
+    padding: 0.375rem 0;
     border-bottom: 1px solid var(--color-border-light);
 }
 
@@ -413,46 +336,46 @@
 }
 
 .pago-item-body .result-item--small {
-    padding: 3px 0;
+    padding: 0.25rem 0;
     font-size: var(--font-size-xs);
 }
 
 .pago-item-dias {
-    margin: 6px 0;
-    padding: 6px 10px;
-    background: var(--color-bg-muted);
+    margin: 0.375rem 0;
+    padding: 0.375rem 0.625rem;
+    background: var(--color-bg-elevated);
     border-radius: var(--radius-sm);
     border-left: 3px solid var(--color-primary);
 }
 
-/* Mensaje vacío */
+/* Empty message */
 .pago-empty {
     text-align: center;
-    padding: 40px 20px;
-    color: var(--color-text-secondary);
+    padding: 2rem 1.25rem;
+    color: var(--color-text-muted);
     font-style: italic;
     font-size: var(--font-size-base);
     border: 2px dashed var(--color-border);
     border-radius: var(--radius-md);
-    margin: 20px 0;
+    margin: 1rem 0;
 }
 
-/* Detalle por elemento en resultados */
+/* Detail per element in results */
 .pago-detalle-items {
-    margin: 15px 0;
+    margin: 0.75rem 0;
 }
 
 .pago-detalle-items h3 {
-    font-size: 17px;
+    font-size: var(--font-size-base);
     color: var(--color-text-secondary);
-    margin-bottom: 12px;
+    margin-bottom: 0.75rem;
     border-bottom: 2px solid var(--color-border);
-    padding-bottom: 8px;
+    padding-bottom: 0.5rem;
 }
 
 .pago-detalle-item {
-    margin-bottom: 12px;
-    padding: 12px 15px;
+    margin-bottom: 0.75rem;
+    padding: 0.75rem 1rem;
     background: var(--color-bg-white);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-sm);
@@ -463,13 +386,13 @@
     font-weight: 600;
     font-size: var(--font-size-base);
     color: var(--color-primary-dark);
-    padding-bottom: 8px;
+    padding-bottom: 0.5rem;
     border-bottom: 1px solid var(--color-border-light);
-    margin-bottom: 8px;
+    margin-bottom: 0.5rem;
 }
 
 .pago-detalle-item .result-item {
-    padding: 6px 0;
+    padding: 0.375rem 0;
     border-bottom: 1px solid var(--color-border-light);
 }
 
@@ -485,44 +408,31 @@
     font-size: var(--font-size-base);
 }
 
-/* Botón de imprimir PDF */
+/* PDF button in results */
 .btn-pdf {
-    padding: 12px 22px;
-    border: none;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    font-size: 15px;
-    font-weight: 600;
-    background: #c0392b;
-    color: white;
-    transition: var(--transition-normal);
-    font-family: var(--font-family);
-    margin-left: 10px;
-}
-
-.btn-pdf:hover {
-    background: #a93226;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    padding: 0.625rem 1.25rem;
+    margin-left: 0;
 }
 
 #totalResults .result-actions {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 20px;
-    padding-bottom: 17px;
-    border-bottom: 1px solid var(--color-border);
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--color-border);
 }
 
 #totalResults .result-actions button {
     width: auto;
-    min-width: 200px;
+    min-width: 0;
+    padding: 0.5rem 1rem;
+    font-size: var(--font-size-sm);
     margin-top: 0;
+    flex: 1;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .search-input-group {
         flex-direction: column;

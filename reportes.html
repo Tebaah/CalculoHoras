@@ -12,23 +12,49 @@
     <div class="layout">
         <aside class="sidebar">
             <div class="sidebar-header">
-                <h2>⏱️ Cálculo de Horas</h2>
+                <h2>Cálculo de Horas</h2>
             </div>
             <nav class="sidebar-nav">
                 <a href="ordenes.html" class="nav-item" id="nav-ordenes">
-                    <span class="nav-icon">📋</span>
+                    <span class="nav-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="8" y="2" width="8" height="4" rx="1" />
+                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+                            <path d="M12 11v6" />
+                            <path d="M9 14h6" />
+                        </svg>
+                    </span>
                     <span class="nav-text">Órdenes de Trabajo</span>
                 </a>
                 <a href="reportes.html" class="nav-item active" id="nav-reportes">
-                    <span class="nav-icon">📊</span>
+                    <span class="nav-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 3v18h18" />
+                            <path d="M7 16l4-8 4 4 4-6" />
+                        </svg>
+                    </span>
                     <span class="nav-text">Reportes</span>
                 </a>
                 <a href="pagos.html" class="nav-item" id="nav-pagos">
-                    <span class="nav-icon">💰</span>
+                    <span class="nav-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8" />
+                            <path d="M12 18V6" />
+                        </svg>
+                    </span>
                     <span class="nav-text">Estados de Pago</span>
                 </a>
                 <a href="historial.html" class="nav-item" id="nav-historial">
-                    <span class="nav-icon">📁</span>
+                    <span class="nav-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                        </svg>
+                    </span>
                     <span class="nav-text">Historial</span>
                 </a>
             </nav>
@@ -36,303 +62,307 @@
         <main class="main-content">
             <div class="container container--split">
                 <div class="split-full">
-                    <h1>📊 Reporte Semanal</h1>
+                    <h1 class="page-heading">Calculo reportes</h1>
 
                     <div class="info-box">
-                        <strong>Reglas de cálculo:</strong>
+                        <strong>Reglas de cálculo</strong>
                         <strong>Servicio:</strong> Sin recargo: Cualquier hora fuera del rango 18:00-07:00 | Con
-                        recargo:
-                        18:00-07:00 (cruza medianoche)<br>
+                        recargo: 18:00-07:00 (cruza medianoche)<br>
                         <strong>Operador:</strong> Normales: Total de horas trabajadas | Dobles: antes de las 07:00 y
                         desde
                         las 19:00 en adelante<br>
-                        <strong>Tipos de día:</strong> Lun-Vie → Normal | Sábado → Sábado | Domingo → Domingo/Festivo
+                        <strong>Tipos de día:</strong> Lun–Vie → Normal | Sábado → Sábado | Domingo → Domingo/Festivo
                     </div>
                 </div>
 
                 <div class="split-left">
-                    <form id="reportForm">
-                        <div class="form-group">
-                            <label for="indiceReporte">Índice de almacenamiento</label>
-                            <input type="text" id="indiceReporte" placeholder="Ej: 222222" maxlength="20">
+                    <div class="section-panel">
+                        <div class="section-header">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                <path d="M16 2v4M8 2v4M3 10h18" />
+                            </svg>
+                            Datos del Reporte
                         </div>
+                        <div class="section-body">
+                            <form id="reportForm">
+                                <div class="form-row form-row--4col">
+                                    <div class="form-group">
+                                        <label for="indiceReporte">Índice</label>
+                                        <input type="text" id="indiceReporte" placeholder="Ej: 222222" maxlength="20">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="valorHora">Valor Hora Normal</label>
+                                        <select id="valorHora" required>
+                                            <option value="">Seleccione...</option>
+                                            <option value="95000">$95.000</option>
+                                            <option value="110000">$110.000</option>
+                                            <option value="120000">$120.000</option>
+                                            <option value="140000">$140.000</option>
+                                            <option value="165000">$165.000</option>
+                                            <option value="190000">$190.000</option>
+                                            <option value="210000">$210.000</option>
+                                            <option value="235000">$235.000</option>
+                                            <option value="260000">$260.000</option>
+                                            <option value="265000">$265.000</option>
+                                            <option value="290000">$290.000</option>
+                                            <option value="345000">$345.000</option>
+                                            <option value="390000">$390.000</option>
+                                            <option value="460000">$460.000</option>
+                                            <option value="495000">$495.000</option>
+                                            <option value="custom">Otro valor...</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="horasMinimas">Mínimo Horas</label>
+                                        <select id="horasMinimas" required>
+                                            <option value="0">Sin mínimo</option>
+                                            <option value="5">5 horas</option>
+                                            <option value="6">6 horas</option>
+                                            <option value="8">8 horas</option>
+                                            <option value="9">9 horas</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="recargoPorcentaje">% Recargo</label>
+                                        <select id="recargoPorcentaje" required>
+                                            <option value="0">Sin recargo</option>
+                                            <option value="10">10%</option>
+                                            <option value="20">20%</option>
+                                            <option value="30" selected>30%</option>
+                                        </select>
+                                    </div>
+                                </div>
 
-                        <div class="form-row form-row--3col">
-                            <div class="form-group">
-                                <label for="valorHora">Valor Hora Normal</label>
-                                <select id="valorHora" required>
-                                    <option value="">Seleccione...</option>
-                                    <option value="95000">$95.000</option>
-                                    <option value="110000">$110.000</option>
-                                    <option value="120000">$120.000</option>
-                                    <option value="140000">$140.000</option>
-                                    <option value="165000">$165.000</option>
-                                    <option value="190000">$190.000</option>
-                                    <option value="210000">$210.000</option>
-                                    <option value="235000">$235.000</option>
-                                    <option value="260000">$260.000</option>
-                                    <option value="265000">$265.000</option>
-                                    <option value="290000">$290.000</option>
-                                    <option value="345000">$345.000</option>
-                                    <option value="390000">$390.000</option>
-                                    <option value="460000">$460.000</option>
-                                    <option value="495000">$495.000</option>
-                                    <option value="custom">Otro valor...</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="horasMinimas">Mínimo Horas</label>
-                                <select id="horasMinimas" required>
-                                    <option value="0">Sin mínimo</option>
-                                    <option value="5">5 horas</option>
-                                    <option value="6">6 horas</option>
-                                    <option value="8">8 horas</option>
-                                    <option value="9">9 horas</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="recargoPorcentaje">% Recargo</label>
-                                <select id="recargoPorcentaje" required>
-                                    <option value="0">Sin recargo</option>
-                                    <option value="10">10%</option>
-                                    <option value="20">20%</option>
-                                    <option value="30" selected>30%</option>
-                                </select>
-                            </div>
+                                <div class="form-group" id="customValueGroup" style="display: none;">
+                                    <label for="customValue">Ingrese el valor de la hora</label>
+                                    <input type="number" id="customValue" min="0" step="0.01" placeholder="Ej: 7500">
+                                </div>
+
+                                <div class="report-table">
+                                    <div class="report-table-header">
+                                        <span class="col-dia">Día</span>
+                                        <span class="col-fecha">Fecha</span>
+                                        <span class="col-hora">Hora Inicio</span>
+                                        <span class="col-hora">Hora Término</span>
+                                        <span class="col-colacion">Colación</span>
+                                        <span class="col-tramo">Descontar de</span>
+                                    </div>
+
+                                    <div class="report-row" data-dia="lunes" data-tipo="normal">
+                                        <span class="col-dia">
+                                            <span class="day-name">Lunes</span>
+                                            <span class="day-tag">Normal</span>
+                                        </span>
+                                        <span class="col-fecha"><input type="date" class="fecha-dia"
+                                                data-day-index="0"></span>
+                                        <span class="col-hora"><input type="time" class="hora-inicio"></span>
+                                        <span class="col-hora"><input type="time" class="hora-termino"></span>
+                                        <span class="col-colacion">
+                                            <select class="colacion">
+                                                <option value="0" selected>0 min</option>
+                                                <option value="15">15 min</option>
+                                                <option value="30">30 min</option>
+                                                <option value="45">45 min</option>
+                                                <option value="60">60 min</option>
+                                            </select>
+                                        </span>
+                                        <span class="col-tramo">
+                                            <select class="colacion-tramo" style="display: none;">
+                                                <option value="sinRecargo">Sin recargo</option>
+                                                <option value="conRecargo">Con recargo</option>
+                                            </select>
+                                        </span>
+                                    </div>
+
+                                    <div class="report-row" data-dia="martes" data-tipo="normal">
+                                        <span class="col-dia">
+                                            <span class="day-name">Martes</span>
+                                            <span class="day-tag">Normal</span>
+                                        </span>
+                                        <span class="col-fecha"><input type="date" class="fecha-dia"
+                                                data-day-index="1"></span>
+                                        <span class="col-hora"><input type="time" class="hora-inicio"></span>
+                                        <span class="col-hora"><input type="time" class="hora-termino"></span>
+                                        <span class="col-colacion">
+                                            <select class="colacion">
+                                                <option value="0" selected>0 min</option>
+                                                <option value="15">15 min</option>
+                                                <option value="30">30 min</option>
+                                                <option value="45">45 min</option>
+                                                <option value="60">60 min</option>
+                                            </select>
+                                        </span>
+                                        <span class="col-tramo">
+                                            <select class="colacion-tramo" style="display: none;">
+                                                <option value="sinRecargo">Sin recargo</option>
+                                                <option value="conRecargo">Con recargo</option>
+                                            </select>
+                                        </span>
+                                    </div>
+
+                                    <div class="report-row" data-dia="miercoles" data-tipo="normal">
+                                        <span class="col-dia">
+                                            <span class="day-name">Miércoles</span>
+                                            <span class="day-tag">Normal</span>
+                                        </span>
+                                        <span class="col-fecha"><input type="date" class="fecha-dia"
+                                                data-day-index="2"></span>
+                                        <span class="col-hora"><input type="time" class="hora-inicio"></span>
+                                        <span class="col-hora"><input type="time" class="hora-termino"></span>
+                                        <span class="col-colacion">
+                                            <select class="colacion">
+                                                <option value="0" selected>0 min</option>
+                                                <option value="15">15 min</option>
+                                                <option value="30">30 min</option>
+                                                <option value="45">45 min</option>
+                                                <option value="60">60 min</option>
+                                            </select>
+                                        </span>
+                                        <span class="col-tramo">
+                                            <select class="colacion-tramo" style="display: none;">
+                                                <option value="sinRecargo">Sin recargo</option>
+                                                <option value="conRecargo">Con recargo</option>
+                                            </select>
+                                        </span>
+                                    </div>
+
+                                    <div class="report-row" data-dia="jueves" data-tipo="normal">
+                                        <span class="col-dia">
+                                            <span class="day-name">Jueves</span>
+                                            <span class="day-tag">Normal</span>
+                                        </span>
+                                        <span class="col-fecha"><input type="date" class="fecha-dia"
+                                                data-day-index="3"></span>
+                                        <span class="col-hora"><input type="time" class="hora-inicio"></span>
+                                        <span class="col-hora"><input type="time" class="hora-termino"></span>
+                                        <span class="col-colacion">
+                                            <select class="colacion">
+                                                <option value="0" selected>0 min</option>
+                                                <option value="15">15 min</option>
+                                                <option value="30">30 min</option>
+                                                <option value="45">45 min</option>
+                                                <option value="60">60 min</option>
+                                            </select>
+                                        </span>
+                                        <span class="col-tramo">
+                                            <select class="colacion-tramo" style="display: none;">
+                                                <option value="sinRecargo">Sin recargo</option>
+                                                <option value="conRecargo">Con recargo</option>
+                                            </select>
+                                        </span>
+                                    </div>
+
+                                    <div class="report-row" data-dia="viernes" data-tipo="normal">
+                                        <span class="col-dia">
+                                            <span class="day-name">Viernes</span>
+                                            <span class="day-tag">Normal</span>
+                                        </span>
+                                        <span class="col-fecha"><input type="date" class="fecha-dia"
+                                                data-day-index="4"></span>
+                                        <span class="col-hora"><input type="time" class="hora-inicio"></span>
+                                        <span class="col-hora"><input type="time" class="hora-termino"></span>
+                                        <span class="col-colacion">
+                                            <select class="colacion">
+                                                <option value="0" selected>0 min</option>
+                                                <option value="15">15 min</option>
+                                                <option value="30">30 min</option>
+                                                <option value="45">45 min</option>
+                                                <option value="60">60 min</option>
+                                            </select>
+                                        </span>
+                                        <span class="col-tramo">
+                                            <select class="colacion-tramo" style="display: none;">
+                                                <option value="sinRecargo">Sin recargo</option>
+                                                <option value="conRecargo">Con recargo</option>
+                                            </select>
+                                        </span>
+                                    </div>
+
+                                    <div class="report-row" data-dia="sabado" data-tipo="sabado">
+                                        <span class="col-dia">
+                                            <span class="day-name">Sábado</span>
+                                            <span class="day-tag sabado">Sábado</span>
+                                        </span>
+                                        <span class="col-fecha"><input type="date" class="fecha-dia"
+                                                data-day-index="5"></span>
+                                        <span class="col-hora"><input type="time" class="hora-inicio"></span>
+                                        <span class="col-hora"><input type="time" class="hora-termino"></span>
+                                        <span class="col-colacion">
+                                            <select class="colacion">
+                                                <option value="0" selected>0 min</option>
+                                                <option value="15">15 min</option>
+                                                <option value="30">30 min</option>
+                                                <option value="45">45 min</option>
+                                                <option value="60">60 min</option>
+                                            </select>
+                                        </span>
+                                        <span class="col-tramo">
+                                            <select class="colacion-tramo" style="display: none;">
+                                                <option value="sinRecargo">Sin recargo</option>
+                                                <option value="conRecargo">Con recargo</option>
+                                            </select>
+                                        </span>
+                                    </div>
+
+                                    <div class="report-row" data-dia="domingo" data-tipo="domingoFestivo">
+                                        <span class="col-dia">
+                                            <span class="day-name">Domingo</span>
+                                            <span class="day-tag domingo">Festivo</span>
+                                        </span>
+                                        <span class="col-fecha"><input type="date" class="fecha-dia"
+                                                data-day-index="6"></span>
+                                        <span class="col-hora"><input type="time" class="hora-inicio"></span>
+                                        <span class="col-hora"><input type="time" class="hora-termino"></span>
+                                        <span class="col-colacion">
+                                            <select class="colacion">
+                                                <option value="0" selected>0 min</option>
+                                                <option value="15">15 min</option>
+                                                <option value="30">30 min</option>
+                                                <option value="45">45 min</option>
+                                                <option value="60">60 min</option>
+                                            </select>
+                                        </span>
+                                        <span class="col-tramo">
+                                            <select class="colacion-tramo" style="display: none;">
+                                                <option value="sinRecargo">Sin recargo</option>
+                                                <option value="conRecargo">Con recargo</option>
+                                            </select>
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <button type="submit">Calcular Reporte Semanal</button>
+                                <div class="error" id="errorMessage"></div>
+                            </form>
                         </div>
-
-                        <div class="form-group" id="customValueGroup" style="display: none;">
-                            <label for="customValue">Ingrese el valor de la hora</label>
-                            <input type="number" id="customValue" min="0" step="0.01" placeholder="Ej: 7500">
-                        </div>
-
-                        <div class="report-table">
-                            <div class="report-table-header">
-                                <span class="col-dia">Día</span>
-                                <span class="col-fecha">Fecha</span>
-                                <span class="col-hora">Hora Inicio</span>
-                                <span class="col-hora">Hora Término</span>
-                                <span class="col-colacion">Colación</span>
-                                <span class="col-tramo">Descontar de</span>
-                            </div>
-
-                            <div class="report-row" data-dia="lunes" data-tipo="normal">
-                                <span class="col-dia">
-                                    <span class="day-name">Lunes</span>
-                                    <span class="day-tag">Normal</span>
-                                </span>
-                                <span class="col-fecha"><input type="date" class="fecha-dia" data-day-index="0"></span>
-                                <span class="col-hora"><input type="time" class="hora-inicio"></span>
-                                <span class="col-hora"><input type="time" class="hora-termino"></span>
-                                <span class="col-colacion">
-                                    <select class="colacion">
-                                        <option value="0" selected>0 min</option>
-                                        <option value="15">15 min</option>
-                                        <option value="30">30 min</option>
-                                        <option value="45">45 min</option>
-                                        <option value="60">60 min</option>
-                                    </select>
-                                </span>
-                                <span class="col-tramo">
-                                    <select class="colacion-tramo" style="display: none;">
-                                        <option value="sinRecargo">Sin recargo</option>
-                                        <option value="conRecargo">Con recargo</option>
-                                    </select>
-                                </span>
-                            </div>
-
-                            <div class="report-row" data-dia="martes" data-tipo="normal">
-                                <span class="col-dia">
-                                    <span class="day-name">Martes</span>
-                                    <span class="day-tag">Normal</span>
-                                </span>
-                                <span class="col-fecha"><input type="date" class="fecha-dia" data-day-index="1"></span>
-                                <span class="col-hora"><input type="time" class="hora-inicio"></span>
-                                <span class="col-hora"><input type="time" class="hora-termino"></span>
-                                <span class="col-colacion">
-                                    <select class="colacion">
-                                        <option value="0" selected>0 min</option>
-                                        <option value="15">15 min</option>
-                                        <option value="30">30 min</option>
-                                        <option value="45">45 min</option>
-                                        <option value="60">60 min</option>
-                                    </select>
-                                </span>
-                                <span class="col-tramo">
-                                    <select class="colacion-tramo" style="display: none;">
-                                        <option value="sinRecargo">Sin recargo</option>
-                                        <option value="conRecargo">Con recargo</option>
-                                    </select>
-                                </span>
-                            </div>
-
-                            <div class="report-row" data-dia="miercoles" data-tipo="normal">
-                                <span class="col-dia">
-                                    <span class="day-name">Miércoles</span>
-                                    <span class="day-tag">Normal</span>
-                                </span>
-                                <span class="col-fecha"><input type="date" class="fecha-dia" data-day-index="2"></span>
-                                <span class="col-hora"><input type="time" class="hora-inicio"></span>
-                                <span class="col-hora"><input type="time" class="hora-termino"></span>
-                                <span class="col-colacion">
-                                    <select class="colacion">
-                                        <option value="0" selected>0 min</option>
-                                        <option value="15">15 min</option>
-                                        <option value="30">30 min</option>
-                                        <option value="45">45 min</option>
-                                        <option value="60">60 min</option>
-                                    </select>
-                                </span>
-                                <span class="col-tramo">
-                                    <select class="colacion-tramo" style="display: none;">
-                                        <option value="sinRecargo">Sin recargo</option>
-                                        <option value="conRecargo">Con recargo</option>
-                                    </select>
-                                </span>
-                            </div>
-
-                            <div class="report-row" data-dia="jueves" data-tipo="normal">
-                                <span class="col-dia">
-                                    <span class="day-name">Jueves</span>
-                                    <span class="day-tag">Normal</span>
-                                </span>
-                                <span class="col-fecha"><input type="date" class="fecha-dia" data-day-index="3"></span>
-                                <span class="col-hora"><input type="time" class="hora-inicio"></span>
-                                <span class="col-hora"><input type="time" class="hora-termino"></span>
-                                <span class="col-colacion">
-                                    <select class="colacion">
-                                        <option value="0" selected>0 min</option>
-                                        <option value="15">15 min</option>
-                                        <option value="30">30 min</option>
-                                        <option value="45">45 min</option>
-                                        <option value="60">60 min</option>
-                                    </select>
-                                </span>
-                                <span class="col-tramo">
-                                    <select class="colacion-tramo" style="display: none;">
-                                        <option value="sinRecargo">Sin recargo</option>
-                                        <option value="conRecargo">Con recargo</option>
-                                    </select>
-                                </span>
-                            </div>
-
-                            <div class="report-row" data-dia="viernes" data-tipo="normal">
-                                <span class="col-dia">
-                                    <span class="day-name">Viernes</span>
-                                    <span class="day-tag">Normal</span>
-                                </span>
-                                <span class="col-fecha"><input type="date" class="fecha-dia" data-day-index="4"></span>
-                                <span class="col-hora"><input type="time" class="hora-inicio"></span>
-                                <span class="col-hora"><input type="time" class="hora-termino"></span>
-                                <span class="col-colacion">
-                                    <select class="colacion">
-                                        <option value="0" selected>0 min</option>
-                                        <option value="15">15 min</option>
-                                        <option value="30">30 min</option>
-                                        <option value="45">45 min</option>
-                                        <option value="60">60 min</option>
-                                    </select>
-                                </span>
-                                <span class="col-tramo">
-                                    <select class="colacion-tramo" style="display: none;">
-                                        <option value="sinRecargo">Sin recargo</option>
-                                        <option value="conRecargo">Con recargo</option>
-                                    </select>
-                                </span>
-                            </div>
-
-                            <div class="report-row" data-dia="sabado" data-tipo="sabado">
-                                <span class="col-dia">
-                                    <span class="day-name">Sábado</span>
-                                    <span class="day-tag sabado">Sábado</span>
-                                </span>
-                                <span class="col-fecha"><input type="date" class="fecha-dia" data-day-index="5"></span>
-                                <span class="col-hora"><input type="time" class="hora-inicio"></span>
-                                <span class="col-hora"><input type="time" class="hora-termino"></span>
-                                <span class="col-colacion">
-                                    <select class="colacion">
-                                        <option value="0" selected>0 min</option>
-                                        <option value="15">15 min</option>
-                                        <option value="30">30 min</option>
-                                        <option value="45">45 min</option>
-                                        <option value="60">60 min</option>
-                                    </select>
-                                </span>
-                                <span class="col-tramo">
-                                    <select class="colacion-tramo" style="display: none;">
-                                        <option value="sinRecargo">Sin recargo</option>
-                                        <option value="conRecargo">Con recargo</option>
-                                    </select>
-                                </span>
-                            </div>
-
-                            <div class="report-row" data-dia="domingo" data-tipo="domingoFestivo">
-                                <span class="col-dia">
-                                    <span class="day-name">Domingo</span>
-                                    <span class="day-tag domingo">Festivo</span>
-                                </span>
-                                <span class="col-fecha"><input type="date" class="fecha-dia" data-day-index="6"></span>
-                                <span class="col-hora"><input type="time" class="hora-inicio"></span>
-                                <span class="col-hora"><input type="time" class="hora-termino"></span>
-                                <span class="col-colacion">
-                                    <select class="colacion">
-                                        <option value="0" selected>0 min</option>
-                                        <option value="15">15 min</option>
-                                        <option value="30">30 min</option>
-                                        <option value="45">45 min</option>
-                                        <option value="60">60 min</option>
-                                    </select>
-                                </span>
-                                <span class="col-tramo">
-                                    <select class="colacion-tramo" style="display: none;">
-                                        <option value="sinRecargo">Sin recargo</option>
-                                        <option value="conRecargo">Con recargo</option>
-                                    </select>
-                                </span>
-                            </div>
-                        </div>
-
-                        <button type="submit">Calcular Reporte Semanal</button>
-                        <div class="error" id="errorMessage"></div>
-                    </form>
+                    </div>
                 </div>
 
                 <div class="split-right">
-                    <!-- Totales semanales -->
-                    <div class="results" id="totalResults">
-                        <h2>📈 Totales Semanales</h2>
-                        <div class="result-item">
-                            <span class="result-label">Días incluidos en el cálculo</span>
-                            <span class="result-value" id="diasIncluidos">0</span>
+                    <div class="section-panel">
+                        <div class="section-header">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 12l2 2 4-4" />
+                                <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z" />
+                            </svg>
+                            Resultados
                         </div>
-                        <div class="hours-daily-table" id="hoursDailyTable">
-                            <div class="result-item">
-                                <span class="result-label">Día</span>
-                                <span class="result-value">Horas</span>
+                        <div class="section-body">
+                            <div class="results" id="totalResults">
+                                <div id="resultsContent">
+                                    <div class="placeholder-text">
+                                        Complete los datos y presione <strong>Calcular Reporte Semanal</strong> para ver
+                                        los resultados aquí.
+                                    </div>
+                                </div>
+                                <div id="resultActions" class="result-actions" style="display: none;">
+                                    <button type="button" id="guardarReporteBtn" class="btn-save">Guardar
+                                        Registro</button>
+                                </div>
                             </div>
-                        </div>
-                        <div class="result-item">
-                            <span class="result-label">Total horas sin recargo (07:00 - 18:00)</span>
-                            <span class="result-value" id="totalSinRecargo">0.00 h</span>
-                        </div>
-                        <div class="result-item">
-                            <span class="result-label">Total horas con recargo (18:00 - 07:00)</span>
-                            <span class="result-value" id="totalConRecargo">0.00 h</span>
-                        </div>
-                        <div class="result-item">
-                            <span class="result-label">Total horas normales operador</span>
-                            <span class="result-value" id="totalNormalesOp">0.00 h</span>
-                        </div>
-                        <div class="result-item">
-                            <span class="result-label">Total horas dobles operador</span>
-                            <span class="result-value" id="totalDoblesOp">0.00 h</span>
-                        </div>
-                        <div class="result-item total">
-                            <span class="result-label">Monto Total Semanal</span>
-                            <span class="result-value" id="totalMonto">$0</span>
-                        </div>
-                        <div class="result-actions">
-                            <button type="button" id="guardarReporteBtn" class="btn-save">💾 Guardar Registro</button>
                         </div>
                     </div>
                 </div>
