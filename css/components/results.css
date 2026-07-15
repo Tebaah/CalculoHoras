@@ -3,118 +3,105 @@
    ====================================== */
 
 .results {
-    display: none;
-    margin-top: 30px;
-    padding: 25px;
-    background: var(--color-result-bg);
-    border-radius: var(--radius-md);
-    border-left: 5px solid var(--color-result-border);
-}
-
-.results.show {
-    display: block;
-    animation: slideIn 0.3s ease-out;
-}
-
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    padding: 1.25rem;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
 }
 
 .results h2 {
     color: var(--color-text-primary);
-    margin-bottom: 20px;
+    margin-bottom: 1rem;
     font-size: var(--font-size-lg);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.results h2 svg {
+    width: 20px;
+    height: 20px;
+    color: var(--color-primary);
+}
+
+.results .placeholder-text {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    text-align: center;
+    padding: 2rem 1rem;
+    border: 2px dashed var(--color-border);
+    border-radius: var(--radius-md);
 }
 
 .result-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--color-border);
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--color-border-light);
 }
 
-.result-item:last-child {
+.result-item:last-of-type {
     border-bottom: none;
 }
 
 .result-item.total {
-    background-color: var(--color-bg-highlight);
-    padding: 15px;
-    border-radius: var(--radius-sm);
-    margin-top: 10px;
-    border: none;
+    background-color: var(--color-primary-50);
+    padding: 0.875rem 1rem;
+    border-radius: var(--radius-md);
+    margin-top: 0.75rem;
+    border: 1px solid var(--color-primary-100);
 }
 
 .result-label {
     color: var(--color-text-secondary);
     font-weight: 500;
-    font-size: var(--font-size-base);
+    font-size: var(--font-size-sm);
+    line-height: 1.4;
 }
 
 .result-value {
-    color: var(--blue-slate);
+    color: var(--color-primary-dark);
     font-weight: 700;
-    font-size: 18px;
+    font-size: var(--font-size-md);
+    flex-shrink: 0;
+    margin-left: 0.75rem;
+    text-align: right;
 }
 
-.result-value--calc {
-    font-size: 16px;
-    color: var(--color-primary);
+.result-value.zero {
+    color: var(--color-text-muted);
+    font-weight: 500;
 }
 
 .result-item.total .result-value {
     color: var(--color-primary-dark);
-    font-size: 22px;
+    font-size: 1.25rem;
 }
 
-/* 3-column result items for horas (label | hours | calculated amount) */
+/* 3-column result items (label | hours | amount) */
 .result-item--3col {
     display: grid;
     grid-template-columns: 1fr auto auto;
-    gap: 12px;
+    gap: 0.75rem;
     align-items: center;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--color-border);
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--color-border-light);
 }
 
 .result-item--3col .result-value {
     text-align: right;
 }
 
-/* Cost rows (label | quantity | calculated total) */
-.result-item--costo {
-    display: none;
-    padding: 8px 0 8px 16px;
-    border-bottom: 1px dashed var(--color-border-light);
-    font-size: var(--font-size-sm);
-    grid-template-columns: 1fr auto auto;
-    gap: 12px;
-    align-items: center;
-}
-
-.result-item--costo .result-label {
-    font-weight: 400;
-    font-size: var(--font-size-sm);
-}
-
-.result-item--costo .result-value--costo-qty {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--color-text-secondary);
-    text-align: right;
-}
-
-.result-item--costo .result-value--costo-total {
-    font-size: 15px;
-    font-weight: 600;
+.result-value--calc {
+    font-size: var(--font-size-base);
     color: var(--color-primary);
+    font-weight: 600;
+}
+
+.result-value--calc.zero {
+    color: var(--color-text-muted);
+    font-weight: 500;
 }
