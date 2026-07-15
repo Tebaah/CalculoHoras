@@ -837,13 +837,14 @@ function handlePrintPDF() {
 
     // ══════ PIE ════════════════════════════════
     html += '<div class="footer">';
-    html += '<strong>Condiciones:</strong> El pago deberá efectuarse dentro de los 30 días corridos '
-        + 'contados desde la fecha de emisión del presente documento. '
-        + 'Este comprobante constituye un documento tributario válido de acuerdo a la legislación chilena vigente '
-        + '(Ley N.° 21.713). No procede la retención de impuestos adicionales sobre los montos aquí detallados '
-        + 'salvo que se indique expresamente lo contrario. '
-        + 'Cualquier discrepancia deberá ser notificada por escrito dentro de los 10 días hábiles siguientes a su recepción; '
-        + 'vencido dicho plazo, se entenderá aceptado en todas sus partes.';
+    html += '<strong>Datos comerciales:</strong><br>';
+    html += 'Multiservice F.L. Ltda.<br>';
+    html += 'Giro: Explotación de arrendamiento de maquinaria.<br>';
+    html += 'Dirección: Av. Presidente Jorge Alessandri 13059, San Bernardo.<br>';
+    html += 'Fono: 2 2591 5215';
+    html += '<br><br>';
+    html += '<strong>Condiciones:</strong> Transcurrido un plazo de 8 días en los que no se realice '
+        + 'alguna observación o se envíe OC, se llevará a cabo igualmente la facturación.';
     html += '</div>';
 
     html += '</div></body></html>';
