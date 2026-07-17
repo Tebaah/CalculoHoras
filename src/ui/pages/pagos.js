@@ -624,6 +624,12 @@ function handlePrintPDF() {
     html += '  color: var(--c-text-secondary);';
     html += '  margin-top: 6px;';
     html += '}';
+    html += '.header-logo {';
+    html += '  max-width: 180px;';
+    html += '  max-height: 55px;';
+    html += '  margin-bottom: 10px;';
+    html += '  object-fit: contain;';
+    html += '}';
 
     // ── Tablas de detalle ──────────────────────
     html += '.item-section { margin-bottom: 22px; }';
@@ -734,6 +740,7 @@ function handlePrintPDF() {
     const tipoDoc = 'Comprobante de Liquidación de Servicios';
     html += '<div class="header">';
     html += '<div class="header-left">';
+    html += '<img src="/logo-empresa.png" class="header-logo" alt="Logo" onerror="if(!this.dataset.retry){this.dataset.retry=\'1\';this.src=\'/public/logo-empresa.png\'}else{this.style.display=\'none\'}" />';
     html += '<div class="org">Estado de pago</div>';
     html += '<div class="org-sub">Servicios Multiservice Grúas </div>';
     html += '</div>';
