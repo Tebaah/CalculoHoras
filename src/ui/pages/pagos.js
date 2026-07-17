@@ -581,7 +581,7 @@ function handlePrintPDF() {
     html += '.header {';
     html += '  display: flex;';
     html += '  justify-content: space-between;';
-    html += '  align-items: flex-start;';
+    html += '  align-items: center;';
     html += '  padding-bottom: 20px;';
     html += '  margin-bottom: 24px;';
     html += '  border-bottom: 3px solid var(--c-primary);';
@@ -605,6 +605,17 @@ function handlePrintPDF() {
     html += '  color: var(--c-text-muted);';
     html += '  margin-top: 2px;';
     html += '}';
+    html += '.header-center .org {';
+    html += '  font-size: 20px;';
+    html += '  font-weight: 700;';
+    html += '  color: var(--c-sidebar);';
+    html += '  line-height: 1.2;';
+    html += '}';
+    html += '.header-center .org-sub {';
+    html += '  font-size: 10px;';
+    html += '  color: var(--c-text-muted);';
+    html += '  margin-top: 2px;';
+    html += '}';
     html += '.header-right {';
     html += '  text-align: right;';
     html += '  font-size: 10px;';
@@ -623,6 +634,14 @@ function handlePrintPDF() {
     html += '.header-right .doc-date {';
     html += '  color: var(--c-text-secondary);';
     html += '  margin-top: 6px;';
+    html += '}';
+    html += '.header-center {';
+    html += '  text-align: center;';
+    html += '}';
+    html += '.header-logo {';
+    html += '  max-width: 180px;';
+    html += '  max-height: 55px;';
+    html += '  object-fit: contain;';
     html += '}';
 
     // ── Tablas de detalle ──────────────────────
@@ -734,6 +753,9 @@ function handlePrintPDF() {
     const tipoDoc = 'Comprobante de Liquidación de Servicios';
     html += '<div class="header">';
     html += '<div class="header-left">';
+    html += '<img src="/logo-empresa.png" class="header-logo" alt="Logo" onerror="if(!this.dataset.retry){this.dataset.retry=\'1\';this.src=\'/public/logo-empresa.png\'}else{this.style.display=\'none\'}" />';
+    html += '</div>';
+    html += '<div class="header-center">';
     html += '<div class="org">Estado de pago</div>';
     html += '<div class="org-sub">Servicios Multiservice Grúas </div>';
     html += '</div>';

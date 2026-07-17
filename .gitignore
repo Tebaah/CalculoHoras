@@ -33,3 +33,6 @@ dist/
 
 ### Vite ###
 .vite/
+
+### Logo personalizado (no versionado) ###
+public/logo-empresa.*
