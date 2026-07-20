@@ -157,16 +157,24 @@ Esta herramienta automatiza todos estos cálculos, evitando errores manuales y e
 ## 📸 Capturas de Pantalla
 
 ### Pantalla de Inicio
-![Pantalla de inicio](assets/pantalla%20de%20inicio.png)
+![Pantalla de inicio](assets/pagina%20inicio.png)
 Vista principal con el menú lateral y las opciones de navegación.
 
-### Calculadora de Órdenes
+### Cálculo de Órdenes
 ![Cálculo de órdenes](assets/calculo%20de%20ordenes.png)
 Formulario de cálculo de horas y costos con resultados visibles y opción de guardar.
 
-### Reporte Semanal
-![Reporte semanal](assets/reporte%20semanal.png)
+### Cálculo de reportes
+![Reporte semanal](assets/calculo%20reportes.png)
 Reporte semanal con varios días ingresados, totales consolidados y opción de guardar.
+
+### Estado de pago
+![Reporte semanal](assets/estado%20de%20pago.png)
+Consolidadción de los reportes u ordenes de trabajo en un estado de pago.
+
+### Historial
+![Reporte semanal](assets/historial.png)
+Historial con todos los tipos de documentos.
 
 ## 🧑‍💻 Aprendizaje
 
