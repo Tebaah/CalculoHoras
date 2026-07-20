@@ -46,6 +46,15 @@ const agregarCostoBtn = document.getElementById('agregarCostoBtn');
 const costosListEl = document.getElementById('costosList');
 const costosResultsContainer = document.getElementById('costosResultsContainer');
 
+const logoUrlInput = document.getElementById('logoUrl');
+const cargarLogoBtn = document.getElementById('cargarLogoBtn');
+const logoPreview = document.getElementById('logoPreview');
+const logoPreviewImg = document.getElementById('logoPreviewImg');
+const quitarLogoBtn = document.getElementById('quitarLogoBtn');
+const logoError = document.getElementById('logoError');
+
+const LOGO_STORAGE_KEY = 'calculoHoras_logoUrl';
+
 // Estado interno
 let itemsAgregados = [];
 let ultimoResultadoBusqueda = null;
@@ -752,8 +761,11 @@ function handlePrintPDF() {
     // ══════ CABECERA ═══════════════════════════
     const tipoDoc = 'Comprobante de Liquidación de Servicios';
     html += '<div class="header">';
+    const logoUrl = getLogoUrl();
     html += '<div class="header-left">';
-    html += '<img src="/logo-empresa.png" class="header-logo" alt="Logo" onerror="if(!this.dataset.retry){this.dataset.retry=\'1\';this.src=\'/public/logo-empresa.png\'}else{this.style.display=\'none\'}" />';
+    if (logoUrl) {
+        html += '<img src="' + logoUrl + '" class="header-logo" alt="Logo" onerror="this.style.display=\'none\'" />';
+    }
     html += '</div>';
     html += '<div class="header-center">';
     html += '<div class="org">Estado de pago</div>';
@@ -879,8 +891,62 @@ function handlePrintPDF() {
     }, 400);
 }
 
+function getLogoUrl() {
+    return localStorage.getItem(LOGO_STORAGE_KEY) || null;
+}
+
+function initLogoManager() {
+    const storedUrl = getLogoUrl();
+    if (storedUrl) {
+        logoUrlInput.value = storedUrl;
+        mostrarLogoPreview(storedUrl);
+    }
+}
+
+function mostrarLogoPreview(url) {
+    logoPreviewImg.src = url;
+    logoPreview.style.display = 'block';
+}
+
+function ocultarLogoPreview() {
+    logoPreviewImg.src = '';
+    logoPreview.style.display = 'none';
+}
+
+function handleCargarLogo() {
+    const url = logoUrlInput.value.trim();
+    logoError.textContent = '';
+    logoError.classList.remove('show');
+
+    if (!url) {
+        logoError.textContent = 'Ingrese una URL válida.';
+        logoError.classList.add('show');
+        return;
+    }
+
+    const testImg = new Image();
+    testImg.onload = () => {
+        localStorage.setItem(LOGO_STORAGE_KEY, url);
+        mostrarLogoPreview(url);
+    };
+    testImg.onerror = () => {
+        logoError.textContent = 'No se pudo cargar la imagen. Verifique la URL.';
+        logoError.classList.add('show');
+    };
+    testImg.src = url;
+}
+
+function handleQuitarLogo() {
+    localStorage.removeItem(LOGO_STORAGE_KEY);
+    logoUrlInput.value = '';
+    ocultarLogoPreview();
+    logoError.textContent = '';
+    logoError.classList.remove('show');
+}
+
 export function initPagosPage() {
     initSidebar();
+    initLogoManager();
 
     document.getElementById('pagoForm').addEventListener('submit', (e) => {
         e.preventDefault();
@@ -903,6 +969,15 @@ export function initPagosPage() {
     if (imprimirBtn) {
         imprimirBtn.addEventListener('click', handlePrintPDF);
     }
+
+    cargarLogoBtn.addEventListener('click', handleCargarLogo);
+    logoUrlInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            handleCargarLogo();
+        }
+    });
+    quitarLogoBtn.addEventListener('click', handleQuitarLogo);
 
     loadEditData();
 }
