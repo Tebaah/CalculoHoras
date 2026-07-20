@@ -462,3 +462,43 @@
         width: 100%;
     }
 }
+
+/* Logo management */
+.logo-manager {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.logo-preview {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-md);
+}
+
+.logo-preview img {
+    max-width: 160px;
+    max-height: 50px;
+    object-fit: contain;
+}
+
+.btn-remove-logo {
+    padding: 0.35rem 0.75rem;
+    font-size: var(--font-size-xs);
+    color: var(--color-error, #dc3545);
+    background: transparent;
+    border: 1px solid var(--color-error, #dc3545);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.btn-remove-logo:hover {
+    background: var(--color-error, #dc3545);
+    color: #fff;
+}
