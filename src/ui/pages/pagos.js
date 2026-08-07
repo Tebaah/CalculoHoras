@@ -335,68 +335,94 @@ function calcularTotales() {
         return;
     }
 
+    // Agrupar items por valorHora (items con mismo valor hora se suman)
+    const groupedMap = new Map();
+    itemsAgregados.forEach((item) => {
+        const vh = item.valorHora || 0;
+        if (!groupedMap.has(vh)) {
+            groupedMap.set(vh, {
+                valorHora: vh,
+                valorConRecargo: vh * (1 + ((item.recargoPorcentaje || 30) / 100)),
+                horasSinRecargo: 0,
+                horasConRecargo: 0,
+                monto: 0,
+            });
+        }
+        const group = groupedMap.get(vh);
+        if (item.tipo === 'orden') {
+            group.horasSinRecargo += item.horasSinRecargo || 0;
+            group.horasConRecargo += item.horasConRecargo || 0;
+            group.monto += item.montoTotal || 0;
+        } else {
+            const totales = item.totales || {};
+            group.horasSinRecargo += totales.horasSinRecargo || 0;
+            group.horasConRecargo += totales.horasConRecargo || 0;
+            group.monto += totales.montoTotal || 0;
+        }
+    });
+
     let totalSinRecargo = 0;
     let totalConRecargo = 0;
     let totalMonto = 0;
     const detalleItems = [];
-
-    itemsAgregados.forEach((item) => {
-        if (item.tipo === 'orden') {
-            totalSinRecargo += item.horasSinRecargo || 0;
-            totalConRecargo += item.horasConRecargo || 0;
-            totalMonto += item.montoTotal || 0;
-            const valorConRecargo = (item.valorHora || 0) * (1 + ((item.recargoPorcentaje || 30) / 100));
-            detalleItems.push({
-                indice: item.indice,
-                tipo: 'orden',
-                horasSinRecargo: item.horasSinRecargo || 0,
-                horasConRecargo: item.horasConRecargo || 0,
-                valorHora: item.valorHora || 0,
-                valorConRecargo,
-                monto: item.montoTotal || 0,
-            });
-        } else {
-            const totales = item.totales || {};
-            totalSinRecargo += totales.horasSinRecargo || 0;
-            totalConRecargo += totales.horasConRecargo || 0;
-            totalMonto += totales.montoTotal || 0;
-            const valorConRecargo = (item.valorHora || 0) * (1 + ((item.recargoPorcentaje || 30) / 100));
-            detalleItems.push({
-                indice: item.indice,
-                tipo: 'reporte',
-                horasSinRecargo: totales.horasSinRecargo || 0,
-                horasConRecargo: totales.horasConRecargo || 0,
-                valorHora: item.valorHora || 0,
-                valorConRecargo,
-                monto: totales.montoTotal || 0,
-            });
-        }
+    groupedMap.forEach((group) => {
+        totalSinRecargo += group.horasSinRecargo;
+        totalConRecargo += group.horasConRecargo;
+        totalMonto += group.monto;
+        detalleItems.push({
+            valorHora: group.valorHora,
+            valorConRecargo: group.valorConRecargo,
+            horasSinRecargo: group.horasSinRecargo,
+            horasConRecargo: group.horasConRecargo,
+            monto: group.monto,
+        });
     });
-
-    // Calcular montos por tipo de hora
-    let valorHoraNormal = 0;
-    let valorConRecargoUnit = 0;
-    if (detalleItems.length > 0) {
-        valorHoraNormal = detalleItems[0].valorHora;
-        valorConRecargoUnit = detalleItems[0].valorConRecargo;
-    }
-
-    const montoSinRecargo = totalSinRecargo * valorHoraNormal;
-    const montoConRecargo = totalConRecargo * valorConRecargoUnit;
 
     // Sumar costos adicionales al monto total (cantidad × valor unitario)
     const totalCostos = costosAgregados.reduce((sum, c) => sum + (c.cantidad * c.valor), 0);
-    totalMonto = montoSinRecargo + montoConRecargo + totalCostos;
+    totalMonto += totalCostos;
 
-    pagoDetalleItemsEl.innerHTML = '';
+    // Renderizar desglose agrupado (formato 3 columnas: concepto | horas | monto)
+    let detalleHtml = '';
+    detalleItems.forEach((item) => {
+        const montoSR = item.horasSinRecargo * item.valorHora;
+        const montoCR = item.horasConRecargo * item.valorConRecargo;
+        detalleHtml += '<div class="result-item result-item--3col" style="border-bottom:1px dashed var(--color-border-light,#e2e8ed);padding:6px 0;">';
+        detalleHtml += '<span class="result-label">Valor horas sin recargo ($' + formatHourRate(item.valorHora) + ')</span>';
+        detalleHtml += '<span class="result-value">' + formatHours(item.horasSinRecargo) + '</span>';
+        detalleHtml += '<span class="result-value result-value--calc">' + formatCurrency(montoSR) + '</span>';
+        detalleHtml += '</div>';
+        detalleHtml += '<div class="result-item result-item--3col" style="border-bottom:1px dashed var(--color-border-light,#e2e8ed);padding:6px 0;">';
+        detalleHtml += '<span class="result-label">Valor horas con recargo ($' + formatHourRate(item.valorConRecargo) + ')</span>';
+        detalleHtml += '<span class="result-value">' + formatHours(item.horasConRecargo) + '</span>';
+        detalleHtml += '<span class="result-value result-value--calc">' + formatCurrency(montoCR) + '</span>';
+        detalleHtml += '</div>';
+    });
+    pagoDetalleItemsEl.innerHTML = detalleHtml;
+
     diasIncluidosEl.textContent = itemsAgregados.length + ' elemento(s)';
 
-    // Mostrar valor hora en los labels
-    if (labelSinRecargoEl && valorHoraNormal > 0) {
-        labelSinRecargoEl.textContent = 'Total horas sin recargo ($' + formatHourRate(valorHoraNormal) + '/h)';
+    // Calcular montos reales sumando cada ítem con su propio valor hora
+    const montoSinRecargo = detalleItems.reduce((sum, d) => sum + (d.horasSinRecargo * d.valorHora), 0);
+    const montoConRecargo = detalleItems.reduce((sum, d) => sum + (d.horasConRecargo * d.valorConRecargo), 0);
+
+    // Detectar si hay valores hora distintos entre ítems
+    const valoresUnicos = [...new Set(detalleItems.map(d => d.valorHora))];
+    if (labelSinRecargoEl) {
+        if (valoresUnicos.length === 1 && valoresUnicos[0] > 0) {
+            labelSinRecargoEl.textContent = 'Total horas sin recargo ($' + formatHourRate(valoresUnicos[0]) + '/h)';
+        } else {
+            labelSinRecargoEl.textContent = 'Total horas sin recargo (valores variables)';
+        }
     }
-    if (labelConRecargoEl && valorConRecargoUnit > 0) {
-        labelConRecargoEl.textContent = 'Total horas con recargo ($' + formatHourRate(valorConRecargoUnit) + '/h)';
+    if (labelConRecargoEl) {
+        if (valoresUnicos.length === 1 && valoresUnicos[0] > 0) {
+            const recargoUnico = itemsAgregados[0]?.recargoPorcentaje || 30;
+            const vcr = valoresUnicos[0] * (1 + (recargoUnico / 100));
+            labelConRecargoEl.textContent = 'Total horas con recargo ($' + formatHourRate(vcr) + '/h)';
+        } else {
+            labelConRecargoEl.textContent = 'Total horas con recargo (valores variables)';
+        }
     }
 
     totalSinRecargoEl.textContent = formatHours(totalSinRecargo);
@@ -805,20 +831,35 @@ function handlePrintPDF() {
         html += '</div>';
     });
 
-    // ══════ CÁLCULO DE MONTOS ═════════════════
-    const totalHorasSinR = parseFloat(totalSinRecargoEl.textContent) || 0;
-    const totalHorasConR = parseFloat(totalConRecargoEl.textContent) || 0;
+    // ══════ CÁLCULO DE MONTOS (agrupado por valorHora) ═════════════════
+    const groupedPDF = new Map();
+    itemsAgregados.forEach((item) => {
+        const vh = item.valorHora || 0;
+        if (!groupedPDF.has(vh)) {
+            groupedPDF.set(vh, {
+                valorHora: vh,
+                valorConRecargo: vh * (1 + ((item.recargoPorcentaje || 30) / 100)),
+                horasSinRecargo: 0,
+                horasConRecargo: 0,
+            });
+        }
+        const group = groupedPDF.get(vh);
+        if (item.tipo === 'orden') {
+            group.horasSinRecargo += item.horasSinRecargo || 0;
+            group.horasConRecargo += item.horasConRecargo || 0;
+        } else {
+            const totales = item.totales || {};
+            group.horasSinRecargo += totales.horasSinRecargo || 0;
+            group.horasConRecargo += totales.horasConRecargo || 0;
+        }
+    });
 
-    let valorHoraNormal = 0;
-    let valorConRecargoUnit = 0;
-    if (itemsAgregados.length > 0) {
-        const first = itemsAgregados[0];
-        valorHoraNormal = first.valorHora || 0;
-        valorConRecargoUnit = (first.valorHora || 0) * (1 + ((first.recargoPorcentaje || 30) / 100));
-    }
-
-    const montoSinRecargo = totalHorasSinR * valorHoraNormal;
-    const montoConRecargo = totalHorasConR * valorConRecargoUnit;
+    let montoSinRecargo = 0;
+    let montoConRecargo = 0;
+    groupedPDF.forEach((group) => {
+        montoSinRecargo += group.horasSinRecargo * group.valorHora;
+        montoConRecargo += group.horasConRecargo * group.valorConRecargo;
+    });
 
     let totalCostosAdicionales = 0;
     costosAgregados.forEach((costo) => {
@@ -836,17 +877,19 @@ function handlePrintPDF() {
     html += '<th>Concepto</th><th>Cantidad</th><th>Importe</th>';
     html += '</tr></thead><tbody>';
 
-    html += '<tr>';
-    html += '<td>Horas sin recargo (valor hora: ' + formatHourRate(valorHoraNormal) + ')</td>';
-    html += '<td>' + formatHours(totalHorasSinR) + '</td>';
-    html += '<td>' + formatCurrency(montoSinRecargo) + '</td>';
-    html += '</tr>';
-
-    html += '<tr>';
-    html += '<td>Horas con recargo (valor hora: ' + formatHourRate(valorConRecargoUnit) + ')</td>';
-    html += '<td>' + formatHours(totalHorasConR) + '</td>';
-    html += '<td>' + formatCurrency(montoConRecargo) + '</td>';
-    html += '</tr>';
+    // Desglose agrupado por valorHora
+    groupedPDF.forEach((group) => {
+        html += '<tr>';
+        html += '<td>Valor horas sin recargo ($' + group.valorHora.toLocaleString('es-CL') + ')</td>';
+        html += '<td>' + formatHours(group.horasSinRecargo) + '</td>';
+        html += '<td>' + formatCurrency(group.horasSinRecargo * group.valorHora) + '</td>';
+        html += '</tr>';
+        html += '<tr>';
+        html += '<td>Valor horas con recargo ($' + group.valorConRecargo.toLocaleString('es-CL') + ')</td>';
+        html += '<td>' + formatHours(group.horasConRecargo) + '</td>';
+        html += '<td>' + formatCurrency(group.horasConRecargo * group.valorConRecargo) + '</td>';
+        html += '</tr>';
+    });
 
     if (costosAgregados.length > 0) {
         costosAgregados.forEach((costo) => {
