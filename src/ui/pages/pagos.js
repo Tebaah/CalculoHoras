@@ -36,6 +36,7 @@ const totalConRecargoCalcEl = document.getElementById('totalConRecargoCalc');
 const totalMontoEl = document.getElementById('totalMonto');
 const labelSinRecargoEl = document.getElementById('labelSinRecargo');
 const labelConRecargoEl = document.getElementById('labelConRecargo');
+const rowConRecargoEl = document.getElementById('rowConRecargo');
 const pagoDetalleItemsEl = document.getElementById('pagoDetalleItems');
 
 // Elementos de costo dinámico
@@ -71,14 +72,18 @@ function renderSearchResult(record) {
     html += '<span class="search-result-indice">#' + record.indice + '</span>';
     html += '</div>';
 
+    const { horasSinRecargo: totalHSR, horasConRecargo: totalHCR } = getHorasItem(record);
+
     if (record.tipo === 'orden') {
         html += '<div class="search-result-body">';
         html += '<div class="result-item"><span class="result-label">Fecha</span><span class="result-value">' + (record.fecha || '—') + '</span></div>';
         html += '<div class="result-item"><span class="result-label">Horario</span><span class="result-value">' + (record.horaInicio || '—') + ' - ' + (record.horaTermino || '—') + '</span></div>';
         html += '<div class="result-item"><span class="result-label">Colación</span><span class="result-value">' + (record.colacion || 0) + ' min</span></div>';
         html += '<div class="result-item"><span class="result-label">Valor hora</span><span class="result-value">' + formatHourRate(record.valorHora || 0) + '</span></div>';
-        html += '<div class="result-item"><span class="result-label">Horas sin recargo</span><span class="result-value">' + formatHours(record.horasSinRecargo || 0) + '</span></div>';
-        html += '<div class="result-item"><span class="result-label">Horas con recargo</span><span class="result-value">' + formatHours(record.horasConRecargo || 0) + '</span></div>';
+        html += '<div class="result-item"><span class="result-label">Horas sin recargo</span><span class="result-value">' + formatHours(totalHSR) + '</span></div>';
+        html += (totalHCR > 0
+            ? '<div class="result-item"><span class="result-label">Horas con recargo</span><span class="result-value">' + formatHours(totalHCR) + '</span></div>'
+            : '');
         html += '<div class="result-item total"><span class="result-label">Monto Total</span><span class="result-value">' + formatCurrency(record.montoTotal || 0) + '</span></div>';
         html += '</div>';
     } else {
@@ -102,10 +107,11 @@ function renderSearchResult(record) {
             html += '</div>';
         }
 
-        const totales = record.totales || {};
-        html += '<div class="result-item"><span class="result-label">Total horas sin recargo</span><span class="result-value">' + formatHours(totales.horasSinRecargo || 0) + '</span></div>';
-        html += '<div class="result-item"><span class="result-label">Total horas con recargo</span><span class="result-value">' + formatHours(totales.horasConRecargo || 0) + '</span></div>';
-        html += '<div class="result-item total"><span class="result-label">Monto Total</span><span class="result-value">' + formatCurrency(totales.montoTotal || 0) + '</span></div>';
+        html += '<div class="result-item"><span class="result-label">Total horas sin recargo</span><span class="result-value">' + formatHours(totalHSR) + '</span></div>';
+        html += (totalHCR > 0
+            ? '<div class="result-item"><span class="result-label">Total horas con recargo</span><span class="result-value">' + formatHours(totalHCR) + '</span></div>'
+            : '');
+        html += '<div class="result-item total"><span class="result-label">Monto Total</span><span class="result-value">' + formatCurrency(record.totales?.montoTotal || 0) + '</span></div>';
         html += '</div>';
     }
 
@@ -223,6 +229,38 @@ function obtenerDiasReporte(item) {
     }
 
     return [];
+}
+
+/**
+ * Normaliza las horas de un ítem según su porcentaje de recargo.
+ * Si el recargo es 0%, todas las horas se consideran sin recargo.
+ * @param {Object} item - Registro (orden o reporte)
+ * @returns {{ horasSinRecargo: number, horasConRecargo: number }}
+ */
+function getHorasItem(item) {
+    const recargo = item.recargoPorcentaje !== undefined && item.recargoPorcentaje !== null
+        ? item.recargoPorcentaje
+        : 30;
+    let horasSinRecargo;
+    let horasConRecargo;
+
+    if (item.tipo === 'orden') {
+        horasSinRecargo = item.horasSinRecargo || 0;
+        horasConRecargo = item.horasConRecargo || 0;
+    } else {
+        const totales = item.totales || {};
+        horasSinRecargo = totales.horasSinRecargo || 0;
+        horasConRecargo = totales.horasConRecargo || 0;
+    }
+
+    if (recargo <= 0) {
+        return {
+            horasSinRecargo: horasSinRecargo + horasConRecargo,
+            horasConRecargo: 0,
+        };
+    }
+
+    return { horasSinRecargo, horasConRecargo };
 }
 
 function actualizarItemsList() {
@@ -349,16 +387,12 @@ function calcularTotales() {
             });
         }
         const group = groupedMap.get(vh);
-        if (item.tipo === 'orden') {
-            group.horasSinRecargo += item.horasSinRecargo || 0;
-            group.horasConRecargo += item.horasConRecargo || 0;
-            group.monto += item.montoTotal || 0;
-        } else {
-            const totales = item.totales || {};
-            group.horasSinRecargo += totales.horasSinRecargo || 0;
-            group.horasConRecargo += totales.horasConRecargo || 0;
-            group.monto += totales.montoTotal || 0;
-        }
+        const { horasSinRecargo: hSR, horasConRecargo: hCR } = getHorasItem(item);
+        group.horasSinRecargo += hSR;
+        group.horasConRecargo += hCR;
+        group.monto += item.tipo === 'orden'
+            ? (item.montoTotal || 0)
+            : ((item.totales || {}).montoTotal || 0);
     });
 
     let totalSinRecargo = 0;
@@ -392,11 +426,13 @@ function calcularTotales() {
         detalleHtml += '<span class="result-value">' + formatHours(item.horasSinRecargo) + '</span>';
         detalleHtml += '<span class="result-value result-value--calc">' + formatCurrency(montoSR) + '</span>';
         detalleHtml += '</div>';
-        detalleHtml += '<div class="result-item result-item--3col" style="border-bottom:1px dashed var(--color-border-light,#e2e8ed);padding:6px 0;">';
-        detalleHtml += '<span class="result-label">Valor horas con recargo ($' + formatHourRate(item.valorConRecargo) + ')</span>';
-        detalleHtml += '<span class="result-value">' + formatHours(item.horasConRecargo) + '</span>';
-        detalleHtml += '<span class="result-value result-value--calc">' + formatCurrency(montoCR) + '</span>';
-        detalleHtml += '</div>';
+        if (item.horasConRecargo > 0) {
+            detalleHtml += '<div class="result-item result-item--3col" style="border-bottom:1px dashed var(--color-border-light,#e2e8ed);padding:6px 0;">';
+            detalleHtml += '<span class="result-label">Valor horas con recargo ($' + formatHourRate(item.valorConRecargo) + ')</span>';
+            detalleHtml += '<span class="result-value">' + formatHours(item.horasConRecargo) + '</span>';
+            detalleHtml += '<span class="result-value result-value--calc">' + formatCurrency(montoCR) + '</span>';
+            detalleHtml += '</div>';
+        }
     });
     pagoDetalleItemsEl.innerHTML = detalleHtml;
 
@@ -423,6 +459,10 @@ function calcularTotales() {
         } else {
             labelConRecargoEl.textContent = 'Total horas con recargo (valores variables)';
         }
+    }
+
+    if (rowConRecargoEl) {
+        rowConRecargoEl.style.display = totalConRecargo > 0 ? '' : 'none';
     }
 
     totalSinRecargoEl.textContent = formatHours(totalSinRecargo);
@@ -483,36 +523,27 @@ function handleSavePago() {
         const detalleItems = [];
 
         itemsAgregados.forEach((item) => {
-            if (item.tipo === 'orden') {
-                totalSinRecargo += item.horasSinRecargo || 0;
-                totalConRecargo += item.horasConRecargo || 0;
-                totalMonto += item.montoTotal || 0;
-                const valorConRecargo = (item.valorHora || 0) * (1 + ((item.recargoPorcentaje || 30) / 100));
-                detalleItems.push({
-                    indice: item.indice,
-                    tipo: 'orden',
-                    horasSinRecargo: item.horasSinRecargo || 0,
-                    horasConRecargo: item.horasConRecargo || 0,
-                    valorHora: item.valorHora || 0,
-                    valorConRecargo,
-                    monto: item.montoTotal || 0,
-                });
-            } else {
-                const totales = item.totales || {};
-                totalSinRecargo += totales.horasSinRecargo || 0;
-                totalConRecargo += totales.horasConRecargo || 0;
-                totalMonto += totales.montoTotal || 0;
-                const valorConRecargo = (item.valorHora || 0) * (1 + ((item.recargoPorcentaje || 30) / 100));
-                detalleItems.push({
-                    indice: item.indice,
-                    tipo: 'reporte',
-                    horasSinRecargo: totales.horasSinRecargo || 0,
-                    horasConRecargo: totales.horasConRecargo || 0,
-                    valorHora: item.valorHora || 0,
-                    valorConRecargo,
-                    monto: totales.montoTotal || 0,
-                });
-            }
+            const { horasSinRecargo: hSR, horasConRecargo: hCR } = getHorasItem(item);
+            const montoItem = item.tipo === 'orden'
+                ? (item.montoTotal || 0)
+                : ((item.totales || {}).montoTotal || 0);
+            totalSinRecargo += hSR;
+            totalConRecargo += hCR;
+            totalMonto += montoItem;
+            const recargoItem = item.recargoPorcentaje !== undefined && item.recargoPorcentaje !== null
+                ? item.recargoPorcentaje
+                : 30;
+            const valorConRecargo = (item.valorHora || 0) * (1 + (recargoItem / 100));
+            detalleItems.push({
+                indice: item.indice,
+                tipo: item.tipo,
+                horasSinRecargo: hSR,
+                horasConRecargo: hCR,
+                valorHora: item.valorHora || 0,
+                valorConRecargo,
+                recargoPorcentaje: recargoItem,
+                monto: montoItem,
+            });
         });
 
         // Sumar costos adicionales al monto total (cantidad × valor unitario)
@@ -844,14 +875,9 @@ function handlePrintPDF() {
             });
         }
         const group = groupedPDF.get(vh);
-        if (item.tipo === 'orden') {
-            group.horasSinRecargo += item.horasSinRecargo || 0;
-            group.horasConRecargo += item.horasConRecargo || 0;
-        } else {
-            const totales = item.totales || {};
-            group.horasSinRecargo += totales.horasSinRecargo || 0;
-            group.horasConRecargo += totales.horasConRecargo || 0;
-        }
+        const { horasSinRecargo: hSR, horasConRecargo: hCR } = getHorasItem(item);
+        group.horasSinRecargo += hSR;
+        group.horasConRecargo += hCR;
     });
 
     let montoSinRecargo = 0;
@@ -884,11 +910,13 @@ function handlePrintPDF() {
         html += '<td>' + formatHours(group.horasSinRecargo) + '</td>';
         html += '<td>' + formatCurrency(group.horasSinRecargo * group.valorHora) + '</td>';
         html += '</tr>';
-        html += '<tr>';
-        html += '<td>Valor horas con recargo ($' + group.valorConRecargo.toLocaleString('es-CL') + ')</td>';
-        html += '<td>' + formatHours(group.horasConRecargo) + '</td>';
-        html += '<td>' + formatCurrency(group.horasConRecargo * group.valorConRecargo) + '</td>';
-        html += '</tr>';
+        if (group.horasConRecargo > 0) {
+            html += '<tr>';
+            html += '<td>Valor horas con recargo ($' + group.valorConRecargo.toLocaleString('es-CL') + ')</td>';
+            html += '<td>' + formatHours(group.horasConRecargo) + '</td>';
+            html += '<td>' + formatCurrency(group.horasConRecargo * group.valorConRecargo) + '</td>';
+            html += '</tr>';
+        }
     });
 
     if (costosAgregados.length > 0) {
