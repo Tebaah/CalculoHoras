@@ -20,7 +20,12 @@ export function populateDailyHoursTable(results) {
 }
 
 export function renderReportTotals(report, valorHora, recargoPorcentaje) {
-    recargoPorcentaje = recargoPorcentaje || report.recargoPorcentaje || 30;
+    if (recargoPorcentaje === undefined || recargoPorcentaje === null) {
+        recargoPorcentaje = (report.recargoPorcentaje !== undefined && report.recargoPorcentaje !== null)
+            ? report.recargoPorcentaje
+            : 30;
+    }
+    const tieneRecargo = recargoPorcentaje > 0 && report.totalConRecargo > 0;
     const valorSinRecargo = valorHora;
     const multiplicadorRecargo = 1 + (recargoPorcentaje / 100);
     const valorConRecargo = valorHora * multiplicadorRecargo;
@@ -44,10 +49,11 @@ export function renderReportTotals(report, valorHora, recargoPorcentaje) {
             <span class="result-label">Total horas sin recargo ${formatHourRate(valorSinRecargo)} <small>(07:00 - 18:00)</small></span>
             <span class="result-value">${formatHours(report.totalSinRecargo)}</span>
         </div>
+        ${tieneRecargo ? `
         <div class="result-item">
             <span class="result-label">Total horas con recargo ${formatHourRate(valorConRecargo)} ${recargoText} <small>(18:00 - 07:00)</small></span>
             <span class="result-value">${formatHours(report.totalConRecargo)}</span>
-        </div>
+        </div>` : ''}
         <div class="result-item">
             <span class="result-label">Total horas normales operador</span>
             <span class="result-value">${formatHours(report.totalNormalesOp)}</span>
