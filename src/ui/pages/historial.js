@@ -19,6 +19,56 @@ const importarBtn = document.getElementById('importarBtn');
 const fileInput = document.getElementById('fileInput');
 
 /**
+ * Normaliza las horas de un registro según su porcentaje de recargo.
+ * Si el recargo es 0%, todas las horas se consideran sin recargo.
+ * @param {Object} record - Registro (orden, reporte o pago)
+ * @returns {{ horasSinRecargo: number, horasConRecargo: number }}
+ */
+function getHorasRegistro(record) {
+    let horasSinRecargo;
+    let horasConRecargo;
+    let recargoPorcentaje;
+
+    if (record.tipo === 'pago') {
+        const totales = record.totales || {};
+        horasSinRecargo = totales.totalSinRecargo || 0;
+        horasConRecargo = totales.totalConRecargo || 0;
+        // Para pagos, determinar recargo por los items
+        const items = record.items || [];
+        const primerosConRecargo = items.filter((it) => {
+            const rec = it.recargoPorcentaje !== undefined && it.recargoPorcentaje !== null
+                ? it.recargoPorcentaje
+                : 30;
+            return rec > 0;
+        });
+        const todosSinRecargo = items.length > 0 && primerosConRecargo.length === 0;
+        recargoPorcentaje = todosSinRecargo ? 0 : 30;
+    } else if (record.tipo === 'orden') {
+        horasSinRecargo = record.horasSinRecargo || 0;
+        horasConRecargo = record.horasConRecargo || 0;
+        recargoPorcentaje = record.recargoPorcentaje !== undefined && record.recargoPorcentaje !== null
+            ? record.recargoPorcentaje
+            : 30;
+    } else {
+        const totales = record.totales || {};
+        horasSinRecargo = totales.horasSinRecargo || 0;
+        horasConRecargo = totales.horasConRecargo || 0;
+        recargoPorcentaje = record.recargoPorcentaje !== undefined && record.recargoPorcentaje !== null
+            ? record.recargoPorcentaje
+            : 30;
+    }
+
+    if (recargoPorcentaje <= 0) {
+        return {
+            horasSinRecargo: horasSinRecargo + horasConRecargo,
+            horasConRecargo: 0,
+        };
+    }
+
+    return { horasSinRecargo, horasConRecargo };
+}
+
+/**
  * Renderiza la tabla de registros
  * @param {Array<Object>} records - Lista de registros
  */
@@ -94,6 +144,7 @@ function handleViewDetail(indice) {
         return;
     }
 
+    const { horasSinRecargo: hSR, horasConRecargo: hCR } = getHorasRegistro(record);
     let html = '<h2>📄 Detalle del Registro #' + record.indice + '</h2>';
 
     if (record.tipo === 'pago') {
@@ -111,13 +162,22 @@ function handleViewDetail(indice) {
             html += '<h3>Detalle por elemento</h3>';
             totales.detalleItems.forEach((det) => {
                 const tipoLabel = det.tipo === 'orden' ? '📋 Orden' : '📊 Reporte';
+                const detRecargo = det.recargoPorcentaje !== undefined && det.recargoPorcentaje !== null
+                    ? det.recargoPorcentaje
+                    : 30;
+                let detHSR = det.horasSinRecargo || 0;
+                let detHCR = det.horasConRecargo || 0;
+                if (detRecargo <= 0) {
+                    detHSR += detHCR;
+                    detHCR = 0;
+                }
                 html += '<div class="result-item">' +
                     '<span class="result-label">' + tipoLabel + ' #' + det.indice + '</span>' +
                     '<span class="result-value">' + formatCurrency(det.monto) + '</span>' +
                     '</div>';
                 html += '<div class="result-item" style="padding-left: 20px;">' +
                     '<span class="result-label">Horas sin/con recargo</span>' +
-                    '<span class="result-value">' + formatHours(det.horasSinRecargo) + ' / ' + formatHours(det.horasConRecargo) + '</span>' +
+                    '<span class="result-value">' + formatHours(detHSR) + ' / ' + formatHours(detHCR) + '</span>' +
                     '</div>';
                 html += '<div class="result-item" style="padding-left: 20px;">' +
                     '<span class="result-label">Valor hora normal / con recargo</span>' +
@@ -128,12 +188,14 @@ function handleViewDetail(indice) {
 
         html += '<div class="result-item">' +
             '<span class="result-label">Total horas sin recargo</span>' +
-            '<span class="result-value">' + formatHours(totales.totalSinRecargo || 0) + '</span>' +
+            '<span class="result-value">' + formatHours(hSR) + '</span>' +
             '</div>' +
-            '<div class="result-item">' +
-            '<span class="result-label">Total horas con recargo</span>' +
-            '<span class="result-value">' + formatHours(totales.totalConRecargo || 0) + '</span>' +
-            '</div>' +
+            (hCR > 0
+                ? '<div class="result-item">' +
+                '<span class="result-label">Total horas con recargo</span>' +
+                '<span class="result-value">' + formatHours(hCR) + '</span>' +
+                '</div>'
+                : '') +
             '<div class="result-item total">' +
             '<span class="result-label">Monto Total</span>' +
             '<span class="result-value">' + formatCurrency(totales.totalMonto || 0) + '</span>' +
@@ -161,12 +223,14 @@ function handleViewDetail(indice) {
             '</div>' +
             '<div class="result-item">' +
             '<span class="result-label">Horas sin recargo</span>' +
-            '<span class="result-value">' + formatHours(record.horasSinRecargo) + '</span>' +
+            '<span class="result-value">' + formatHours(hSR) + '</span>' +
             '</div>' +
-            '<div class="result-item">' +
-            '<span class="result-label">Horas con recargo</span>' +
-            '<span class="result-value">' + formatHours(record.horasConRecargo) + '</span>' +
-            '</div>' +
+            (hCR > 0
+                ? '<div class="result-item">' +
+                '<span class="result-label">Horas con recargo</span>' +
+                '<span class="result-value">' + formatHours(hCR) + '</span>' +
+                '</div>'
+                : '') +
             '<div class="result-item total">' +
             '<span class="result-label">Monto Total del Servicio</span>' +
             '<span class="result-value">' + formatCurrency(record.montoTotal) + '</span>' +
@@ -197,12 +261,14 @@ function handleViewDetail(indice) {
 
         html += '<div class="result-item">' +
             '<span class="result-label">Total horas sin recargo</span>' +
-            '<span class="result-value">' + formatHours(totales.horasSinRecargo || 0) + '</span>' +
+            '<span class="result-value">' + formatHours(hSR) + '</span>' +
             '</div>' +
-            '<div class="result-item">' +
-            '<span class="result-label">Total horas con recargo</span>' +
-            '<span class="result-value">' + formatHours(totales.horasConRecargo || 0) + '</span>' +
-            '</div>' +
+            (hCR > 0
+                ? '<div class="result-item">' +
+                '<span class="result-label">Total horas con recargo</span>' +
+                '<span class="result-value">' + formatHours(hCR) + '</span>' +
+                '</div>'
+                : '') +
             '<div class="result-item total">' +
             '<span class="result-label">Monto Total Semanal</span>' +
             '<span class="result-value">' + formatCurrency(totales.montoTotal || 0) + '</span>' +
@@ -333,7 +399,7 @@ export function initHistorialPage() {
     if (!optionExiste) {
         const pagoOption = document.createElement('option');
         pagoOption.value = 'pago';
-        pagoOption.textContent = '💰 Estados de Pago';
+        pagoOption.textContent = 'Estados de Pago';
         filtroTipoSelect.appendChild(pagoOption);
     }
 
