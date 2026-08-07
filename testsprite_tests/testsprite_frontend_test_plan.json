@@ -1,0 +1,724 @@
+[
+  {
+    "id": "TC001",
+    "title": "Aggregate saved records into a payment state",
+    "description": "Verifies that saved order or report records can be loaded by index and combined into a payment state.",
+    "category": "Payment State Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /pagos.html"
+      },
+      {
+        "type": "action",
+        "description": "Enter a saved record index number"
+      },
+      {
+        "type": "action",
+        "description": "Load the record into the payment state"
+      },
+      {
+        "type": "action",
+        "description": "Enter another saved record index number"
+      },
+      {
+        "type": "action",
+        "description": "Load the second record into the payment state"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the aggregated hours and amounts are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the loaded records are included in the payment state"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC002",
+    "title": "Calculate and view a single work order total",
+    "description": "Verifies that a user can complete a work order calculation and see the expected service and total breakdown.",
+    "category": "Work Order Calculation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /ordenes.html"
+      },
+      {
+        "type": "action",
+        "description": "Select a day type"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid start time into the start time field"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid end time into the end time field"
+      },
+      {
+        "type": "action",
+        "description": "Select an hourly rate"
+      },
+      {
+        "type": "action",
+        "description": "Select a surcharge percentage"
+      },
+      {
+        "type": "action",
+        "description": "Select minimum guaranteed hours"
+      },
+      {
+        "type": "action",
+        "description": "Click to calculate the work order"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the detailed service breakdown is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the total cost result is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC003",
+    "title": "Calculate and save a weekly report",
+    "description": "Verifies that a user can build a weekly report, review totals, and save it locally with an index.",
+    "category": "Weekly Report Calculation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /reportes.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill valid times into one or more day rows"
+      },
+      {
+        "type": "action",
+        "description": "Select the included days"
+      },
+      {
+        "type": "action",
+        "description": "Set the global hourly rate"
+      },
+      {
+        "type": "action",
+        "description": "Set the global surcharge percentage"
+      },
+      {
+        "type": "action",
+        "description": "Set the global minimum guaranteed hours"
+      },
+      {
+        "type": "action",
+        "description": "Click to calculate the weekly report"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the consolidated weekly totals are displayed"
+      },
+      {
+        "type": "action",
+        "description": "Fill a unique index number into the index field"
+      },
+      {
+        "type": "action",
+        "description": "Click to save the report"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a saved report confirmation is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC004",
+    "title": "Save a calculated work order with an index",
+    "description": "Verifies that a calculated work order can be saved locally with an index number.",
+    "category": "Work Order Calculation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /ordenes.html"
+      },
+      {
+        "type": "action",
+        "description": "Select a day type"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid start time into the start time field"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid end time into the end time field"
+      },
+      {
+        "type": "action",
+        "description": "Select an hourly rate"
+      },
+      {
+        "type": "action",
+        "description": "Select a surcharge percentage"
+      },
+      {
+        "type": "action",
+        "description": "Select minimum guaranteed hours"
+      },
+      {
+        "type": "action",
+        "description": "Click to calculate the work order"
+      },
+      {
+        "type": "action",
+        "description": "Fill a unique index number into the index field"
+      },
+      {
+        "type": "action",
+        "description": "Click to save the record"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a saved record confirmation is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC005",
+    "title": "Add extra costs and company details before generating liquidation",
+    "description": "Verifies that extra cost items and company information are reflected in the payment state before liquidation is generated.",
+    "category": "Payment State Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /pagos.html"
+      },
+      {
+        "type": "action",
+        "description": "Enter a saved record index number"
+      },
+      {
+        "type": "action",
+        "description": "Load the record into the payment state"
+      },
+      {
+        "type": "action",
+        "description": "Add an extra cost item name"
+      },
+      {
+        "type": "action",
+        "description": "Fill a quantity for the extra cost item"
+      },
+      {
+        "type": "action",
+        "description": "Fill a unit price for the extra cost item"
+      },
+      {
+        "type": "action",
+        "description": "Fill the company name field"
+      },
+      {
+        "type": "action",
+        "description": "Fill the company address field"
+      },
+      {
+        "type": "action",
+        "description": "Fill the company contact field"
+      },
+      {
+        "type": "action",
+        "description": "Enter a logo URL"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated payment totals with IVA are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC006",
+    "title": "View stored records in history",
+    "description": "A user can open the history page and see previously saved records listed for review.",
+    "category": "Record History",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /historial.html"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify stored records are displayed in the history table"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC007",
+    "title": "Generate a printable liquidation from saved records",
+    "description": "Verifies that a payment state built from saved records can generate a printable liquidation view.",
+    "category": "Payment State Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /pagos.html"
+      },
+      {
+        "type": "action",
+        "description": "Enter a saved record index number"
+      },
+      {
+        "type": "action",
+        "description": "Load the record into the payment state"
+      },
+      {
+        "type": "action",
+        "description": "Click to generate the liquidation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a printable liquidation is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC008",
+    "title": "Search for a record by index",
+    "description": "A user can search the history by index number and see the matching record in the results.",
+    "category": "Record History",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /historial.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill in a saved record index in the search field"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the matching record is displayed in the filtered history results"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC009",
+    "title": "Filter history by record type",
+    "description": "A user can filter the history to show only order records or only report records.",
+    "category": "Record History",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /historial.html"
+      },
+      {
+        "type": "action",
+        "description": "Select a record type filter"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify only records of the selected type are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC010",
+    "title": "Calculate a weekly report using selected days only",
+    "description": "Verifies that only the included days contribute to the weekly totals in the report.",
+    "category": "Weekly Report Calculation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /reportes.html"
+      },
+      {
+        "type": "action",
+        "description": "Fill valid times into two or more day rows"
+      },
+      {
+        "type": "action",
+        "description": "Select only some of the available days as included"
+      },
+      {
+        "type": "action",
+        "description": "Set the global hourly rate"
+      },
+      {
+        "type": "action",
+        "description": "Set the global surcharge percentage"
+      },
+      {
+        "type": "action",
+        "description": "Set the global minimum guaranteed hours"
+      },
+      {
+        "type": "action",
+        "description": "Click to calculate the weekly report"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the weekly totals reflect only the included days"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC011",
+    "title": "Open a record details modal",
+    "description": "A user can open a saved record from history and inspect its details in a modal.",
+    "category": "Record History",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /historial.html"
+      },
+      {
+        "type": "action",
+        "description": "Open a saved record from the history table"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the record details modal is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the record details are visible in the modal"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC012",
+    "title": "Search and inspect a saved record in history",
+    "description": "Verifies that a user can find a stored record in history and open its details in the modal.",
+    "category": "Record History",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /historial.html"
+      },
+      {
+        "type": "action",
+        "description": "Enter a search term or index filter"
+      },
+      {
+        "type": "action",
+        "description": "Apply the filter"
+      },
+      {
+        "type": "action",
+        "description": "Open a matching record in the details modal"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the record details modal is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the selected record information is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC013",
+    "title": "Modify a saved record from history",
+    "description": "Verifies that a record opened from history can be edited and saved back to local storage.",
+    "category": "Record History",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /historial.html"
+      },
+      {
+        "type": "action",
+        "description": "Open a saved record in the details modal"
+      },
+      {
+        "type": "action",
+        "description": "Choose to edit the record"
+      },
+      {
+        "type": "action",
+        "description": "Update a record field"
+      },
+      {
+        "type": "action",
+        "description": "Save the changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a record updated confirmation is visible"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC014",
+    "title": "Delete a saved record from history",
+    "description": "A user can delete a saved record from history after confirming the action and see it removed from the table.",
+    "category": "Record History",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /historial.html"
+      },
+      {
+        "type": "action",
+        "description": "Delete a saved record from the history table"
+      },
+      {
+        "type": "action",
+        "description": "Confirm the deletion"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the deleted record is no longer displayed in history"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC015",
+    "title": "Import and merge JSON records into history",
+    "description": "A user can import a JSON file containing records and merge the imported items into the existing history.",
+    "category": "Record History",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /historial.html"
+      },
+      {
+        "type": "action",
+        "description": "Import a valid JSON file of records"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the imported records are added to the history table"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify existing records remain available after the import"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC016",
+    "title": "Reset a work order form after changes",
+    "description": "Verifies that clearing the work order form returns it to its initial empty state.",
+    "category": "Work Order Calculation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /ordenes.html"
+      },
+      {
+        "type": "action",
+        "description": "Select a day type"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid start time into the start time field"
+      },
+      {
+        "type": "action",
+        "description": "Fill a valid end time into the end time field"
+      },
+      {
+        "type": "action",
+        "description": "Select an hourly rate"
+      },
+      {
+        "type": "action",
+        "description": "Click to clear the work order form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the form fields are reset"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify no calculated results are displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC017",
+    "title": "Export history as JSON",
+    "description": "A user can export the stored history as a JSON file from the history page.",
+    "category": "Record History",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /historial.html"
+      },
+      {
+        "type": "action",
+        "description": "Export the stored records as JSON"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the export action completes and the history remains visible"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC018",
+    "title": "Export and reimport stored history records",
+    "description": "Verifies that stored records can be exported to JSON and then imported back into local history as a merge operation.",
+    "category": "Record History",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /historial.html"
+      },
+      {
+        "type": "action",
+        "description": "Export the stored records to JSON"
+      },
+      {
+        "type": "action",
+        "description": "Import the exported records back into history"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the imported records appear in history"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the existing history remains available after import"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC019",
+    "title": "Show validation when weekly report data is incomplete",
+    "description": "Verifies that the weekly report calculator does not produce totals when required day or rate data is missing.",
+    "category": "Weekly Report Calculation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /reportes.html"
+      },
+      {
+        "type": "action",
+        "description": "Select at least one included day without entering complete times"
+      },
+      {
+        "type": "action",
+        "description": "Set the global hourly rate"
+      },
+      {
+        "type": "action",
+        "description": "Click to calculate the weekly report"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a report validation error is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify no weekly totals are displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC020",
+    "title": "Show validation when a work order time range is invalid",
+    "description": "Verifies that an invalid work order time range is rejected and no calculation result is produced.",
+    "category": "Work Order Calculation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /ordenes.html"
+      },
+      {
+        "type": "action",
+        "description": "Select a day type"
+      },
+      {
+        "type": "action",
+        "description": "Fill a start time later than the end time into the time fields"
+      },
+      {
+        "type": "action",
+        "description": "Select an hourly rate"
+      },
+      {
+        "type": "action",
+        "description": "Click to calculate the work order"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a time validation error is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify no calculation results are displayed"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC021",
+    "title": "Handle an empty history state",
+    "description": "A user can open history with no saved records and see an empty state instead of a table of data.",
+    "category": "Record History",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /historial.html"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an empty state message is displayed when no records are saved"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC022",
+    "title": "Reject an unknown payment record index",
+    "description": "Verifies that entering a nonexistent saved record index in payments does not load any record.",
+    "category": "Payment State Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /pagos.html"
+      },
+      {
+        "type": "action",
+        "description": "Enter a nonexistent record index number"
+      },
+      {
+        "type": "action",
+        "description": "Load the record into the payment state"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a record not found message is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify no payment state is loaded"
+      }
+    ],
+    "priority": "Low"
+  }
+]
