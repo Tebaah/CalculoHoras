@@ -42,6 +42,15 @@ Esta herramienta automatiza todos estos cálculos, evitando errores manuales y e
 - Cálculo consolidado con totales semanales.
 - **Almacenamiento**: Guardar reportes completos con un índice personalizado.
 
+### 💰 Estados de Pago
+- Agregación de registros existentes (órdenes o reportes) buscándolos por índice.
+- Cada registro agregado suma sus horas sin recargo, con recargo y monto total.
+- **Costos adicionales**: Agregar ítems extra (traslado de contrapesos, traslado de equipo, plan de izaje, otros) con cantidad y valor unitario.
+- Cálculo en vivo del total general con IVA (19%).
+- **Logo de empresa**: Carga de logo vía URL con previsualización y almacenamiento persistente en localStorage.
+- **Impresión PDF**: Genera una liquidación formal de servicios con encabezado (logo + datos empresa), detalle por jornada, resumen de montos, IVA y condiciones de pago.
+- **Almacenamiento**: Guardar estados de pago con índice personalizado.
+
 ### 📁 Historial de Registros
 - Tabla con todos los registros almacenados (órdenes y reportes).
 - **Filtros**: búsqueda por índice y filtro por tipo (Orden/Reporte).
@@ -56,7 +65,7 @@ Esta herramienta automatiza todos estos cálculos, evitando errores manuales y e
 
 | Tecnología                    | Descripción                                                                                     |
 | ----------------------------- | ----------------------------------------------------------------------------------------------- |
-| **HTML5**                     | Estructura de la aplicación (4 páginas: inicio, órdenes, reportes, historial)                   |
+| **HTML5**                     | Estructura de la aplicación (5 páginas: inicio, órdenes, reportes, pagos, historial)            |
 | **CSS3**                      | Estilos con arquitectura modular: variables, reset, tipografía, layouts, componentes y páginas  |
 | **JavaScript (ES Modules)**   | Lógica de cálculo, manipulación del DOM, manejo de eventos, almacenamiento local y validaciones |
 | **Vite**                      | Bundler para desarrollo y build de producción                                                   |
@@ -70,6 +79,7 @@ Esta herramienta automatiza todos estos cálculos, evitando errores manuales y e
 ├── index.html              # Página de inicio / bienvenida
 ├── ordenes.html            # Calculadora de horas y costos
 ├── reportes.html           # Reporte semanal
+├── pagos.html              # Estados de pago y liquidaciones
 ├── historial.html          # Historial de registros almacenados
 ├── package.json            # Configuración del proyecto y dependencias
 ├── vite.config.js          # Configuración de Vite (multi-page build)
@@ -77,6 +87,7 @@ Esta herramienta automatiza todos estos cálculos, evitando errores manuales y e
 │   ├── index.js            # Entry point de inicio
 │   ├── ordenes.js          # Entry point de órdenes
 │   ├── reportes.js         # Entry point de reportes
+│   ├── pagos.js            # Entry point de pagos
 │   ├── historial.js        # Entry point de historial
 │   ├── core/
 │   │   ├── constants.js    # Constantes de dominio (rangos, multiplicadores, tipos de día)
@@ -101,6 +112,7 @@ Esta herramienta automatiza todos estos cálculos, evitando errores manuales y e
 │       ├── pages/
 │       │   ├── ordenes.js     # Lógica de la página de órdenes
 │       │   ├── reportes.js    # Lógica de la página de reportes
+│       │   ├── pagos.js       # Lógica de la página de pagos (liquidaciones)
 │       │   └── historial.js   # Lógica de la página de historial
 │       └── render/
 │           ├── renderResults.js  # Renderizado de resultados individuales
@@ -127,7 +139,8 @@ Esta herramienta automatiza todos estos cálculos, evitando errores manuales y e
 │   └── pages/
 │       ├── home.css         # Estilos de la página de inicio
 │       ├── ordenes.css      # Estilos de la página de órdenes
-│       └── reportes.css     # Estilos de la página de reportes
+│       ├── reportes.css     # Estilos de la página de reportes
+│       └── pagos.css        # Estilos de la página de pagos
 ```
 
 ## 📖 Reglas de Cálculo
@@ -164,17 +177,17 @@ Vista principal con el menú lateral y las opciones de navegación.
 ![Cálculo de órdenes](assets/calculo%20de%20ordenes.png)
 Formulario de cálculo de horas y costos con resultados visibles y opción de guardar.
 
-### Cálculo de reportes
+### Reporte Semanal
 ![Reporte semanal](assets/calculo%20reportes.png)
 Reporte semanal con varios días ingresados, totales consolidados y opción de guardar.
 
-### Estado de pago
-![Reporte semanal](assets/estado%20de%20pago.png)
-Consolidadción de los reportes u ordenes de trabajo en un estado de pago.
+### Estados de Pago
+![Estados de pago](assets/estado%20de%20pago.png)
+Consolidación de órdenes o reportes en un estado de pago, con costos adicionales y liquidación imprimible.
 
 ### Historial
-![Reporte semanal](assets/historial.png)
-Historial con todos los tipos de documentos.
+![Historial](assets/historial.png)
+Historial con todos los tipos de documentos, búsqueda, filtros y exportación/importación JSON.
 
 ## 🧑‍💻 Aprendizaje
 
@@ -218,7 +231,8 @@ npm run build
 3. Opcionalmente ingresa un **índice** y presiona **💾 Guardar Registro** para almacenarlo.
 4. Selecciona **Reportes** para generar un reporte semanal consolidado.
 5. Opcionalmente guarda el reporte con un índice.
-6. Selecciona **Historial** para ver, modificar, eliminar o exportar/importar todos los registros.
+6. Selecciona **Estados de Pago** para consolidar órdenes/reportes, agregar costos adicionales, cargar un logo y generar una liquidación imprimible.
+7. Selecciona **Historial** para ver, modificar, eliminar o exportar/importar todos los registros.
 
 ## 📄 Licencia
 

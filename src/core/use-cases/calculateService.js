@@ -77,16 +77,42 @@ function applyColacion(minSinRecargo, minConRecargo, minColacion, colacionTramo)
 }
 
 /**
- * Aplica la regla de mínimo de horas
+ * Determina si la hora inicial esta en el rango sin recargo del dia
+ *
+ * @param {number} startMin - Minuto de inicio
+ * @param {string} tipoDia - Tipo de dia
+ * @returns {boolean} true si la hora inicial esta en rango sin recargo
+ */
+function isStartInSinRecargo(startMin, tipoDia) {
+    if (tipoDia === TIPOS_DIA.DOMINGO_FESTIVO) {
+        return false;
+    }
+
+    if (tipoDia === TIPOS_DIA.SABADO) {
+        return startMin >= 7 * 60 && startMin < 13 * 60;
+    }
+
+    // Día normal
+    return startMin >= RANGOS.SIN_RECARGO.inicio && startMin < RANGOS.SIN_RECARGO.fin;
+}
+
+/**
+ * Aplica la regla de minimo de horas
+ *
+ * La diferencia de horas para completar el minimo se incorpora al tramo
+ * correspondiente segun donde se encuentre la hora inicial:
+ * - Si la hora inicial esta en rango sin recargo, se agrega a sin recargo
+ * - Si la hora inicial esta en rango con recargo, se agrega a con recargo
  *
  * @param {number} minConRecargo
  * @param {number} minSinRecargo
  * @param {number} totalMinutosTrabajados
  * @param {string} tipoDia
  * @param {number} horasMinimas
+ * @param {number} startMin - Minuto de inicio de la jornada
  * @returns {{ minSinRecargo: number, minConRecargo: number, minutosExtra: number }}
  */
-function applyMinimumHours(minConRecargo, minSinRecargo, totalMinutosTrabajados, tipoDia, horasMinimas) {
+function applyMinimumHours(minConRecargo, minSinRecargo, totalMinutosTrabajados, tipoDia, horasMinimas, startMin) {
     if (horasMinimas <= 0) {
         return { minSinRecargo, minConRecargo, minutosExtra: 0 };
     }
@@ -107,9 +133,19 @@ function applyMinimumHours(minConRecargo, minSinRecargo, totalMinutosTrabajados,
         };
     }
 
+    // Si la hora inicial está en rango sin recargo, la diferencia se agrega ahí
+    if (isStartInSinRecargo(startMin, tipoDia)) {
+        return {
+            minSinRecargo: minSinRecargo + minutosExtra,
+            minConRecargo,
+            minutosExtra,
+        };
+    }
+
+    // Si la hora inicial está en rango con recargo, la diferencia se agrega ahí
     return {
-        minSinRecargo: minSinRecargo + minutosExtra,
-        minConRecargo,
+        minSinRecargo,
+        minConRecargo: minConRecargo + minutosExtra,
         minutosExtra,
     };
 }
@@ -153,7 +189,8 @@ export function calculateService(params) {
         afterColacion.minSinRecargo,
         totalNeto,
         tipoDia,
-        horasMinimas
+        horasMinimas,
+        startMin
     );
 
     // 4. Si no hay recargo (0%), todas las horas se consideran sin recargo

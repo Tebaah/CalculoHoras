@@ -22,7 +22,7 @@ rad.json
 TestResults.xml
 
 ### .clinerules ###
-.clinerules/
+*.clinerules/
 
 ### OpenCode ###
 AGENTS.md
@@ -36,3 +36,5 @@ dist/
 
 ### Logo personalizado (no versionado) ###
 public/logo-empresa.*
+testsprite_tests/tmp/
+testsprite_tests/tmp/config.json
