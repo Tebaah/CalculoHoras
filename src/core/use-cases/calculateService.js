@@ -156,11 +156,19 @@ export function calculateService(params) {
         horasMinimas
     );
 
-    // 4. Convertir a horas
-    const horasSinRecargo = parseFloat(minutesToHours(adjusted.minSinRecargo));
-    const horasConRecargo = parseFloat(minutesToHours(adjusted.minConRecargo));
+    // 4. Si no hay recargo (0%), todas las horas se consideran sin recargo
+    let minutosSinRecargo = adjusted.minSinRecargo;
+    let minutosConRecargo = adjusted.minConRecargo;
+    if (recargoPorcentaje <= 0) {
+        minutosSinRecargo += minutosConRecargo;
+        minutosConRecargo = 0;
+    }
 
-    // 5. Calcular montos con recargo dinámico
+    // 5. Convertir a horas
+    const horasSinRecargo = parseFloat(minutesToHours(minutosSinRecargo));
+    const horasConRecargo = parseFloat(minutesToHours(minutosConRecargo));
+
+    // 6. Calcular montos con recargo dinámico
     const multiplicadorRecargo = getMultiplicadorRecargo(recargoPorcentaje);
     const valorConRecargo = valorHora * multiplicadorRecargo;
     const montoSinRecargo = horasSinRecargo * valorHora;
