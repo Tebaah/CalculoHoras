@@ -77,16 +77,54 @@ export function getRecordByIndex(indice) {
  */
 export function getRecordsSummary() {
     const records = getAllRecords();
-    return records.map(r => ({
-        indice: r.indice,
-        tipo: r.tipo,
-        fecha: r.fecha || (r.dias && r.dias.length > 0 ? r.dias[0].fecha : ''),
-        horasSinRecargo: r.horasSinRecargo || r.totales?.horasSinRecargo || 0,
-        horasConRecargo: r.horasConRecargo || r.totales?.horasConRecargo || 0,
-        montoTotal: r.montoTotal || r.totales?.montoTotal || 0,
-        timestamp: r.timestamp,
-        numDias: r.tipo === 'reporte' ? (r.dias ? r.dias.length : 0) : 1,
-    }));
+    return records.map(r => {
+        let horasSinRecargo;
+        let horasConRecargo;
+        let recargoPorcentaje;
+
+        if (r.tipo === 'pago') {
+            horasSinRecargo = r.totales?.totalSinRecargo || 0;
+            horasConRecargo = r.totales?.totalConRecargo || 0;
+            const items = r.items || [];
+            const conRecargo = items.filter((it) => {
+                const rec = it.recargoPorcentaje !== undefined && it.recargoPorcentaje !== null
+                    ? it.recargoPorcentaje
+                    : 30;
+                return rec > 0;
+            });
+            recargoPorcentaje = items.length > 0 && conRecargo.length === 0 ? 0 : 30;
+        } else if (r.tipo === 'orden') {
+            horasSinRecargo = r.horasSinRecargo || 0;
+            horasConRecargo = r.horasConRecargo || 0;
+            recargoPorcentaje = r.recargoPorcentaje !== undefined && r.recargoPorcentaje !== null
+                ? r.recargoPorcentaje
+                : 30;
+        } else {
+            horasSinRecargo = r.totales?.horasSinRecargo || 0;
+            horasConRecargo = r.totales?.horasConRecargo || 0;
+            recargoPorcentaje = r.recargoPorcentaje !== undefined && r.recargoPorcentaje !== null
+                ? r.recargoPorcentaje
+                : 30;
+        }
+
+        // Si no hay recargo, todas las horas se consideran sin recargo
+        if (recargoPorcentaje <= 0) {
+            horasSinRecargo += horasConRecargo;
+            horasConRecargo = 0;
+        }
+
+        return {
+            indice: r.indice,
+            tipo: r.tipo,
+            fecha: r.fecha || (r.dias && r.dias.length > 0 ? r.dias[0].fecha : ''),
+            horasSinRecargo,
+            horasConRecargo,
+            montoTotal: r.montoTotal || r.totales?.montoTotal || 0,
+            recargoPorcentaje,
+            timestamp: r.timestamp,
+            numDias: r.tipo === 'reporte' ? (r.dias ? r.dias.length : 0) : 1,
+        };
+    });
 }
 
 /**
