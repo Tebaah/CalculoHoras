@@ -33,16 +33,18 @@ function getLabelsByDayType(tipoDia, valorSinRecargo, valorConRecargo, recargoPo
 
 export function renderResults(result) {
     const labels = getLabelsByDayType(result.tipoDia, result.valorSinRecargo, result.valorConRecargo, result.recargoPorcentaje);
+    const tieneRecargo = (result.recargoPorcentaje || 0) > 0 && result.horasConRecargo > 0;
 
     const html = `
         <div class="result-item">
             <span class="result-label">${labels.sinRecargo}</span>
             <span class="result-value">${formatHours(result.horasSinRecargo)}</span>
         </div>
+        ${tieneRecargo ? `
         <div class="result-item">
             <span class="result-label">${labels.conRecargo}</span>
             <span class="result-value">${formatHours(result.horasConRecargo)}</span>
-        </div>
+        </div>` : ''}
         <div class="result-item">
             <span class="result-label">Horas normales del operador <small>(total horas trabajadas)</small></span>
             <span class="result-value">${formatHours(result.horasNormalesOp)}</span>
