@@ -8,6 +8,11 @@
 
 import { initSidebar } from '../components/sidebar.js';
 import { getRecordDetail, saveRecord } from '../../store/storageManager.js';
+import {
+    getLogoUrl,
+    getCorrelativoPago,
+    avanzarCorrelativoPago,
+} from '../../store/configManager.js';
 import { formatCurrency, formatHours, formatHourRate } from '../../core/utils/formatUtils.js';
 import { NOMBRES_DIAS } from '../../core/constants.js';
 import { timeToMinutes } from '../../core/utils/timeUtils.js';
@@ -47,19 +52,11 @@ const agregarCostoBtn = document.getElementById('agregarCostoBtn');
 const costosListEl = document.getElementById('costosList');
 const costosResultsContainer = document.getElementById('costosResultsContainer');
 
-const logoUrlInput = document.getElementById('logoUrl');
-const cargarLogoBtn = document.getElementById('cargarLogoBtn');
-const logoPreview = document.getElementById('logoPreview');
-const logoPreviewImg = document.getElementById('logoPreviewImg');
-const quitarLogoBtn = document.getElementById('quitarLogoBtn');
-const logoError = document.getElementById('logoError');
-
-const LOGO_STORAGE_KEY = 'calculoHoras_logoUrl';
-
 // Estado interno
 let itemsAgregados = [];
 let ultimoResultadoBusqueda = null;
 let costosAgregados = []; // Array de { tipo, cantidad, valor }
+let editandoIndice = null;
 
 /**
  * Renderiza el detalle de un registro encontrado en la búsqueda
@@ -503,9 +500,12 @@ function getCostoLabelText(tipo) {
 function handleSavePago() {
     errorDiv.classList.remove('show');
 
-    const indice = indicePagoInput.value.trim();
+    const indice = editandoIndice !== null
+        ? editandoIndice
+        : indicePagoInput.value.trim();
+
     if (!indice) {
-        errorDiv.textContent = '\u274C Debe ingresar un índice de almacenamiento.';
+        errorDiv.textContent = '\u274C Debe configurar el índice de inicio del correlativo en Configuración.';
         errorDiv.classList.add('show');
         return;
     }
@@ -564,6 +564,13 @@ function handleSavePago() {
         };
 
         saveRecord(record);
+
+        // Solo al guardar un nuevo estado de pago se avanza el correlativo almacenado.
+        // El correlativo mostrado se mantiene: el número avanzado se usará recién
+        // al abrir un nuevo estado de pago.
+        if (editandoIndice === null) {
+            avanzarCorrelativoPago();
+        }
 
         const originalText = guardarBtn.textContent;
         guardarBtn.textContent = '\u2705 Guardado';
@@ -962,62 +969,9 @@ function handlePrintPDF() {
     }, 400);
 }
 
-function getLogoUrl() {
-    return localStorage.getItem(LOGO_STORAGE_KEY) || null;
-}
-
-function initLogoManager() {
-    const storedUrl = getLogoUrl();
-    if (storedUrl) {
-        logoUrlInput.value = storedUrl;
-        mostrarLogoPreview(storedUrl);
-    }
-}
-
-function mostrarLogoPreview(url) {
-    logoPreviewImg.src = url;
-    logoPreview.style.display = 'block';
-}
-
-function ocultarLogoPreview() {
-    logoPreviewImg.src = '';
-    logoPreview.style.display = 'none';
-}
-
-function handleCargarLogo() {
-    const url = logoUrlInput.value.trim();
-    logoError.textContent = '';
-    logoError.classList.remove('show');
-
-    if (!url) {
-        logoError.textContent = 'Ingrese una URL válida.';
-        logoError.classList.add('show');
-        return;
-    }
-
-    const testImg = new Image();
-    testImg.onload = () => {
-        localStorage.setItem(LOGO_STORAGE_KEY, url);
-        mostrarLogoPreview(url);
-    };
-    testImg.onerror = () => {
-        logoError.textContent = 'No se pudo cargar la imagen. Verifique la URL.';
-        logoError.classList.add('show');
-    };
-    testImg.src = url;
-}
-
-function handleQuitarLogo() {
-    localStorage.removeItem(LOGO_STORAGE_KEY);
-    logoUrlInput.value = '';
-    ocultarLogoPreview();
-    logoError.textContent = '';
-    logoError.classList.remove('show');
-}
-
 export function initPagosPage() {
     initSidebar();
-    initLogoManager();
+    initCorrelativo();
 
     document.getElementById('pagoForm').addEventListener('submit', (e) => {
         e.preventDefault();
@@ -1041,16 +995,12 @@ export function initPagosPage() {
         imprimirBtn.addEventListener('click', handlePrintPDF);
     }
 
-    cargarLogoBtn.addEventListener('click', handleCargarLogo);
-    logoUrlInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            handleCargarLogo();
-        }
-    });
-    quitarLogoBtn.addEventListener('click', handleQuitarLogo);
-
     loadEditData();
+}
+
+function initCorrelativo() {
+    const correlativo = getCorrelativoPago();
+    indicePagoInput.value = correlativo !== null ? String(correlativo) : '';
 }
 
 function loadEditData() {
@@ -1064,7 +1014,10 @@ function loadEditData() {
         const record = JSON.parse(storedData);
         if (record.tipo !== 'pago') return;
 
-        if (record.indice) indicePagoInput.value = record.indice;
+        if (record.indice) {
+            editandoIndice = record.indice;
+            indicePagoInput.value = record.indice;
+        }
 
         // Restaurar costos adicionales guardados
         if (record.costos && record.costos.length > 0) {
