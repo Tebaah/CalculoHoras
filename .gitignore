@@ -36,5 +36,6 @@ dist/
 
 ### Logo personalizado (no versionado) ###
 public/logo-empresa.*
-testsprite_tests/tmp/
-testsprite_tests/tmp/config.json
+
+### TestSprite (pruebas internas, no se versionan) ###
+testsprite_tests/
