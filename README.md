@@ -37,6 +37,7 @@ Esta herramienta automatiza todos estos cálculos, evitando errores manuales y e
 ### 📊 Reporte Semanal
 - Ingreso de jornada para cada día de la semana (lunes a domingo).
 - Cada día se categoriza automáticamente según su tipo (Normal, Sábado, Domingo/Festivo).
+- **Repetición de horario**: una vez ingresados los tres datos de un día (hora de inicio, hora de término y colación), un modal pregunta si se desea repetir el mismo horario en el día siguiente; la consulta se repite día a día hasta responder que no.
 - Valor hora global para toda la semana.
 - Mínimo de horas y porcentaje de recargo globales.
 - Cálculo consolidado con totales semanales.
@@ -117,7 +118,8 @@ Esta herramienta automatiza todos estos cálculos, evitando errores manuales y e
 │   └── ui/
 │       ├── components/
 │       │   ├── sidebar.js     # Componente de navegación lateral
-│       │   └── recargoSelect.js # Selector de % recargo según configuración
+│       │   ├── recargoSelect.js # Selector de % recargo según configuración
+│       │   └── confirmModal.js  # Modal de confirmación reutilizable
 │       ├── pages/
 │       │   ├── ordenes.js     # Lógica de la página de órdenes
 │       │   ├── reportes.js    # Lógica de la página de reportes
@@ -142,6 +144,7 @@ Esta herramienta automatiza todos estos cálculos, evitando errores manuales y e
 │   │   ├── button.css       # Estilos de botones
 │   │   ├── info-box.css     # Cajas de información
 │   │   ├── error.css        # Mensajes de error
+│   │   ├── modal.css        # Modal de confirmación
 │   │   ├── results.css      # Resultados de cálculo
 │   │   ├── welcome-card.css # Tarjeta de bienvenida
 │   │   ├── report-table.css # Tabla del reporte semanal

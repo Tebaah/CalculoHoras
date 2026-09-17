@@ -66,6 +66,8 @@ Cálculo consolidado de lunes a domingo.
 
 **Funcionalidades adicionales:**
 - Al menos un día debe tener datos completos para calcular
+- Una vez ingresados los tres datos de un día (hora de inicio, hora de término y colación), un modal pregunta si se desea repetir el mismo horario en el día siguiente; la consulta se encadena día a día hasta que el usuario responde que no
+- Los horarios repetidos quedan editables: cualquier día puede ajustarse manualmente antes de calcular
 - Totales agregados de toda la semana (horas sin recargo, con recargo, monto total)
 - Guardar reporte completo en historial
 
@@ -178,7 +180,7 @@ src/
 │   ├── actions/         # calculatorActions
 │   └── storageManager.js # localStorage CRUD + export/import
 ├── ui/             # DOM, eventos, renderizado
-│   ├── components/      # sidebar
+│   ├── components/      # sidebar, recargoSelect, confirmModal
 │   ├── pages/           # ordenes, reportes, pagos, historial
 │   └── render/          # renderResults, renderReport
 ```
@@ -329,6 +331,7 @@ Sistema de cascada en `css/main.css` con orden de importación:
 - Modo edición: formulario pre-rellenado desde datos guardados
 - Resultados visibles inmediatamente tras calcular
 - Confirmaciones para acciones destructivas (eliminar)
+- Modal de confirmación para repetir el horario del reporte en el día siguiente (se encadena hasta responder que no)
 
 ---
 
@@ -367,10 +370,11 @@ Sistema de cascada en `css/main.css` con orden de importación:
 1. Navegar a "Reportes Semanales"
 2. Ingresar índice, valor hora, horas mínimas, % recargo
 3. Seleccionar fecha del lunes
-4. Completar horas de cada día trabajado
-5. Hacer clic en "Calcular"
-6. Revisar totales semanales
-7. Opcionalmente guardar en historial
+4. Completar cada día trabajado: al ingresar hora de inicio, hora de término y colación, el modal pregunta si se desea repetir el horario en el día siguiente y sigue consultando hasta responder que no
+5. Ajustar manualmente los días que lo requieran
+6. Hacer clic en "Calcular"
+7. Revisar totales semanales
+8. Opcionalmente guardar en historial
 
 ### 8.3 Crear una liquidación
 1. Navegar a "Pagos"
