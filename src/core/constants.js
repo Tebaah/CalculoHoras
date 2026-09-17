@@ -49,16 +49,76 @@ export const OPCIONES_HORAS_MINIMAS = [0, 5, 6, 8, 9];
 // Opciones de colación
 export const OPCIONES_COLACION = [0, 15, 30, 45, 60];
 
-// Opciones de porcentaje de recargo (dinámico)
-export const OPCIONES_RECARGO = [
-    { value: 0, label: 'Sin recargo' },
-    { value: 10, label: '10%' },
-    { value: 20, label: '20%' },
-    { value: 30, label: '30%' },
-];
+// ── Porcentajes de recargo ─────────────────────────────────────
+// La lista definitiva se administra desde la página Configuración
+// (ver src/store/configManager.js). Estos son los valores iniciales.
 
-// Porcentaje de recargo por defecto
+// Porcentajes de recargo disponibles por defecto
+export const PORCENTAJES_RECARGO_POR_DEFECTO = [0, 10, 20, 30];
+
+// Porcentaje de recargo por defecto (seleccionado al abrir el formulario)
 export const RECARGO_POR_DEFECTO = 30;
+
+// Rango admitido al configurar porcentajes de recargo
+export const RECARGO_PORCENTAJE_MINIMO = 0;
+export const RECARGO_PORCENTAJE_MAXIMO = 200;
+
+/**
+ * Genera la etiqueta visible de un porcentaje de recargo
+ * @param {number} porcentaje - Porcentaje de recargo (ej: 30 para 30%)
+ * @returns {string} Ej: "Sin recargo" para 0 | "30%" para 30
+ */
+export function formatRecargoLabel(porcentaje) {
+    const valor = Number(porcentaje);
+    if (!Number.isFinite(valor) || valor <= 0) return 'Sin recargo';
+    return valor + '%';
+}
+
+/**
+ * Normaliza un porcentaje de recargo individual
+ * @param {number|string} porcentaje
+ * @returns {number|null} Porcentaje válido (entero dentro del rango) o null
+ */
+export function normalizarRecargo(porcentaje) {
+    if (porcentaje === null || porcentaje === undefined || porcentaje === '') return null;
+
+    const valor = Number(porcentaje);
+
+    if (!Number.isInteger(valor)) return null;
+    if (valor < RECARGO_PORCENTAJE_MINIMO || valor > RECARGO_PORCENTAJE_MAXIMO) return null;
+
+    return valor;
+}
+
+/**
+ * Normaliza una lista de porcentajes de recargo: convierte a número entero,
+ * descarta valores inválidos o fuera de rango, elimina duplicados y ordena
+ * de menor a mayor. El porcentaje "Sin recargo" (0) siempre está presente.
+ *
+ * @param {Array<number|string>} porcentajes
+ * @returns {Array<number>} Lista normalizada (nunca vacía)
+ */
+export function normalizarRecargos(porcentajes) {
+    if (!Array.isArray(porcentajes)) return [RECARGO_PORCENTAJE_MINIMO];
+
+    const validos = porcentajes
+        .map(normalizarRecargo)
+        .filter((porcentaje) => porcentaje !== null);
+
+    const unicos = Array.from(new Set(validos)).sort((a, b) => a - b);
+
+    if (!unicos.includes(RECARGO_PORCENTAJE_MINIMO)) {
+        unicos.unshift(RECARGO_PORCENTAJE_MINIMO);
+    }
+
+    return unicos;
+}
+
+// Opciones de porcentaje de recargo por defecto (value + etiqueta visible)
+export const OPCIONES_RECARGO = PORCENTAJES_RECARGO_POR_DEFECTO.map((value) => ({
+    value,
+    label: formatRecargoLabel(value),
+}));
 
 /**
  * Calcula el multiplicador de recargo a partir de un porcentaje
