@@ -9,7 +9,15 @@ import { calculateWeeklyReport } from '../../store/actions/calculatorActions.js'
 import { renderReportTotals } from '../render/renderReport.js';
 import { initSidebar } from '../components/sidebar.js';
 import { populateRecargoOptions, ensureRecargoOption } from '../components/recargoSelect.js';
-import { getDayTypeFromDate, addDays, toDateInputValue, getDayId, DAY_ID_TO_NAME } from '../../core/utils/dateUtils.js';
+import { showConfirmModal } from '../components/confirmModal.js';
+import {
+    getDayTypeFromDate,
+    addDays,
+    toDateInputValue,
+    getDayId,
+    formatDate,
+    DAY_ID_TO_NAME,
+} from '../../core/utils/dateUtils.js';
 import { TIPOS_DIA } from '../../core/constants.js';
 import { saveRecord } from '../../store/storageManager.js';
 
@@ -26,6 +34,12 @@ const guardarBtn = document.getElementById('guardarReporteBtn');
 
 // Último reporte calculado para poder guardarlo
 let lastCalculatedReport = null;
+
+// Filas para las que ya se consultó si se desea repetir el horario
+const repeatAskedRows = new WeakSet();
+
+// Evita cadenas de consulta simultáneas mientras hay un modal abierto
+let repeatPromptActive = false;
 
 /**
  * Actualiza el identificador de día (data-dia), el nombre visible,
@@ -125,6 +139,198 @@ function setDefaultDates() {
         if (row) {
             updateRowDayType(row, date);
         }
+    });
+}
+
+/**
+ * Indica si una fila del reporte ya tiene el horario completo
+ *
+ * @param {HTMLElement} row - Fila del reporte
+ * @returns {boolean} true si tiene hora de inicio y de término
+ */
+function isRowComplete(row) {
+    const horaInicio = row.querySelector('.hora-inicio');
+    const horaTermino = row.querySelector('.hora-termino');
+
+    return Boolean(horaInicio && horaInicio.value && horaTermino && horaTermino.value);
+}
+
+/**
+ * Indica si la fila tiene ingresados los tres datos del horario:
+ * hora de inicio, hora de término y colación
+ *
+ * @param {HTMLElement} row - Fila del reporte
+ * @returns {boolean} true si los tres datos fueron ingresados
+ */
+function hasCompleteSchedule(row) {
+    return isRowComplete(row) && row.dataset.colacionIngresada === 'true';
+}
+
+/**
+ * Obtiene la fila del día siguiente dentro de la tabla del reporte
+ *
+ * @param {HTMLElement} row - Fila actual
+ * @returns {HTMLElement|null} Fila siguiente o null si es el último día
+ */
+function getNextRow(row) {
+    const nextRow = row.nextElementSibling;
+
+    if (nextRow && nextRow.classList.contains('report-row')) {
+        return nextRow;
+    }
+
+    return null;
+}
+
+/**
+ * Copia el horario de una fila (hora inicio, hora término y colación)
+ * en la fila del día siguiente
+ *
+ * @param {HTMLElement} fromRow - Fila de origen
+ * @param {HTMLElement} toRow - Fila de destino
+ */
+function copySchedule(fromRow, toRow) {
+    const horaInicio = fromRow.querySelector('.hora-inicio').value;
+    const horaTermino = fromRow.querySelector('.hora-termino').value;
+    const colacionSelect = fromRow.querySelector('.colacion');
+    const colacionTramoSelect = fromRow.querySelector('.colacion-tramo');
+    const colacion = colacionSelect ? colacionSelect.value : '0';
+
+    toRow.querySelector('.hora-inicio').value = horaInicio;
+    toRow.querySelector('.hora-termino').value = horaTermino;
+
+    const destinoColacion = toRow.querySelector('.colacion');
+    if (destinoColacion) {
+        destinoColacion.value = colacion;
+        // El día copiado ya cuenta con su colación ingresada
+        toRow.dataset.colacionIngresada = 'true';
+    }
+
+    const destinoTramo = toRow.querySelector('.colacion-tramo');
+    if (destinoTramo) {
+        destinoTramo.value = colacionTramoSelect ? colacionTramoSelect.value : 'sinRecargo';
+        destinoTramo.style.display = parseInt(colacion) > 0 ? 'block' : 'none';
+    }
+
+    // Confirmación visual de las filas completadas automáticamente
+    toRow.classList.add('report-row--repeated');
+    setTimeout(() => toRow.classList.remove('report-row--repeated'), 2000);
+}
+
+/**
+ * Pregunta al usuario si desea repetir el horario ingresado en el día siguiente
+ *
+ * @param {HTMLElement} currentRow - Fila con el horario ya ingresado
+ * @param {HTMLElement} nextRow - Fila del día siguiente
+ * @returns {Promise<boolean>} true si el usuario desea repetir el horario
+ */
+function askRepeatForNextDay(currentRow, nextRow) {
+    const dayNameEl = nextRow.querySelector('.day-name');
+    const fechaInput = nextRow.querySelector('.fecha-dia');
+
+    const dayName = dayNameEl ? dayNameEl.textContent.trim() : 'día siguiente';
+    const fecha = fechaInput && fechaInput.value
+        ? ' (' + formatDate(new Date(fechaInput.value + 'T12:00:00')) + ')'
+        : '';
+
+    const horaInicio = currentRow.querySelector('.hora-inicio').value;
+    const horaTermino = currentRow.querySelector('.hora-termino').value;
+    const colacion = parseInt(currentRow.querySelector('.colacion').value) || 0;
+
+    // Si el día siguiente ya tiene horario, se avisa que será reemplazado
+    const detalleSobrescritura = isRowComplete(nextRow)
+        ? ' \u00B7 El horario de ese día ya está ingresado y será reemplazado'
+        : '';
+
+    return showConfirmModal({
+        title: 'Repetir horario',
+        message: '¿Desea repetir este horario el ' + dayName + fecha + '?',
+        detail: 'Hora inicio ' + horaInicio + ' \u00B7 Hora término ' + horaTermino +
+            ' \u00B7 Colación ' + colacion + ' min' + detalleSobrescritura,
+        confirmText: 'Sí, repetir',
+        cancelText: 'No, continuar',
+    });
+}
+
+/**
+ * Consulta día a día si se desea repetir el horario, hasta que el usuario
+ * indique que no desea continuar o se alcance el último día de la semana
+ *
+ * @param {HTMLElement} startRow - Fila desde la cual comienza la repetición
+ * @returns {Promise<void>}
+ */
+async function repeatScheduleForFollowingDays(startRow) {
+    let currentRow = startRow;
+
+    while (true) {
+        const nextRow = getNextRow(currentRow);
+
+        // Último día del reporte: no hay día siguiente
+        if (!nextRow) {
+            break;
+        }
+
+        const repeat = await askRepeatForNextDay(currentRow, nextRow);
+        if (!repeat) {
+            break;
+        }
+
+        copySchedule(currentRow, nextRow);
+        repeatAskedRows.add(nextRow);
+        currentRow = nextRow;
+    }
+}
+
+/**
+ * Maneja el ingreso de un dato de horario en una fila del reporte y ofrece
+ * repetirlo en el día siguiente cuando están ingresados la hora de inicio,
+ * la hora de término y la colación
+ *
+ * @param {HTMLElement} row - Fila modificada
+ * @param {string} fieldName - Campo modificado (hora-inicio, hora-termino o colacion)
+ * @returns {Promise<void>}
+ */
+async function handleScheduleInput(row, fieldName) {
+    if (repeatPromptActive) {
+        return;
+    }
+
+    // La colación es parte de la operación: se registra su ingreso
+    if (fieldName === 'colacion') {
+        row.dataset.colacionIngresada = 'true';
+    }
+
+    // Solo se ofrece repetir el horario con los tres datos ingresados
+    if (!hasCompleteSchedule(row)) {
+        repeatAskedRows.delete(row);
+        return;
+    }
+
+    if (repeatAskedRows.has(row)) {
+        return;
+    }
+
+    repeatAskedRows.add(row);
+    repeatPromptActive = true;
+
+    try {
+        await repeatScheduleForFollowingDays(row);
+    } finally {
+        repeatPromptActive = false;
+    }
+}
+
+/**
+ * Configura la consulta de repetición de horario en cada fila del reporte
+ */
+function setupRepeatScheduleListeners() {
+    document.querySelectorAll('.report-row').forEach((row) => {
+        ['hora-inicio', 'hora-termino', 'colacion'].forEach((claseInput) => {
+            const input = row.querySelector('.' + claseInput);
+            if (input) {
+                input.addEventListener('change', () => handleScheduleInput(row, claseInput));
+            }
+        });
     });
 }
 
@@ -311,6 +517,7 @@ export function initReportesPage() {
     });
 
     setupColacionListeners();
+    setupRepeatScheduleListeners();
     setupDateAutoFill();
     setDefaultDates();
 
@@ -381,6 +588,12 @@ function loadEditData() {
                 if (diaData.fecha && fechaInput) {
                     const date = new Date(diaData.fecha + 'T12:00:00');
                     updateRowDayType(row, date);
+                }
+
+                // Los días guardados con sus tres datos permiten ofrecer la
+                // repetición del horario si el usuario modifica alguno de ellos
+                if (diaData.horaInicio && diaData.horaTermino && diaData.colacion !== undefined) {
+                    row.dataset.colacionIngresada = 'true';
                 }
             });
         }
