@@ -76,7 +76,8 @@
 
                 <div class="info-box">
                     <strong>Configuración general del sistema</strong>
-                    Configure el logo de empresa y el número desde el cual inicia el correlativo de los estados de pago.
+                    Configure el logo de empresa, el número desde el cual inicia el correlativo de los estados de pago
+                    y los porcentajes de recargo disponibles para Órdenes de Trabajo y Reportes.
                 </div>
 
                 <div class="config-panels">
@@ -133,6 +134,36 @@
                                 </div>
                                 <div id="configMessage" class="config-message"></div>
                             </form>
+                        </div>
+                    </div>
+
+                    <div class="section-panel">
+                        <div class="section-header">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="19" y1="5" x2="5" y2="19" />
+                                <circle cx="6.5" cy="6.5" r="2.5" />
+                                <circle cx="17.5" cy="17.5" r="2.5" />
+                            </svg>
+                            Porcentajes de recargo
+                        </div>
+                        <div class="section-body">
+                            <div class="recargo-manager">
+                                <form id="recargoForm">
+                                    <div class="form-group">
+                                        <label for="nuevoRecargo">Agregar porcentaje de recargo</label>
+                                        <div class="config-input-row">
+                                            <input type="number" id="nuevoRecargo" min="0" max="200" step="1"
+                                                placeholder="Ej: 40">
+                                            <button type="submit">Agregar</button>
+                                        </div>
+                                        <div class="config-hint">Los porcentajes agregados aparecen en la pestaña
+                                            <strong>% Recargo</strong> de Órdenes de Trabajo y Reportes.</div>
+                                    </div>
+                                </form>
+                                <ul class="recargo-list" id="recargoList"></ul>
+                                <div id="recargoMessage" class="config-message"></div>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -40,7 +40,7 @@ Cálculo individual por día de servicio.
 | Fecha | Fecha del servicio | Selector de fecha |
 | Tipo de día | Clasificación automática según fecha | Normal / Sábado / Domingo-Festivo |
 | Horas mínimas | Garantía de horas mínimas a cobrar | 0, 5, 6, 8, 9 horas |
-| % Recargo | Porcentaje de recargo sobre valor hora base | 0%, 10%, 20%, 30% |
+| % Recargo | Porcentaje de recargo sobre valor hora base | Configurables desde Configuración (por defecto 0%, 10%, 20%, 30%) |
 | Hora inicio | Hora de comienzo del servicio | HH:MM |
 | Hora término | Hora de fin del servicio | HH:MM |
 | Valor hora | Tarifa por hora (CLP) | Valores predefinidos o personalizado |
@@ -226,7 +226,7 @@ src/
   "tipoDia": "normal" | "sabado" | "domingoFestivo",
   "valorHora": "number (CLP)",
   "horasMinimas": 0-9,
-  "recargoPorcentaje": 0-30,
+  "recargoPorcentaje": 0-200,
   "horasSinRecargo": "number",
   "horasConRecargo": "number",
   "montoTotal": "number (CLP)",

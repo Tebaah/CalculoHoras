@@ -8,6 +8,7 @@
 import { calculateSingleDay } from '../../store/actions/calculatorActions.js';
 import { renderResults } from '../render/renderResults.js';
 import { initSidebar } from '../components/sidebar.js';
+import { populateRecargoOptions, ensureRecargoOption } from '../components/recargoSelect.js';
 import { getDayTypeFromDate } from '../../core/utils/dateUtils.js';
 import { saveRecord } from '../../store/storageManager.js';
 
@@ -170,6 +171,9 @@ function handleSave() {
 export function initOrdenesPage() {
     initSidebar();
 
+    // Opciones de % recargo según la configuración guardada
+    populateRecargoOptions(recargoPorcentajeSelect);
+
     form.addEventListener('submit', handleSubmit);
 
     // Detectar tipo de día automáticamente al cambiar la fecha
@@ -225,7 +229,10 @@ function loadEditData() {
             }
         }
         if (record.horasMinimas !== undefined) horasMinimasSelect.value = String(record.horasMinimas);
-        if (record.recargoPorcentaje !== undefined) recargoPorcentajeSelect.value = String(record.recargoPorcentaje);
+        if (record.recargoPorcentaje !== undefined) {
+            ensureRecargoOption(recargoPorcentajeSelect, record.recargoPorcentaje);
+            recargoPorcentajeSelect.value = String(record.recargoPorcentaje);
+        }
         if (record.valorHora) {
             const valorPreset = document.querySelector('#valorHora option[value="' + record.valorHora + '"]');
             if (valorPreset) {

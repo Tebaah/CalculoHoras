@@ -4,7 +4,14 @@
  * Almacena preferencias del sistema:
  *  - Logo de empresa (URL)
  *  - Correlativo de estados de pago (número de inicio y siguiente a asignar)
+ *  - Porcentajes de recargo disponibles en Órdenes de Trabajo y Reportes
  */
+
+import {
+    PORCENTAJES_RECARGO_POR_DEFECTO,
+    normalizarRecargo,
+    normalizarRecargos,
+} from '../core/constants.js';
 
 const CONFIG_KEY = 'calculoHoras_config';
 const LEGACY_LOGO_KEY = 'calculoHoras_logoUrl';
@@ -137,4 +144,70 @@ export function avanzarCorrelativoPago() {
     config.correlativoActual = siguiente;
     writeConfig(config);
     return siguiente;
+}
+
+// ── Porcentajes de recargo ─────────────────────────────────────
+
+/**
+ * Obtiene los porcentajes de recargo configurados.
+ * Si aún no hay configuración guardada, usa los valores por defecto.
+ * @returns {Array<number>} Porcentajes ordenados de menor a mayor (siempre incluye 0)
+ */
+export function getRecargos() {
+    const config = readConfig();
+
+    if (Array.isArray(config.recargos) && config.recargos.length > 0) {
+        return normalizarRecargos(config.recargos);
+    }
+
+    return normalizarRecargos(PORCENTAJES_RECARGO_POR_DEFECTO);
+}
+
+/**
+ * Reemplaza la lista completa de porcentajes de recargo.
+ * @param {Array<number|string>} porcentajes
+ * @returns {Array<number>} Lista guardada (normalizada)
+ */
+export function setRecargos(porcentajes) {
+    const config = readConfig();
+    config.recargos = normalizarRecargos(porcentajes);
+    writeConfig(config);
+    return config.recargos;
+}
+
+/**
+ * Agrega un porcentaje de recargo a la configuración.
+ * Ignora valores inválidos, el 0 (siempre disponible) y duplicados.
+ * @param {number|string} porcentaje
+ * @returns {Array<number>} Lista guardada (normalizada)
+ */
+export function addRecargo(porcentaje) {
+    const recargos = getRecargos();
+    const nuevo = normalizarRecargo(porcentaje);
+
+    if (nuevo === null || nuevo <= 0 || recargos.includes(nuevo)) return recargos;
+
+    return setRecargos([...recargos, nuevo]);
+}
+
+/**
+ * Elimina un porcentaje de recargo de la configuración.
+ * El porcentaje "Sin recargo" (0) no puede eliminarse.
+ * @param {number|string} porcentaje
+ * @returns {Array<number>} Lista guardada (normalizada)
+ */
+export function removeRecargo(porcentaje) {
+    const valor = Number(porcentaje);
+
+    if (!Number.isFinite(valor) || valor <= 0) return getRecargos();
+
+    return setRecargos(getRecargos().filter((recargo) => recargo !== valor));
+}
+
+/**
+ * Restaura los porcentajes de recargo por defecto.
+ * @returns {Array<number>} Lista guardada (normalizada)
+ */
+export function resetRecargos() {
+    return setRecargos(PORCENTAJES_RECARGO_POR_DEFECTO);
 }

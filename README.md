@@ -7,7 +7,7 @@ Herramienta web para calcular los costos del servicio de una organización, basa
 En muchas organizaciones, el cálculo de costos de servicios requiere considerar:
 
 - **Días normales, sábados, domingos y festivos**, cada uno con reglas distintas de recargo.
-- **Horas sin recargo y con recargo** (con porcentaje de recargo configurable: 0%, 10%, 20%, 30%).
+- **Horas sin recargo y con recargo** (con porcentaje de recargo configurable desde la página Configuración: por defecto 0%, 10%, 20% y 30%).
 - **Horas dobles del operador**, que aplican en horarios específicos (antes de las 07:00, después de las 19:00, o todo el día según el tipo de jornada).
 - **Descuentos por colación**, que pueden aplicarse a horas con o sin recargo según se requiera.
 - **Jornadas que cruzan la medianoche**, donde el cálculo debe considerar correctamente el paso de un día a otro.
@@ -23,7 +23,7 @@ Esta herramienta automatiza todos estos cálculos, evitando errores manuales y e
 - Selección del tipo de día: Normal, Sábado, o Domingo/Festivo.
 - Ingreso de hora de inicio y término (con soporte para jornadas que cruzan medianoche).
 - Valor hora seleccionable entre valores predefinidos o personalizado.
-- Porcentaje de recargo configurable (0%, 10%, 20%, 30%).
+- Porcentaje de recargo configurable (por defecto 0%, 10%, 20% y 30%; ampliable desde Configuración).
 - Mínimo de horas garantizado (0, 5, 6, 8 o 9 horas).
 - Descuento opcional de tiempo de colación (15, 30, 45 o 60 minutos), aplicable a horas sin recargo o con recargo.
 - Cálculo detallado de:
@@ -61,11 +61,16 @@ Esta herramienta automatiza todos estos cálculos, evitando errores manuales y e
 - **Exportar JSON**: Descarga todos los registros en formato JSON para usar en otros sistemas.
 - **Importar JSON**: Carga registros desde un archivo JSON, fusionando con los existentes (actualiza si el índice ya existe, agrega si es nuevo).
 
+### ⚙️ Configuración
+- **Logo de empresa**: Carga de logo vía URL con previsualización y almacenamiento persistente en localStorage.
+- **Correlativo de estados de pago**: Número desde el cual inicia el correlativo automático.
+- **Porcentajes de recargo**: incorporación y eliminación manual de los ítems que aparecen en el desplegable `% Recargo` de Órdenes de Trabajo y Reportes. El valor `Sin recargo` siempre está disponible y no puede eliminarse.
+
 ## 🛠️ Tecnologías Utilizadas
 
 | Tecnología                    | Descripción                                                                                     |
 | ----------------------------- | ----------------------------------------------------------------------------------------------- |
-| **HTML5**                     | Estructura de la aplicación (5 páginas: inicio, órdenes, reportes, pagos, historial)            |
+| **HTML5**                     | Estructura de la aplicación (6 páginas: inicio, órdenes, reportes, pagos, historial, configuración) |
 | **CSS3**                      | Estilos con arquitectura modular: variables, reset, tipografía, layouts, componentes y páginas  |
 | **JavaScript (ES Modules)**   | Lógica de cálculo, manipulación del DOM, manejo de eventos, almacenamiento local y validaciones |
 | **Vite**                      | Bundler para desarrollo y build de producción                                                   |
@@ -81,6 +86,7 @@ Esta herramienta automatiza todos estos cálculos, evitando errores manuales y e
 ├── reportes.html           # Reporte semanal
 ├── pagos.html              # Estados de pago y liquidaciones
 ├── historial.html          # Historial de registros almacenados
+├── configuracion.html      # Configuración general (logo, correlativo, % recargo)
 ├── package.json            # Configuración del proyecto y dependencias
 ├── vite.config.js          # Configuración de Vite (multi-page build)
 ├── src/
@@ -89,6 +95,7 @@ Esta herramienta automatiza todos estos cálculos, evitando errores manuales y e
 │   ├── reportes.js         # Entry point de reportes
 │   ├── pagos.js            # Entry point de pagos
 │   ├── historial.js        # Entry point de historial
+│   ├── configuracion.js    # Entry point de configuración
 │   ├── core/
 │   │   ├── constants.js    # Constantes de dominio (rangos, multiplicadores, tipos de día)
 │   │   ├── entities/
@@ -105,15 +112,18 @@ Esta herramienta automatiza todos estos cálculos, evitando errores manuales y e
 │   │   ├── store.js           # Estado global (Patrón Observer)
 │   │   ├── actions/
 │   │   │   └── calculatorActions.js  # Acciones de cálculo
-│   │   └── storageManager.js  # Gestor de localStorage (CRUD + export/import JSON)
+│   │   ├── storageManager.js  # Gestor de localStorage (CRUD + export/import JSON)
+│   │   └── configManager.js   # Configuración global (logo, correlativo, % recargo)
 │   └── ui/
 │       ├── components/
-│       │   └── sidebar.js     # Componente de navegación lateral
+│       │   ├── sidebar.js     # Componente de navegación lateral
+│       │   └── recargoSelect.js # Selector de % recargo según configuración
 │       ├── pages/
 │       │   ├── ordenes.js     # Lógica de la página de órdenes
 │       │   ├── reportes.js    # Lógica de la página de reportes
 │       │   ├── pagos.js       # Lógica de la página de pagos (liquidaciones)
-│       │   └── historial.js   # Lógica de la página de historial
+│       │   ├── historial.js   # Lógica de la página de historial
+│       │   └── configuracion.js # Lógica de la página de configuración
 │       └── render/
 │           ├── renderResults.js  # Renderizado de resultados individuales
 │           └── renderReport.js   # Renderizado de reportes semanales
@@ -140,7 +150,8 @@ Esta herramienta automatiza todos estos cálculos, evitando errores manuales y e
 │       ├── home.css         # Estilos de la página de inicio
 │       ├── ordenes.css      # Estilos de la página de órdenes
 │       ├── reportes.css     # Estilos de la página de reportes
-│       └── pagos.css        # Estilos de la página de pagos
+│       ├── pagos.css        # Estilos de la página de pagos
+│       └── configuracion.css # Estilos de la página de configuración
 ```
 
 ## 📖 Reglas de Cálculo

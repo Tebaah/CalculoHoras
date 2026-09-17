@@ -8,6 +8,7 @@
 import { calculateWeeklyReport } from '../../store/actions/calculatorActions.js';
 import { renderReportTotals } from '../render/renderReport.js';
 import { initSidebar } from '../components/sidebar.js';
+import { populateRecargoOptions, ensureRecargoOption } from '../components/recargoSelect.js';
 import { getDayTypeFromDate, addDays, toDateInputValue, getDayId, DAY_ID_TO_NAME } from '../../core/utils/dateUtils.js';
 import { TIPOS_DIA } from '../../core/constants.js';
 import { saveRecord } from '../../store/storageManager.js';
@@ -300,6 +301,9 @@ function handleSaveReport() {
 export function initReportesPage() {
     initSidebar();
 
+    // Opciones de % recargo según la configuración guardada
+    populateRecargoOptions(recargoPorcentajeSelect);
+
     reportForm.addEventListener('submit', handleReportSubmit);
 
     valorHoraSelect.addEventListener('change', (e) => {
@@ -346,7 +350,10 @@ function loadEditData() {
         }
 
         if (record.horasMinimas !== undefined) horasMinimasSelect.value = String(record.horasMinimas);
-        if (record.recargoPorcentaje !== undefined) recargoPorcentajeSelect.value = String(record.recargoPorcentaje);
+        if (record.recargoPorcentaje !== undefined) {
+            ensureRecargoOption(recargoPorcentajeSelect, record.recargoPorcentaje);
+            recargoPorcentajeSelect.value = String(record.recargoPorcentaje);
+        }
 
         // Poblar cada día del reporte
         if (record.dias && record.dias.length > 0) {
