@@ -42,6 +42,12 @@
     background: var(--color-primary-50);
 }
 
+/* Resalta las filas completadas al repetir el horario del día anterior */
+.report-row--repeated {
+    background: var(--color-primary-100);
+    box-shadow: inset 3px 0 0 var(--color-primary);
+}
+
 .report-row .col-dia {
     display: flex;
     flex-direction: column;
