@@ -433,6 +433,71 @@
     flex: 1;
 }
 
+/* Correo al cliente */
+.pago-correo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+}
+
+.pago-correo__fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.pago-correo__field--full {
+    grid-column: 1 / -1;
+}
+
+.pago-correo__fields .form-group {
+    margin-bottom: 0;
+}
+
+.pago-correo__hint {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    line-height: 1.5;
+}
+
+.pago-correo__actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.pago-correo__actions button {
+    width: auto;
+    min-width: 0;
+    padding: 0.5rem 1rem;
+    font-size: var(--font-size-sm);
+    margin-top: 0;
+}
+
+.pago-correo__label {
+    margin-bottom: 0;
+}
+
+.pago-correo__preview {
+    width: 100%;
+    min-height: 240px;
+    max-height: 400px;
+    padding: 0.75rem;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-elevated);
+    color: var(--color-text-primary);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+    line-height: 1.6;
+    resize: vertical;
+}
+
+.pago-correo__preview:focus {
+    outline: none;
+    border-color: var(--color-primary-light);
+    box-shadow: 0 0 0 3px rgba(6, 90, 130, 0.12);
+}
+
 @media (max-width: 768px) {
     .search-input-group {
         flex-direction: column;
@@ -460,5 +525,9 @@
 
     .costo-input-row .form-group--btn .btn-add-costo {
         width: 100%;
+    }
+
+    .pago-correo__fields {
+        grid-template-columns: 1fr;
     }
 }
