@@ -2,7 +2,7 @@
  * dateUtils.js - Utilidades para manejo de fechas y determinación del tipo de día
  */
 
-import { TIPOS_DIA } from '../constants.js';
+import { TIPOS_DIA, NOMBRES_MESES } from '../constants.js';
 
 /**
  * Determina el tipo de día laboral según la fecha
@@ -112,3 +112,40 @@ export const DAY_ID_TO_NAME = {
     sabado: 'Sábado',
     domingo: 'Domingo',
 };
+
+/**
+ * Convierte una fecha en formato ISO (YYYY-MM-DD) a un Date local.
+ * Se usa el mediodía para evitar desfases por zona horaria al interpretar
+ * la fecha como UTC.
+ *
+ * @param {string} fecha - Fecha en formato "YYYY-MM-DD"
+ * @returns {Date|null} Fecha válida o null si el formato no corresponde
+ */
+export function parseISODate(fecha) {
+    if (typeof fecha !== 'string') return null;
+
+    const partes = fecha.split('-');
+    if (partes.length !== 3) return null;
+
+    const [anio, mes, dia] = partes.map(Number);
+    if (!anio || !mes || !dia) return null;
+
+    const date = new Date(anio, mes - 1, dia, 12);
+    return Number.isNaN(date.getTime()) ? null : date;
+}
+
+/**
+ * Formatea una fecha como texto en español
+ *
+ * @param {Date|string} fecha - Fecha o fecha en formato "YYYY-MM-DD"
+ * @param {boolean} [incluirAnio=false] - Agrega el año al final del texto
+ * @returns {string} Ej: "5 de septiembre" | "5 de septiembre de 2026"
+ */
+export function formatFechaLarga(fecha, incluirAnio = false) {
+    const date = typeof fecha === 'string' ? parseISODate(fecha) : fecha;
+
+    if (!(date instanceof Date) || Number.isNaN(date.getTime())) return '';
+
+    const texto = date.getDate() + ' de ' + NOMBRES_MESES[date.getMonth()];
+    return incluirAnio ? texto + ' de ' + date.getFullYear() : texto;
+}
