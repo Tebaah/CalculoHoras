@@ -10,6 +10,7 @@ import { renderReportTotals } from '../render/renderReport.js';
 import { initSidebar } from '../components/sidebar.js';
 import { populateRecargoOptions, ensureRecargoOption } from '../components/recargoSelect.js';
 import { populateHorasMinimasOptions, ensureHorasMinimasOption } from '../components/horasMinimasSelect.js';
+import { populateValorHoraOptions, ensureValorHoraOption } from '../components/valorHoraSelect.js';
 import { showConfirmModal } from '../components/confirmModal.js';
 import {
     getDayTypeFromDate,
@@ -19,7 +20,7 @@ import {
     formatDate,
     DAY_ID_TO_NAME,
 } from '../../core/utils/dateUtils.js';
-import { TIPOS_DIA } from '../../core/constants.js';
+import { TIPOS_DIA, VALOR_HORA_PERSONALIZADO } from '../../core/constants.js';
 import { saveRecord } from '../../store/storageManager.js';
 
 // Elementos del DOM
@@ -383,7 +384,7 @@ function handleReportSubmit(e) {
             throw new Error('Por favor seleccione un valor de hora.');
         }
 
-        if (valorHora === 'custom') {
+        if (valorHora === VALOR_HORA_PERSONALIZADO) {
             valorHora = parseFloat(customValueInput.value);
             if (!valorHora || valorHora <= 0) {
                 throw new Error('Por favor ingrese un valor de hora válido y positivo.');
@@ -508,14 +509,15 @@ function handleSaveReport() {
 export function initReportesPage() {
     initSidebar();
 
-    // Opciones de % recargo y mínimo de horas según la configuración guardada
+    // Opciones de % recargo, mínimo de horas y valor de hora según la configuración guardada
     populateRecargoOptions(recargoPorcentajeSelect);
     populateHorasMinimasOptions(horasMinimasSelect);
+    populateValorHoraOptions(valorHoraSelect);
 
     reportForm.addEventListener('submit', handleReportSubmit);
 
     valorHoraSelect.addEventListener('change', (e) => {
-        customValueGroup.style.display = e.target.value === 'custom' ? 'block' : 'none';
+        customValueGroup.style.display = e.target.value === VALOR_HORA_PERSONALIZADO ? 'block' : 'none';
     });
 
     setupColacionListeners();
@@ -548,11 +550,13 @@ function loadEditData() {
 
         // Poblar valor hora
         if (record.valorHora) {
-            const valorPreset = document.querySelector('#valorHora option[value="' + record.valorHora + '"]');
-            if (valorPreset) {
-                valorHoraSelect.value = String(record.valorHora);
-            } else {
-                valorHoraSelect.value = 'custom';
+            // Se reincorpora el valor si ya no está configurado para no perder el dato
+            ensureValorHoraOption(valorHoraSelect, record.valorHora);
+            valorHoraSelect.value = String(record.valorHora);
+
+            if (valorHoraSelect.value !== String(record.valorHora)) {
+                // Valores no configurables (ej: decimales) usan la opción "Otro valor..."
+                valorHoraSelect.value = VALOR_HORA_PERSONALIZADO;
                 customValueGroup.style.display = 'block';
                 customValueInput.value = record.valorHora;
             }

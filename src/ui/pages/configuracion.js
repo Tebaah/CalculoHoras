@@ -2,8 +2,9 @@
  * configuracion.js - Lógica de la página "Configuración"
  *
  * Permite configurar el logo de empresa, el número de inicio del
- * correlativo de estados de pago, los porcentajes de recargo y los
- * mínimos de horas disponibles en Órdenes de Trabajo y Reportes.
+ * correlativo de estados de pago, los porcentajes de recargo, los
+ * mínimos de horas y los valores de hora normal disponibles en
+ * Órdenes de Trabajo y Reportes.
  */
 
 import { initSidebar } from '../components/sidebar.js';
@@ -19,12 +20,18 @@ import {
     getHorasMinimas,
     addHorasMinimas,
     removeHorasMinimas,
+    getValoresHora,
+    addValorHora,
+    removeValorHora,
 } from '../../store/configManager.js';
 import {
     formatRecargoLabel,
     RECARGO_PORCENTAJE_MAXIMO,
     formatHorasMinimasLabel,
     HORAS_MINIMAS_MAXIMO,
+    formatValorHoraLabel,
+    VALOR_HORA_MINIMO,
+    VALOR_HORA_MAXIMO,
 } from '../../core/constants.js';
 
 // Elementos del DOM
@@ -48,6 +55,11 @@ const horasMinimasForm = document.getElementById('horasMinimasForm');
 const nuevaHoraMinimaInput = document.getElementById('nuevaHoraMinima');
 const horasMinimasList = document.getElementById('horasMinimasList');
 const horasMinimasMessage = document.getElementById('horasMinimasMessage');
+
+const valorHoraForm = document.getElementById('valorHoraForm');
+const nuevoValorHoraInput = document.getElementById('nuevoValorHora');
+const valoresHoraList = document.getElementById('valoresHoraList');
+const valoresHoraMessage = document.getElementById('valoresHoraMessage');
 
 // ── Logo ──────────────────────────────────────────────────────
 
@@ -256,6 +268,78 @@ function handleRemoveHorasMinimas(e) {
         'Mínimo de ' + formatHorasMinimasLabel(horas) + ' eliminado (' + opciones.length + ' disponibles).', 'success');
 }
 
+// ── Valores de hora normal ────────────────────────────────────
+
+/**
+ * Dibuja la lista de valores de hora configurados.
+ * Si la lista queda vacía, el selector solo ofrecerá la opción
+ * "Otro valor...".
+ */
+function renderValoresHora() {
+    if (!valoresHoraList) return;
+
+    const valores = getValoresHora();
+
+    if (valores.length === 0) {
+        valoresHoraList.innerHTML =
+            '<li class="valor-hora-item valor-hora-item--empty">Sin valores configurados</li>';
+        return;
+    }
+
+    valoresHoraList.innerHTML = valores.map((valor) => {
+        const etiqueta = formatValorHoraLabel(valor);
+
+        return '<li class="valor-hora-item">' +
+            '<span class="valor-hora-item__label">' + etiqueta + '</span>' +
+            '<button type="button" class="valor-hora-item__remove" data-valor="' + valor +
+            '" title="Eliminar ' + etiqueta + '" aria-label="Eliminar valor de hora ' + etiqueta + '">&#10005;</button>' +
+            '</li>';
+    }).join('');
+}
+
+function handleAddValorHora(e) {
+    e.preventDefault();
+
+    const texto = nuevoValorHoraInput.value.trim();
+    const valor = Number(texto);
+
+    if (!texto || !Number.isInteger(valor) || valor < VALOR_HORA_MINIMO) {
+        mostrarMensaje(valoresHoraMessage,
+            'Ingrese un valor entero en pesos igual o mayor a ' + VALOR_HORA_MINIMO + '.', 'error');
+        return;
+    }
+
+    if (valor > VALOR_HORA_MAXIMO) {
+        mostrarMensaje(valoresHoraMessage,
+            'El valor de hora no puede superar ' + formatValorHoraLabel(VALOR_HORA_MAXIMO) + '.', 'error');
+        return;
+    }
+
+    if (getValoresHora().includes(valor)) {
+        mostrarMensaje(valoresHoraMessage,
+            'El valor de hora ' + formatValorHoraLabel(valor) + ' ya está configurado.', 'error');
+        return;
+    }
+
+    const valores = addValorHora(valor);
+    nuevoValorHoraInput.value = '';
+    renderValoresHora();
+    mostrarMensaje(valoresHoraMessage,
+        'Valor de hora ' + formatValorHoraLabel(valor) + ' agregado (' + valores.length + ' disponibles).', 'success');
+}
+
+function handleRemoveValorHora(e) {
+    const boton = e.target.closest('.valor-hora-item__remove');
+    if (!boton) return;
+
+    const valor = Number(boton.dataset.valor);
+    const valores = removeValorHora(valor);
+
+    renderValoresHora();
+    mostrarMensaje(valoresHoraMessage,
+        'Valor de hora ' + formatValorHoraLabel(valor) + ' eliminado (' + valores.length + ' disponibles).', 'success');
+}
+
 // ── Inicialización ────────────────────────────────────────────
 
 export function initConfiguracionPage() {
@@ -285,4 +369,8 @@ export function initConfiguracionPage() {
     renderHorasMinimas();
     horasMinimasForm.addEventListener('submit', handleAddHorasMinimas);
     horasMinimasList.addEventListener('click', handleRemoveHorasMinimas);
+
+    renderValoresHora();
+    valorHoraForm.addEventListener('submit', handleAddValorHora);
+    valoresHoraList.addEventListener('click', handleRemoveValorHora);
 }

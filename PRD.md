@@ -43,7 +43,7 @@ Cálculo individual por día de servicio.
 | % Recargo | Porcentaje de recargo sobre valor hora base | Configurables desde Configuración (por defecto 0%, 10%, 20%, 30%) |
 | Hora inicio | Hora de comienzo del servicio | HH:MM |
 | Hora término | Hora de fin del servicio | HH:MM |
-| Valor hora | Tarifa por hora (CLP) | Valores predefinidos o personalizado |
+| Valor hora | Tarifa por hora (CLP) | Configurables desde Configuración o valor personalizado |
 | Colación | Minutos de descanso | 0, 15, 30, 45, 60 min |
 | Tramo colación | Dónde se descuenta la colación | Sin recargo / Con recargo |
 
@@ -180,7 +180,7 @@ src/
 │   ├── actions/         # calculatorActions
 │   └── storageManager.js # localStorage CRUD + export/import
 ├── ui/             # DOM, eventos, renderizado
-│   ├── components/      # sidebar, recargoSelect, confirmModal
+│   ├── components/      # sidebar, recargoSelect, horasMinimasSelect, valorHoraSelect, confirmModal
 │   ├── pages/           # ordenes, reportes, pagos, historial
 │   └── render/          # renderResults, renderReport
 ```

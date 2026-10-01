@@ -6,6 +6,7 @@
  *  - Correlativo de estados de pago (número de inicio y siguiente a asignar)
  *  - Porcentajes de recargo disponibles en Órdenes de Trabajo y Reportes
  *  - Mínimos de horas disponibles en Órdenes de Trabajo y Reportes
+ *  - Valores de hora normal disponibles en Órdenes de Trabajo y Reportes
  */
 
 import {
@@ -15,6 +16,9 @@ import {
     HORAS_MINIMAS_POR_DEFECTO,
     normalizarOpcionHorasMinimas,
     normalizarOpcionesHorasMinimas,
+    VALORES_HORA_POR_DEFECTO,
+    normalizarValorHora,
+    normalizarValoresHora,
 } from '../core/constants.js';
 
 const CONFIG_KEY = 'calculoHoras_config';
@@ -280,4 +284,72 @@ export function removeHorasMinimas(horas) {
  */
 export function resetHorasMinimas() {
     return setHorasMinimas(HORAS_MINIMAS_POR_DEFECTO);
+}
+
+// ── Valores de hora normal ─────────────────────────────────────
+
+/**
+ * Obtiene los valores de hora configurados.
+ * Si aún no hay configuración guardada, usa los valores por defecto.
+ * Una lista guardada vacía se respeta: el selector solo ofrecerá
+ * la opción "Otro valor...".
+ *
+ * @returns {Array<number>} Valores ordenados de menor a mayor (puede estar vacía)
+ */
+export function getValoresHora() {
+    const config = readConfig();
+
+    if (Array.isArray(config.valoresHora)) {
+        return normalizarValoresHora(config.valoresHora);
+    }
+
+    return normalizarValoresHora(VALORES_HORA_POR_DEFECTO);
+}
+
+/**
+ * Reemplaza la lista completa de valores de hora.
+ * @param {Array<number|string>} valores
+ * @returns {Array<number>} Lista guardada (normalizada)
+ */
+export function setValoresHora(valores) {
+    const config = readConfig();
+    config.valoresHora = normalizarValoresHora(valores);
+    writeConfig(config);
+    return config.valoresHora;
+}
+
+/**
+ * Agrega un valor de hora a la configuración.
+ * Ignora valores inválidos y duplicados.
+ * @param {number|string} valor
+ * @returns {Array<number>} Lista guardada (normalizada)
+ */
+export function addValorHora(valor) {
+    const valores = getValoresHora();
+    const nuevo = normalizarValorHora(valor);
+
+    if (nuevo === null || valores.includes(nuevo)) return valores;
+
+    return setValoresHora([...valores, nuevo]);
+}
+
+/**
+ * Elimina un valor de hora de la configuración.
+ * @param {number|string} valor
+ * @returns {Array<number>} Lista guardada (normalizada)
+ */
+export function removeValorHora(valor) {
+    const numero = normalizarValorHora(valor);
+
+    if (numero === null) return getValoresHora();
+
+    return setValoresHora(getValoresHora().filter((opcion) => opcion !== numero));
+}
+
+/**
+ * Restaura los valores de hora por defecto.
+ * @returns {Array<number>} Lista guardada (normalizada)
+ */
+export function resetValoresHora() {
+    return setValoresHora(VALORES_HORA_POR_DEFECTO);
 }
