@@ -9,6 +9,7 @@ import { calculateWeeklyReport } from '../../store/actions/calculatorActions.js'
 import { renderReportTotals } from '../render/renderReport.js';
 import { initSidebar } from '../components/sidebar.js';
 import { populateRecargoOptions, ensureRecargoOption } from '../components/recargoSelect.js';
+import { populateHorasMinimasOptions, ensureHorasMinimasOption } from '../components/horasMinimasSelect.js';
 import { showConfirmModal } from '../components/confirmModal.js';
 import {
     getDayTypeFromDate,
@@ -507,8 +508,9 @@ function handleSaveReport() {
 export function initReportesPage() {
     initSidebar();
 
-    // Opciones de % recargo según la configuración guardada
+    // Opciones de % recargo y mínimo de horas según la configuración guardada
     populateRecargoOptions(recargoPorcentajeSelect);
+    populateHorasMinimasOptions(horasMinimasSelect);
 
     reportForm.addEventListener('submit', handleReportSubmit);
 
@@ -556,7 +558,10 @@ function loadEditData() {
             }
         }
 
-        if (record.horasMinimas !== undefined) horasMinimasSelect.value = String(record.horasMinimas);
+        if (record.horasMinimas !== undefined) {
+            ensureHorasMinimasOption(horasMinimasSelect, record.horasMinimas);
+            horasMinimasSelect.value = String(record.horasMinimas);
+        }
         if (record.recargoPorcentaje !== undefined) {
             ensureRecargoOption(recargoPorcentajeSelect, record.recargoPorcentaje);
             recargoPorcentajeSelect.value = String(record.recargoPorcentaje);

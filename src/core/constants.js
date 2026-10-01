@@ -43,8 +43,67 @@ export const VALORES_HORA_PREDEFINIDOS = [
     290000, 345000, 390000, 460000, 495000,
 ];
 
-// Opciones de mínimo de horas
-export const OPCIONES_HORAS_MINIMAS = [0, 5, 6, 8, 9];
+// ── Mínimos de horas ───────────────────────────────────────────
+// La lista definitiva se administra desde la página Configuración
+// (ver src/store/configManager.js). Estos son los valores iniciales.
+
+// Mínimos de horas disponibles por defecto (0 = "Sin mínimo", siempre presente)
+export const HORAS_MINIMAS_POR_DEFECTO = [0, 5, 6, 8, 9];
+
+// Rango admitido al configurar mínimos de horas
+export const HORAS_MINIMAS_MINIMO = 0;
+export const HORAS_MINIMAS_MAXIMO = 24;
+
+/**
+ * Genera la etiqueta visible de un mínimo de horas
+ * @param {number} horas - Mínimo de horas (ej: 8)
+ * @returns {string} Ej: "Sin mínimo" para 0 | "8 horas" para 8
+ */
+export function formatHorasMinimasLabel(horas) {
+    const valor = Number(horas);
+    if (!Number.isFinite(valor) || valor <= 0) return 'Sin mínimo';
+    return valor === 1 ? '1 hora' : valor + ' horas';
+}
+
+/**
+ * Normaliza un mínimo de horas individual
+ * @param {number|string} horas
+ * @returns {number|null} Horas válidas (entero dentro del rango) o null
+ */
+export function normalizarOpcionHorasMinimas(horas) {
+    if (horas === null || horas === undefined || horas === '') return null;
+
+    const valor = Number(horas);
+
+    if (!Number.isInteger(valor)) return null;
+    if (valor < HORAS_MINIMAS_MINIMO || valor > HORAS_MINIMAS_MAXIMO) return null;
+
+    return valor;
+}
+
+/**
+ * Normaliza una lista de mínimos de horas: convierte a número entero, descarta
+ * valores inválidos o fuera de rango, elimina duplicados y ordena de menor a
+ * mayor. El valor "Sin mínimo" (0) siempre está presente.
+ *
+ * @param {Array<number|string>} opciones
+ * @returns {Array<number>} Lista normalizada (nunca vacía)
+ */
+export function normalizarOpcionesHorasMinimas(opciones) {
+    if (!Array.isArray(opciones)) return [HORAS_MINIMAS_MINIMO];
+
+    const validos = opciones
+        .map(normalizarOpcionHorasMinimas)
+        .filter((horas) => horas !== null);
+
+    const unicos = Array.from(new Set(validos)).sort((a, b) => a - b);
+
+    if (!unicos.includes(HORAS_MINIMAS_MINIMO)) {
+        unicos.unshift(HORAS_MINIMAS_MINIMO);
+    }
+
+    return unicos;
+}
 
 // Opciones de colación
 export const OPCIONES_COLACION = [0, 15, 30, 45, 60];

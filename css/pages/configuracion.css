@@ -93,14 +93,16 @@
     white-space: nowrap;
 }
 
-/* Gestión de porcentajes de recargo */
-.recargo-manager {
+/* Gestión de listas configurables (recargos y mínimos de horas) */
+.recargo-manager,
+.horas-minimas-manager {
     display: flex;
     flex-direction: column;
     gap: 1rem;
 }
 
-.recargo-list {
+.recargo-list,
+.horas-minimas-list {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
@@ -109,7 +111,8 @@
     list-style: none;
 }
 
-.recargo-item {
+.recargo-item,
+.horas-minimas-item {
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
@@ -122,12 +125,14 @@
     color: var(--color-text-primary);
 }
 
-.recargo-item__label {
+.recargo-item__label,
+.horas-minimas-item__label {
     line-height: 1.4;
     white-space: nowrap;
 }
 
-.recargo-item__badge {
+.recargo-item__badge,
+.horas-minimas-item__badge {
     padding: 0.0625rem 0.375rem;
     background: var(--color-primary-50);
     border-radius: var(--radius-sm);
@@ -137,7 +142,8 @@
     color: var(--color-info-text);
 }
 
-.recargo-item__remove {
+.recargo-item__remove,
+.horas-minimas-item__remove {
     width: auto;
     min-width: unset;
     margin-top: 0;
@@ -149,7 +155,8 @@
     color: var(--color-text-muted);
 }
 
-.recargo-item__remove:hover {
+.recargo-item__remove:hover,
+.horas-minimas-item__remove:hover {
     background: var(--color-error-bg);
     color: var(--color-error);
     transform: none;

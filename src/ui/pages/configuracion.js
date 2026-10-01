@@ -2,8 +2,8 @@
  * configuracion.js - Lógica de la página "Configuración"
  *
  * Permite configurar el logo de empresa, el número de inicio del
- * correlativo de estados de pago y los porcentajes de recargo
- * disponibles en Órdenes de Trabajo y Reportes.
+ * correlativo de estados de pago, los porcentajes de recargo y los
+ * mínimos de horas disponibles en Órdenes de Trabajo y Reportes.
  */
 
 import { initSidebar } from '../components/sidebar.js';
@@ -16,8 +16,16 @@ import {
     getRecargos,
     addRecargo,
     removeRecargo,
+    getHorasMinimas,
+    addHorasMinimas,
+    removeHorasMinimas,
 } from '../../store/configManager.js';
-import { formatRecargoLabel, RECARGO_PORCENTAJE_MAXIMO } from '../../core/constants.js';
+import {
+    formatRecargoLabel,
+    RECARGO_PORCENTAJE_MAXIMO,
+    formatHorasMinimasLabel,
+    HORAS_MINIMAS_MAXIMO,
+} from '../../core/constants.js';
 
 // Elementos del DOM
 const logoUrlInput = document.getElementById('logoUrl');
@@ -35,6 +43,11 @@ const recargoForm = document.getElementById('recargoForm');
 const nuevoRecargoInput = document.getElementById('nuevoRecargo');
 const recargoList = document.getElementById('recargoList');
 const recargoMessage = document.getElementById('recargoMessage');
+
+const horasMinimasForm = document.getElementById('horasMinimasForm');
+const nuevaHoraMinimaInput = document.getElementById('nuevaHoraMinima');
+const horasMinimasList = document.getElementById('horasMinimasList');
+const horasMinimasMessage = document.getElementById('horasMinimasMessage');
 
 // ── Logo ──────────────────────────────────────────────────────
 
@@ -177,6 +190,72 @@ function handleRemoveRecargo(e) {
         'Recargo ' + formatRecargoLabel(porcentaje) + ' eliminado (' + recargos.length + ' disponibles).', 'success');
 }
 
+// ── Mínimos de horas ──────────────────────────────────────────
+
+/**
+ * Dibuja la lista de mínimos de horas configurados.
+ * El mínimo "Sin mínimo" (0) siempre está disponible y no se elimina.
+ */
+function renderHorasMinimas() {
+    if (!horasMinimasList) return;
+
+    horasMinimasList.innerHTML = getHorasMinimas().map((horas) => {
+        const etiqueta = formatHorasMinimasLabel(horas);
+
+        const accion = horas > 0
+            ? '<button type="button" class="horas-minimas-item__remove" data-horas="' + horas +
+            '" title="Eliminar ' + etiqueta + '" aria-label="Eliminar mínimo de ' + etiqueta + '">&#10005;</button>'
+            : '<span class="horas-minimas-item__badge" title="Este valor no se puede eliminar">Fijo</span>';
+
+        return '<li class="horas-minimas-item">' +
+            '<span class="horas-minimas-item__label">' + etiqueta + '</span>' +
+            accion +
+            '</li>';
+    }).join('');
+}
+
+function handleAddHorasMinimas(e) {
+    e.preventDefault();
+
+    const texto = nuevaHoraMinimaInput.value.trim();
+    const valor = Number(texto);
+
+    if (!texto || !Number.isInteger(valor) || valor < 0) {
+        mostrarMensaje(horasMinimasMessage, 'Ingrese un número entero de horas igual o mayor a 0.', 'error');
+        return;
+    }
+
+    if (valor > HORAS_MINIMAS_MAXIMO) {
+        mostrarMensaje(horasMinimasMessage,
+            'El mínimo de horas no puede superar las ' + HORAS_MINIMAS_MAXIMO + ' horas.', 'error');
+        return;
+    }
+
+    if (getHorasMinimas().includes(valor)) {
+        mostrarMensaje(horasMinimasMessage,
+            'El mínimo de ' + formatHorasMinimasLabel(valor) + ' ya está configurado.', 'error');
+        return;
+    }
+
+    const opciones = addHorasMinimas(valor);
+    nuevaHoraMinimaInput.value = '';
+    renderHorasMinimas();
+    mostrarMensaje(horasMinimasMessage,
+        'Mínimo de ' + formatHorasMinimasLabel(valor) + ' agregado (' + opciones.length + ' disponibles).', 'success');
+}
+
+function handleRemoveHorasMinimas(e) {
+    const boton = e.target.closest('.horas-minimas-item__remove');
+    if (!boton) return;
+
+    const horas = Number(boton.dataset.horas);
+    const opciones = removeHorasMinimas(horas);
+
+    renderHorasMinimas();
+    mostrarMensaje(horasMinimasMessage,
+        'Mínimo de ' + formatHorasMinimasLabel(horas) + ' eliminado (' + opciones.length + ' disponibles).', 'success');
+}
+
 // ── Inicialización ────────────────────────────────────────────
 
 export function initConfiguracionPage() {
@@ -202,4 +281,8 @@ export function initConfiguracionPage() {
     renderRecargos();
     recargoForm.addEventListener('submit', handleAddRecargo);
     recargoList.addEventListener('click', handleRemoveRecargo);
+
+    renderHorasMinimas();
+    horasMinimasForm.addEventListener('submit', handleAddHorasMinimas);
+    horasMinimasList.addEventListener('click', handleRemoveHorasMinimas);
 }

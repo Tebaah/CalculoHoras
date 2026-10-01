@@ -76,8 +76,8 @@
 
                 <div class="info-box">
                     <strong>Configuración general del sistema</strong>
-                    Configure el logo de empresa, el número desde el cual inicia el correlativo de los estados de pago
-                    y los porcentajes de recargo disponibles para Órdenes de Trabajo y Reportes.
+                    Configure el logo de empresa, el número desde el cual inicia el correlativo de los estados de pago,
+                    los porcentajes de recargo y los mínimos de horas disponibles para Órdenes de Trabajo y Reportes.
                 </div>
 
                 <div class="config-panels">
@@ -163,6 +163,35 @@
                                 </form>
                                 <ul class="recargo-list" id="recargoList"></ul>
                                 <div id="recargoMessage" class="config-message"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-panel">
+                        <div class="section-header">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <polyline points="12 6 12 12 16 14" />
+                            </svg>
+                            Mínimos de horas
+                        </div>
+                        <div class="section-body">
+                            <div class="horas-minimas-manager">
+                                <form id="horasMinimasForm">
+                                    <div class="form-group">
+                                        <label for="nuevaHoraMinima">Agregar mínimo de horas</label>
+                                        <div class="config-input-row">
+                                            <input type="number" id="nuevaHoraMinima" min="0" max="24" step="1"
+                                                placeholder="Ej: 8">
+                                            <button type="submit">Agregar</button>
+                                        </div>
+                                        <div class="config-hint">Los mínimos agregados aparecen en el campo
+                                            <strong>Mínimo de Horas</strong> de Órdenes de Trabajo y Reportes.</div>
+                                    </div>
+                                </form>
+                                <ul class="horas-minimas-list" id="horasMinimasList"></ul>
+                                <div id="horasMinimasMessage" class="config-message"></div>
                             </div>
                         </div>
                     </div>

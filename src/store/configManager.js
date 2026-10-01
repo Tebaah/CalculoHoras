@@ -5,12 +5,16 @@
  *  - Logo de empresa (URL)
  *  - Correlativo de estados de pago (número de inicio y siguiente a asignar)
  *  - Porcentajes de recargo disponibles en Órdenes de Trabajo y Reportes
+ *  - Mínimos de horas disponibles en Órdenes de Trabajo y Reportes
  */
 
 import {
     PORCENTAJES_RECARGO_POR_DEFECTO,
     normalizarRecargo,
     normalizarRecargos,
+    HORAS_MINIMAS_POR_DEFECTO,
+    normalizarOpcionHorasMinimas,
+    normalizarOpcionesHorasMinimas,
 } from '../core/constants.js';
 
 const CONFIG_KEY = 'calculoHoras_config';
@@ -210,4 +214,70 @@ export function removeRecargo(porcentaje) {
  */
 export function resetRecargos() {
     return setRecargos(PORCENTAJES_RECARGO_POR_DEFECTO);
+}
+
+// ── Mínimos de horas ───────────────────────────────────────────
+
+/**
+ * Obtiene los mínimos de horas configurados.
+ * Si aún no hay configuración guardada, usa los valores por defecto.
+ * @returns {Array<number>} Mínimos ordenados de menor a mayor (siempre incluye 0)
+ */
+export function getHorasMinimas() {
+    const config = readConfig();
+
+    if (Array.isArray(config.horasMinimas) && config.horasMinimas.length > 0) {
+        return normalizarOpcionesHorasMinimas(config.horasMinimas);
+    }
+
+    return normalizarOpcionesHorasMinimas(HORAS_MINIMAS_POR_DEFECTO);
+}
+
+/**
+ * Reemplaza la lista completa de mínimos de horas.
+ * @param {Array<number|string>} opciones
+ * @returns {Array<number>} Lista guardada (normalizada)
+ */
+export function setHorasMinimas(opciones) {
+    const config = readConfig();
+    config.horasMinimas = normalizarOpcionesHorasMinimas(opciones);
+    writeConfig(config);
+    return config.horasMinimas;
+}
+
+/**
+ * Agrega un mínimo de horas a la configuración.
+ * Ignora valores inválidos, el 0 (siempre disponible) y duplicados.
+ * @param {number|string} horas
+ * @returns {Array<number>} Lista guardada (normalizada)
+ */
+export function addHorasMinimas(horas) {
+    const opciones = getHorasMinimas();
+    const nueva = normalizarOpcionHorasMinimas(horas);
+
+    if (nueva === null || nueva <= 0 || opciones.includes(nueva)) return opciones;
+
+    return setHorasMinimas([...opciones, nueva]);
+}
+
+/**
+ * Elimina un mínimo de horas de la configuración.
+ * El valor "Sin mínimo" (0) no puede eliminarse.
+ * @param {number|string} horas
+ * @returns {Array<number>} Lista guardada (normalizada)
+ */
+export function removeHorasMinimas(horas) {
+    const valor = Number(horas);
+
+    if (!Number.isFinite(valor) || valor <= 0) return getHorasMinimas();
+
+    return setHorasMinimas(getHorasMinimas().filter((opcion) => opcion !== valor));
+}
+
+/**
+ * Restaura los mínimos de horas por defecto.
+ * @returns {Array<number>} Lista guardada (normalizada)
+ */
+export function resetHorasMinimas() {
+    return setHorasMinimas(HORAS_MINIMAS_POR_DEFECTO);
 }
