@@ -22,7 +22,7 @@ Esta herramienta automatiza todos estos cálculos, evitando errores manuales y e
 ### 📋 Calculadora Individual (Órdenes de Trabajo)
 - Selección del tipo de día: Normal, Sábado, o Domingo/Festivo.
 - Ingreso de hora de inicio y término (con soporte para jornadas que cruzan medianoche).
-- Valor hora seleccionable entre valores predefinidos o personalizado.
+- Valor hora seleccionable entre valores configurables desde Configuración o personalizado.
 - Porcentaje de recargo configurable (por defecto 0%, 10%, 20% y 30%; ampliable desde Configuración).
 - Mínimo de horas garantizado (por defecto 0, 5, 6, 8 o 9 horas; ampliable desde Configuración).
 - Descuento opcional de tiempo de colación (15, 30, 45 o 60 minutos), aplicable a horas sin recargo o con recargo.
@@ -38,7 +38,7 @@ Esta herramienta automatiza todos estos cálculos, evitando errores manuales y e
 - Ingreso de jornada para cada día de la semana (lunes a domingo).
 - Cada día se categoriza automáticamente según su tipo (Normal, Sábado, Domingo/Festivo).
 - **Repetición de horario**: una vez ingresados los tres datos de un día (hora de inicio, hora de término y colación), un modal pregunta si se desea repetir el mismo horario en el día siguiente; la consulta se repite día a día hasta responder que no.
-- Valor hora global para toda la semana.
+- Valor hora global para toda la semana (configurable desde Configuración).
 - Mínimo de horas y porcentaje de recargo globales.
 - Cálculo consolidado con totales semanales.
 - **Almacenamiento**: Guardar reportes completos con un índice personalizado.
@@ -67,6 +67,7 @@ Esta herramienta automatiza todos estos cálculos, evitando errores manuales y e
 - **Correlativo de estados de pago**: Número desde el cual inicia el correlativo automático.
 - **Porcentajes de recargo**: incorporación y eliminación manual de los ítems que aparecen en el desplegable `% Recargo` de Órdenes de Trabajo y Reportes. El valor `Sin recargo` siempre está disponible y no puede eliminarse.
 - **Mínimos de horas**: incorporación y eliminación manual de los ítems que aparecen en el desplegable `Mínimo de Horas` de Órdenes de Trabajo y Reportes. El valor `Sin mínimo` siempre está disponible y no puede eliminarse.
+- **Valores de hora normal**: incorporación y eliminación manual de los ítems que aparecen en el desplegable `Valor Hora Normal` de Órdenes de Trabajo y Reportes. La opción `Otro valor...` siempre está disponible para ingresar un valor distinto.
 
 ## 🛠️ Tecnologías Utilizadas
 
@@ -88,7 +89,7 @@ Esta herramienta automatiza todos estos cálculos, evitando errores manuales y e
 ├── reportes.html           # Reporte semanal
 ├── pagos.html              # Estados de pago y liquidaciones
 ├── historial.html          # Historial de registros almacenados
-├── configuracion.html      # Configuración general (logo, correlativo, % recargo, mínimos de horas)
+├── configuracion.html      # Configuración general (logo, correlativo, % recargo, mínimos de horas, valores de hora)
 ├── package.json            # Configuración del proyecto y dependencias
 ├── vite.config.js          # Configuración de Vite (multi-page build)
 ├── src/
@@ -115,11 +116,13 @@ Esta herramienta automatiza todos estos cálculos, evitando errores manuales y e
 │   │   ├── actions/
 │   │   │   └── calculatorActions.js  # Acciones de cálculo
 │   │   ├── storageManager.js  # Gestor de localStorage (CRUD + export/import JSON)
-│   │   └── configManager.js   # Configuración global (logo, correlativo, % recargo)
+│   │   └── configManager.js   # Configuración global (logo, correlativo, % recargo, mínimos de horas, valores de hora)
 │   └── ui/
 │       ├── components/
 │       │   ├── sidebar.js     # Componente de navegación lateral
 │       │   ├── recargoSelect.js # Selector de % recargo según configuración
+│       │   ├── horasMinimasSelect.js # Selector de mínimo de horas según configuración
+│       │   ├── valorHoraSelect.js # Selector de valor hora según configuración
 │       │   └── confirmModal.js  # Modal de confirmación reutilizable
 │       ├── pages/
 │       │   ├── ordenes.js     # Lógica de la página de órdenes
