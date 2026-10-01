@@ -39,7 +39,7 @@ Cálculo individual por día de servicio.
 | Índice | Identificador único de la orden (ej. nombre del cliente) | Texto libre |
 | Fecha | Fecha del servicio | Selector de fecha |
 | Tipo de día | Clasificación automática según fecha | Normal / Sábado / Domingo-Festivo |
-| Horas mínimas | Garantía de horas mínimas a cobrar | 0, 5, 6, 8, 9 horas |
+| Horas mínimas | Garantía de horas mínimas a cobrar | Configurables desde Configuración (por defecto 0, 5, 6, 8 y 9 horas) |
 | % Recargo | Porcentaje de recargo sobre valor hora base | Configurables desde Configuración (por defecto 0%, 10%, 20%, 30%) |
 | Hora inicio | Hora de comienzo del servicio | HH:MM |
 | Hora término | Hora de fin del servicio | HH:MM |

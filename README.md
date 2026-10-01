@@ -24,7 +24,7 @@ Esta herramienta automatiza todos estos cálculos, evitando errores manuales y e
 - Ingreso de hora de inicio y término (con soporte para jornadas que cruzan medianoche).
 - Valor hora seleccionable entre valores predefinidos o personalizado.
 - Porcentaje de recargo configurable (por defecto 0%, 10%, 20% y 30%; ampliable desde Configuración).
-- Mínimo de horas garantizado (0, 5, 6, 8 o 9 horas).
+- Mínimo de horas garantizado (por defecto 0, 5, 6, 8 o 9 horas; ampliable desde Configuración).
 - Descuento opcional de tiempo de colación (15, 30, 45 o 60 minutos), aplicable a horas sin recargo o con recargo.
 - Cálculo detallado de:
   - Horas sin recargo del servicio.
@@ -66,6 +66,7 @@ Esta herramienta automatiza todos estos cálculos, evitando errores manuales y e
 - **Logo de empresa**: Carga de logo vía URL con previsualización y almacenamiento persistente en localStorage.
 - **Correlativo de estados de pago**: Número desde el cual inicia el correlativo automático.
 - **Porcentajes de recargo**: incorporación y eliminación manual de los ítems que aparecen en el desplegable `% Recargo` de Órdenes de Trabajo y Reportes. El valor `Sin recargo` siempre está disponible y no puede eliminarse.
+- **Mínimos de horas**: incorporación y eliminación manual de los ítems que aparecen en el desplegable `Mínimo de Horas` de Órdenes de Trabajo y Reportes. El valor `Sin mínimo` siempre está disponible y no puede eliminarse.
 
 ## 🛠️ Tecnologías Utilizadas
 
@@ -87,7 +88,7 @@ Esta herramienta automatiza todos estos cálculos, evitando errores manuales y e
 ├── reportes.html           # Reporte semanal
 ├── pagos.html              # Estados de pago y liquidaciones
 ├── historial.html          # Historial de registros almacenados
-├── configuracion.html      # Configuración general (logo, correlativo, % recargo)
+├── configuracion.html      # Configuración general (logo, correlativo, % recargo, mínimos de horas)
 ├── package.json            # Configuración del proyecto y dependencias
 ├── vite.config.js          # Configuración de Vite (multi-page build)
 ├── src/
