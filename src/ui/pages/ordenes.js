@@ -10,7 +10,9 @@ import { renderResults } from '../render/renderResults.js';
 import { initSidebar } from '../components/sidebar.js';
 import { populateRecargoOptions, ensureRecargoOption } from '../components/recargoSelect.js';
 import { populateHorasMinimasOptions, ensureHorasMinimasOption } from '../components/horasMinimasSelect.js';
+import { populateValorHoraOptions, ensureValorHoraOption } from '../components/valorHoraSelect.js';
 import { getDayTypeFromDate } from '../../core/utils/dateUtils.js';
+import { VALOR_HORA_PERSONALIZADO } from '../../core/constants.js';
 import { saveRecord } from '../../store/storageManager.js';
 
 // Elementos del DOM
@@ -54,7 +56,7 @@ function updateDayTypeFromDate() {
 function getFormData() {
     let valorHora = valorHoraSelect.value;
 
-    if (valorHora === 'custom') {
+    if (valorHora === VALOR_HORA_PERSONALIZADO) {
         valorHora = parseFloat(customValueInput.value);
         if (!valorHora || valorHora <= 0) {
             throw new Error('Por favor ingrese un valor de hora válido y positivo.');
@@ -172,9 +174,10 @@ function handleSave() {
 export function initOrdenesPage() {
     initSidebar();
 
-    // Opciones de % recargo y mínimo de horas según la configuración guardada
+    // Opciones de % recargo, mínimo de horas y valor de hora según la configuración guardada
     populateRecargoOptions(recargoPorcentajeSelect);
     populateHorasMinimasOptions(horasMinimasSelect);
+    populateValorHoraOptions(valorHoraSelect);
 
     form.addEventListener('submit', handleSubmit);
 
@@ -190,7 +193,7 @@ export function initOrdenesPage() {
     updateDayTypeFromDate();
 
     valorHoraSelect.addEventListener('change', (e) => {
-        customValueGroup.style.display = e.target.value === 'custom' ? 'block' : 'none';
+        customValueGroup.style.display = e.target.value === VALOR_HORA_PERSONALIZADO ? 'block' : 'none';
     });
 
     colacionSelect.addEventListener('change', (e) => {
@@ -239,11 +242,13 @@ function loadEditData() {
             recargoPorcentajeSelect.value = String(record.recargoPorcentaje);
         }
         if (record.valorHora) {
-            const valorPreset = document.querySelector('#valorHora option[value="' + record.valorHora + '"]');
-            if (valorPreset) {
-                valorHoraSelect.value = String(record.valorHora);
-            } else {
-                valorHoraSelect.value = 'custom';
+            // Se reincorpora el valor si ya no está configurado para no perder el dato
+            ensureValorHoraOption(valorHoraSelect, record.valorHora);
+            valorHoraSelect.value = String(record.valorHora);
+
+            if (valorHoraSelect.value !== String(record.valorHora)) {
+                // Valores no configurables (ej: decimales) usan la opción "Otro valor..."
+                valorHoraSelect.value = VALOR_HORA_PERSONALIZADO;
                 customValueGroup.style.display = 'block';
                 customValueInput.value = record.valorHora;
             }

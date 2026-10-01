@@ -77,7 +77,8 @@
                 <div class="info-box">
                     <strong>Configuración general del sistema</strong>
                     Configure el logo de empresa, el número desde el cual inicia el correlativo de los estados de pago,
-                    los porcentajes de recargo y los mínimos de horas disponibles para Órdenes de Trabajo y Reportes.
+                    los porcentajes de recargo, los mínimos de horas y los valores de hora disponibles para Órdenes de
+                    Trabajo y Reportes.
                 </div>
 
                 <div class="config-panels">
@@ -192,6 +193,37 @@
                                 </form>
                                 <ul class="horas-minimas-list" id="horasMinimasList"></ul>
                                 <div id="horasMinimasMessage" class="config-message"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-panel">
+                        <div class="section-header">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="2" x2="12" y2="22" />
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                            </svg>
+                            Valores de hora normal
+                        </div>
+                        <div class="section-body">
+                            <div class="valor-hora-manager">
+                                <form id="valorHoraForm">
+                                    <div class="form-group">
+                                        <label for="nuevoValorHora">Agregar valor de hora</label>
+                                        <div class="config-input-row">
+                                            <input type="number" id="nuevoValorHora" min="1" max="10000000" step="1"
+                                                placeholder="Ej: 95000">
+                                            <button type="submit">Agregar</button>
+                                        </div>
+                                        <div class="config-hint">Los valores agregados aparecen en el campo
+                                            <strong>Valor Hora Normal</strong> de Órdenes de Trabajo y Reportes. La
+                                            opción <strong>Otro valor...</strong> siempre está disponible para ingresar
+                                            un valor distinto.</div>
+                                    </div>
+                                </form>
+                                <ul class="valor-hora-list" id="valoresHoraList"></ul>
+                                <div id="valoresHoraMessage" class="config-message"></div>
                             </div>
                         </div>
                     </div>

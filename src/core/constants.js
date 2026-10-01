@@ -3,6 +3,8 @@
  * Rangos horarios, multiplicadores y configuraciones globales
  */
 
+import { formatCurrency } from './utils/formatUtils.js';
+
 // Rangos horarios en minutos desde medianoche
 export const RANGOS = {
     SIN_RECARGO: {
@@ -36,12 +38,72 @@ export const TIPOS_DIA = {
     DOMINGO_FESTIVO: 'domingoFestivo',
 };
 
-// Valores de hora predefinidos
-export const VALORES_HORA_PREDEFINIDOS = [
+// ── Valores de hora normal ─────────────────────────────────────
+// La lista definitiva se administra desde la página Configuración
+// (ver src/store/configManager.js). Estos son los valores iniciales.
+
+// Valores de hora disponibles por defecto (CLP)
+export const VALORES_HORA_POR_DEFECTO = [
     95000, 110000, 120000, 140000, 165000,
     190000, 210000, 235000, 260000, 265000,
     290000, 345000, 390000, 460000, 495000,
 ];
+
+// Rango admitido al configurar valores de hora
+export const VALOR_HORA_MINIMO = 1;
+export const VALOR_HORA_MAXIMO = 10000000;
+
+// Opciones fijas del selector "Valor Hora Normal" (siempre disponibles)
+export const VALOR_HORA_PLACEHOLDER = '';
+export const VALOR_HORA_PLACEHOLDER_LABEL = 'Seleccione un valor...';
+export const VALOR_HORA_PERSONALIZADO = 'custom';
+export const VALOR_HORA_PERSONALIZADO_LABEL = 'Otro valor...';
+
+/**
+ * Genera la etiqueta visible de un valor de hora
+ * @param {number} valor - Valor de hora en CLP (ej: 95000)
+ * @returns {string} Ej: "$95.000"
+ */
+export function formatValorHoraLabel(valor) {
+    const numero = Number(valor);
+    if (!Number.isFinite(numero)) return String(valor);
+    return formatCurrency(numero);
+}
+
+/**
+ * Normaliza un valor de hora individual
+ * @param {number|string} valor
+ * @returns {number|null} Valor válido (entero CLP dentro del rango) o null
+ */
+export function normalizarValorHora(valor) {
+    if (valor === null || valor === undefined || valor === '') return null;
+
+    const numero = Number(valor);
+
+    if (!Number.isInteger(numero)) return null;
+    if (numero < VALOR_HORA_MINIMO || numero > VALOR_HORA_MAXIMO) return null;
+
+    return numero;
+}
+
+/**
+ * Normaliza una lista de valores de hora: descarta valores inválidos o fuera
+ * de rango, elimina duplicados y ordena de menor a mayor. A diferencia de los
+ * recargos y los mínimos de horas, la lista puede quedar vacía (el selector
+ * siempre conserva la opción "Otro valor...").
+ *
+ * @param {Array<number|string>} valores
+ * @returns {Array<number>} Lista normalizada (puede estar vacía)
+ */
+export function normalizarValoresHora(valores) {
+    if (!Array.isArray(valores)) return [];
+
+    const validos = valores
+        .map(normalizarValorHora)
+        .filter((valor) => valor !== null);
+
+    return Array.from(new Set(validos)).sort((a, b) => a - b);
+}
 
 // ── Mínimos de horas ───────────────────────────────────────────
 // La lista definitiva se administra desde la página Configuración
