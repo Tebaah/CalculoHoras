@@ -261,6 +261,22 @@ export const NOMBRES_DIAS = {
     domingo: 'Domingo',
 };
 
+// Nombres de meses en español (en minúscula, para redacción de textos)
+export const NOMBRES_MESES = [
+    'enero',
+    'febrero',
+    'marzo',
+    'abril',
+    'mayo',
+    'junio',
+    'julio',
+    'agosto',
+    'septiembre',
+    'octubre',
+    'noviembre',
+    'diciembre',
+];
+
 // Configuración de los días del reporte semanal
 export const DIAS_REPORTE = [
     { id: 'lunes', nombre: 'Lunes', tipo: TIPOS_DIA.NORMAL },

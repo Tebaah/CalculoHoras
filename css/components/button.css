@@ -73,6 +73,16 @@ button:focus-visible {
     background: var(--color-primary-dark);
 }
 
+.btn-copy {
+    background: var(--color-primary);
+    width: auto;
+    margin-top: 0;
+}
+
+.btn-copy:hover {
+    background: var(--color-primary-dark);
+}
+
 .btn-add-costo {
     background: var(--color-primary);
     width: auto;

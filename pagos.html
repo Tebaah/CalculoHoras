@@ -214,6 +214,51 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="section-panel">
+                        <div class="section-header">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                                <path d="M22 6l-10 7L2 6" />
+                            </svg>
+                            Correo al cliente
+                        </div>
+                        <div class="section-body">
+                            <div class="pago-correo">
+                                <div class="pago-correo__fields">
+                                    <div class="form-group">
+                                        <label for="clienteNombre">Nombre del cliente</label>
+                                        <input type="text" id="clienteNombre" placeholder="Ej: Juan Pérez"
+                                            autocomplete="off">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="tonelaje">Tonelaje de la grúa (ton)</label>
+                                        <input type="number" id="tonelaje" placeholder="Ej: 55" min="1" step="1">
+                                    </div>
+                                    <div class="form-group pago-correo__field pago-correo__field--full">
+                                        <label for="direccion">Dirección de la faena</label>
+                                        <input type="text" id="direccion" placeholder="Ej: Jorge Hirmas"
+                                            autocomplete="off">
+                                    </div>
+                                </div>
+
+                                <p class="pago-correo__hint">
+                                    Complete el nombre del cliente, el tonelaje y la dirección. El período, el
+                                    monto neto y los documentos incluidos se completan automáticamente con los
+                                    elementos agregados al estado de pago.
+                                </p>
+
+                                <div class="pago-correo__actions">
+                                    <button type="button" id="copiarCorreoBtn" class="btn-copy">Copiar correo</button>
+                                </div>
+
+                                <label class="pago-correo__label" for="correoPreview">Vista previa del correo</label>
+                                <textarea id="correoPreview" class="pago-correo__preview" rows="14" readonly
+                                    placeholder="Agregue elementos al estado de pago para generar el correo."></textarea>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>

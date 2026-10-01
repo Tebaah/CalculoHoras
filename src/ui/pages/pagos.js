@@ -16,6 +16,7 @@ import {
 import { formatCurrency, formatHours, formatHourRate } from '../../core/utils/formatUtils.js';
 import { NOMBRES_DIAS } from '../../core/constants.js';
 import { timeToMinutes } from '../../core/utils/timeUtils.js';
+import { formatFechaLarga, parseISODate } from '../../core/utils/dateUtils.js';
 
 // Elementos del DOM
 const indicePagoInput = document.getElementById('indicePago');
@@ -51,6 +52,13 @@ const costoCantidadEl = document.getElementById('costoCantidad');
 const agregarCostoBtn = document.getElementById('agregarCostoBtn');
 const costosListEl = document.getElementById('costosList');
 const costosResultsContainer = document.getElementById('costosResultsContainer');
+
+// Elementos del correo al cliente
+const clienteNombreInput = document.getElementById('clienteNombre');
+const tonelajeInput = document.getElementById('tonelaje');
+const direccionInput = document.getElementById('direccion');
+const copiarCorreoBtn = document.getElementById('copiarCorreoBtn');
+const correoPreviewEl = document.getElementById('correoPreview');
 
 // Estado interno
 let itemsAgregados = [];
@@ -367,6 +375,7 @@ function handleAddCosto() {
 
 function calcularTotales() {
     if (itemsAgregados.length === 0) {
+        renderCorreoPreview();
         return;
     }
 
@@ -482,6 +491,8 @@ function calcularTotales() {
         costosHtml += '</div>';
     });
     costosResultsContainer.innerHTML = costosHtml;
+
+    renderCorreoPreview();
 }
 
 /**
@@ -582,6 +593,64 @@ function handleSavePago() {
         errorDiv.textContent = '\u274C ' + error.message;
         errorDiv.classList.add('show');
     }
+}
+
+/**
+ * Calcula los montos del estado de pago actual: agrupa los elementos por valor
+ * hora, suma los costos adicionales y obtiene el neto, el IVA y el total.
+ * Es la base del resumen del comprobante de liquidación y del correo al cliente.
+ *
+ * @returns {{
+ *   grouped: Map<number, Object>,
+ *   montoSinRecargo: number,
+ *   montoConRecargo: number,
+ *   totalCostosAdicionales: number,
+ *   montoNeto: number,
+ *   iva: number,
+ *   total: number,
+ * }}
+ */
+function calcularMontosPago() {
+    const grouped = new Map();
+
+    itemsAgregados.forEach((item) => {
+        const vh = item.valorHora || 0;
+        if (!grouped.has(vh)) {
+            grouped.set(vh, {
+                valorHora: vh,
+                valorConRecargo: vh * (1 + ((item.recargoPorcentaje || 30) / 100)),
+                horasSinRecargo: 0,
+                horasConRecargo: 0,
+            });
+        }
+        const group = grouped.get(vh);
+        const { horasSinRecargo: hSR, horasConRecargo: hCR } = getHorasItem(item);
+        group.horasSinRecargo += hSR;
+        group.horasConRecargo += hCR;
+    });
+
+    let montoSinRecargo = 0;
+    let montoConRecargo = 0;
+    grouped.forEach((group) => {
+        montoSinRecargo += group.horasSinRecargo * group.valorHora;
+        montoConRecargo += group.horasConRecargo * group.valorConRecargo;
+    });
+
+    const totalCostosAdicionales = costosAgregados
+        .reduce((sum, costo) => sum + ((costo.cantidad || 1) * (costo.valor || 0)), 0);
+
+    const montoNeto = montoSinRecargo + montoConRecargo + totalCostosAdicionales;
+    const iva = montoNeto * 0.19;
+
+    return {
+        grouped,
+        montoSinRecargo,
+        montoConRecargo,
+        totalCostosAdicionales,
+        montoNeto,
+        iva,
+        total: montoNeto + iva,
+    };
 }
 
 /**
@@ -870,38 +939,14 @@ function handlePrintPDF() {
     });
 
     // ══════ CÁLCULO DE MONTOS (agrupado por valorHora) ═════════════════
-    const groupedPDF = new Map();
-    itemsAgregados.forEach((item) => {
-        const vh = item.valorHora || 0;
-        if (!groupedPDF.has(vh)) {
-            groupedPDF.set(vh, {
-                valorHora: vh,
-                valorConRecargo: vh * (1 + ((item.recargoPorcentaje || 30) / 100)),
-                horasSinRecargo: 0,
-                horasConRecargo: 0,
-            });
-        }
-        const group = groupedPDF.get(vh);
-        const { horasSinRecargo: hSR, horasConRecargo: hCR } = getHorasItem(item);
-        group.horasSinRecargo += hSR;
-        group.horasConRecargo += hCR;
-    });
-
-    let montoSinRecargo = 0;
-    let montoConRecargo = 0;
-    groupedPDF.forEach((group) => {
-        montoSinRecargo += group.horasSinRecargo * group.valorHora;
-        montoConRecargo += group.horasConRecargo * group.valorConRecargo;
-    });
-
-    let totalCostosAdicionales = 0;
-    costosAgregados.forEach((costo) => {
-        totalCostosAdicionales += (costo.cantidad || 1) * (costo.valor || 0);
-    });
-
-    const montoNeto = montoSinRecargo + montoConRecargo + totalCostosAdicionales;
-    const iva = montoNeto * 0.19;
-    const total = montoNeto + iva;
+    const {
+        grouped: groupedPDF,
+        montoSinRecargo,
+        montoConRecargo,
+        montoNeto,
+        iva,
+        total,
+    } = calcularMontosPago();
 
     // ══════ RESUMEN ════════════════════════════
     html += '<div class="totals">';
@@ -969,6 +1014,222 @@ function handlePrintPDF() {
     }, 400);
 }
 
+/**
+ * Reúne las fechas de todas las jornadas incluidas en el estado de pago,
+ * sin duplicados y ordenadas cronológicamente.
+ *
+ * @returns {Array<string>} Fechas en formato ISO, ej: ["2026-09-02", "2026-09-05"]
+ */
+function obtenerFechasPago() {
+    const fechas = new Set();
+
+    itemsAgregados.forEach((item) => {
+        obtenerDiasReporte(item).forEach((dia) => {
+            if (parseISODate(dia.fecha)) {
+                fechas.add(dia.fecha);
+            }
+        });
+    });
+
+    return [...fechas].sort();
+}
+
+/**
+ * Redacta el período del servicio a partir de las fechas incluidas:
+ * un solo día, varios días del mismo mes o días de meses distintos.
+ *
+ * @param {Array<string>} fechas - Fechas ISO ordenadas
+ * @returns {string} Ej: "el día 5 de septiembre" |
+ *     "entre los días 2 y 5 de septiembre" |
+ *     "entre los días 29 de septiembre y 3 de octubre"
+ */
+function formatearPeriodoServicio(fechas) {
+    const dias = fechas.map(parseISODate).filter(Boolean);
+    if (dias.length === 0) return '';
+
+    const primero = dias[0];
+    const ultimo = dias[dias.length - 1];
+    const usarAnio = primero.getFullYear() !== ultimo.getFullYear()
+        || primero.getFullYear() !== new Date().getFullYear();
+
+    if (dias.length === 1) {
+        return 'el día ' + formatFechaLarga(primero, usarAnio);
+    }
+
+    const mismoMes = primero.getMonth() === ultimo.getMonth()
+        && primero.getFullYear() === ultimo.getFullYear();
+
+    if (mismoMes) {
+        return 'entre los días ' + primero.getDate() + ' y ' + formatFechaLarga(ultimo, usarAnio);
+    }
+
+    return 'entre los días ' + formatFechaLarga(primero, usarAnio)
+        + ' y ' + formatFechaLarga(ultimo, usarAnio);
+}
+
+/**
+ * Redacta la lista de documentos que componen el estado de pago:
+ * órdenes de trabajo y reportes semanales.
+ *
+ * @returns {string} Ej: "la orden de trabajo OT 120 y el reporte 500"
+ */
+function formatearDocumentosPago() {
+    const ordenes = itemsAgregados
+        .filter((item) => item.tipo === 'orden')
+        .map((item) => 'OT ' + item.indice);
+    const reportes = itemsAgregados
+        .filter((item) => item.tipo !== 'orden')
+        .map((item) => item.indice);
+
+    const textoOrdenes = ordenes.length === 1
+        ? 'la orden de trabajo ' + ordenes[0]
+        : 'las órdenes de trabajo ' + ordenes.join(', ');
+    const textoReportes = reportes.length === 1
+        ? 'el reporte ' + reportes[0]
+        : 'los reportes ' + reportes.join(', ');
+
+    if (ordenes.length > 0 && reportes.length > 0) {
+        return textoOrdenes + ' y ' + textoReportes;
+    }
+    if (ordenes.length > 0) return textoOrdenes;
+    if (reportes.length > 0) return textoReportes;
+    return 'los documentos';
+}
+
+/**
+ * Genera el texto del correo que acompaña al estado de pago. El período, el
+ * monto neto y los documentos se completan automáticamente con los elementos
+ * agregados; el nombre del cliente, el tonelaje y la dirección provienen del
+ * formulario.
+ *
+ * @returns {string} Texto plano listo para pegar en el correo
+ */
+function generarTextoCorreo() {
+    const cliente = (clienteNombreInput ? clienteNombreInput.value : '').trim() || '[nombre cliente]';
+    const tonelaje = (tonelajeInput ? tonelajeInput.value : '').trim() || '[tonelaje]';
+    const direccion = (direccionInput ? direccionInput.value : '').trim() || '[direccion]';
+    const periodo = formatearPeriodoServicio(obtenerFechasPago());
+    const { montoNeto } = calcularMontosPago();
+
+    const servicio = periodo
+        ? 'servicio de grúa de ' + tonelaje + ' toneladas realizado ' + periodo + ' en ' + direccion
+        : 'servicio de grúa de ' + tonelaje + ' toneladas realizado en ' + direccion;
+
+    const documentos = formatearDocumentosPago();
+    const concordancia = itemsAgregados.length > 1 ? ' correspondientes.' : ' correspondiente.';
+
+    return [
+        'Estimado ' + cliente + ', buenas tardes.',
+        '',
+        'Junto con saludar y esperando se encuentre bien, me permito informar lo siguiente:',
+        '',
+        'De acuerdo con el ' + servicio + ', solicitamos el envío de la orden de compra '
+            + 'correspondiente, o bien su aprobación por este medio, por el monto total de '
+            + formatCurrency(montoNeto) + '.- + IVA, con el fin de proceder con la facturación.',
+        '',
+        'Adjunto a este correo se incluyen las copias valorizadas, estado de pago y '
+            + documentos + concordancia,
+        '',
+        'Quedo atento a su confirmación.',
+        '',
+        '',
+        'MULTISERVICE F. L. LTDA.',
+        '',
+        'RUT: 79.938.160-5',
+        'GIRO: "EXPLOTACION Y ARRENDAMIENTO DE MAQUINARIAS"',
+        'AV. PDTE. JORGE ALESSANDRI RODRIGUEZ N.º 13.059 SAN BERNARDO',
+        'FONO: 22 - 5915215.',
+        '',
+        'De acuerdo con lo anterior, es importante señalar, que transcurrido un plazo de 8 días '
+            + 'en los que no se realice alguna observación o envíe OC, se llevara a cabo igualmente '
+            + 'la facturación de servicios.',
+    ].join('\n');
+}
+
+/**
+ * Actualiza la vista previa del correo con los datos actuales del estado de pago
+ */
+function renderCorreoPreview() {
+    if (!correoPreviewEl) return;
+
+    correoPreviewEl.value = itemsAgregados.length > 0 ? generarTextoCorreo() : '';
+}
+
+/**
+ * Copia un texto al portapapeles, con respaldo para contextos donde la API
+ * de portapapeles no está disponible (por ejemplo, sin HTTPS).
+ *
+ * @param {string} texto - Texto a copiar
+ * @returns {Promise<boolean>} true si se copió correctamente
+ */
+function copiarAlPortapapeles(texto) {
+    if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(texto)
+            .then(() => true)
+            .catch(() => copiarConRespaldo(texto));
+    }
+
+    return Promise.resolve(copiarConRespaldo(texto));
+}
+
+/**
+ * Respaldo de copiado usando un textarea temporal y el comando copy
+ *
+ * @param {string} texto - Texto a copiar
+ * @returns {boolean} true si se copió correctamente
+ */
+function copiarConRespaldo(texto) {
+    const area = document.createElement('textarea');
+    area.value = texto;
+    area.setAttribute('readonly', '');
+    area.style.position = 'fixed';
+    area.style.top = '-1000px';
+    area.style.opacity = '0';
+    document.body.appendChild(area);
+
+    area.select();
+    area.setSelectionRange(0, area.value.length);
+
+    let copiado = false;
+    try {
+        copiado = document.execCommand('copy');
+    } catch (error) {
+        copiado = false;
+    }
+
+    document.body.removeChild(area);
+    return copiado;
+}
+
+/**
+ * Maneja la copia del correo al portapapeles y entrega retroalimentación
+ */
+async function handleCopiarCorreo() {
+    errorDiv.classList.remove('show');
+
+    if (itemsAgregados.length === 0) {
+        errorDiv.textContent = '\u274C Debe agregar al menos un elemento al estado de pago antes de copiar el correo.';
+        errorDiv.classList.add('show');
+        return;
+    }
+
+    renderCorreoPreview();
+
+    const copiado = await copiarAlPortapapeles(generarTextoCorreo());
+
+    if (!copiado) {
+        errorDiv.textContent = '\u274C No se pudo copiar el correo. Seleccione el texto de la vista previa y cópielo manualmente.';
+        errorDiv.classList.add('show');
+        return;
+    }
+
+    const originalText = copiarCorreoBtn.textContent;
+    copiarCorreoBtn.textContent = '\u2705 Correo copiado';
+    setTimeout(() => {
+        copiarCorreoBtn.textContent = originalText;
+    }, 2000);
+}
+
 export function initPagosPage() {
     initSidebar();
     initCorrelativo();
@@ -993,6 +1254,22 @@ export function initPagosPage() {
     const imprimirBtn = document.getElementById('imprimirPdfBtn');
     if (imprimirBtn) {
         imprimirBtn.addEventListener('click', handlePrintPDF);
+    }
+
+    if (copiarCorreoBtn) {
+        copiarCorreoBtn.addEventListener('click', handleCopiarCorreo);
+    }
+
+    if (clienteNombreInput) {
+        clienteNombreInput.addEventListener('input', renderCorreoPreview);
+    }
+
+    if (tonelajeInput) {
+        tonelajeInput.addEventListener('input', renderCorreoPreview);
+    }
+
+    if (direccionInput) {
+        direccionInput.addEventListener('input', renderCorreoPreview);
     }
 
     loadEditData();
