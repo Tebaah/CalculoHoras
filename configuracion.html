@@ -227,6 +227,35 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="section-panel">
+                        <div class="section-header">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+                                <line x1="7" y1="7" x2="7.01" y2="7" />
+                            </svg>
+                            Tipos de costo
+                        </div>
+                        <div class="section-body">
+                            <div class="tipo-costo-manager">
+                                <form id="tipoCostoForm">
+                                    <div class="form-group">
+                                        <label for="nuevoTipoCosto">Agregar tipo de costo</label>
+                                        <div class="config-input-row">
+                                            <input type="text" id="nuevoTipoCosto" maxlength="60"
+                                                placeholder="Ej: Traslado de grúa" autocomplete="off">
+                                            <button type="submit">Agregar</button>
+                                        </div>
+                                        <div class="config-hint">Los tipos agregados aparecen en el campo
+                                            <strong>Tipo de costo</strong> de Estados de Pago.</div>
+                                    </div>
+                                </form>
+                                <ul class="tipo-costo-list" id="tiposCostoList"></ul>
+                                <div id="tiposCostoMessage" class="config-message"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>

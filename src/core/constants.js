@@ -250,6 +250,107 @@ export function getMultiplicadorRecargo(porcentaje) {
     return 1 + (porcentaje / 100);
 }
 
+// ── Tipos de costo (Estados de Pago) ───────────────────────────
+// La lista definitiva se administra desde la página Configuración
+// (ver src/store/configManager.js). Estos son los valores iniciales.
+
+// Tipos de costo adicional disponibles por defecto ({ id, label })
+export const TIPOS_COSTO_POR_DEFECTO = [
+    { id: 'trasladoContrapesos', label: 'Traslado de contrapesos' },
+    { id: 'trasladoEquipo', label: 'Traslado de equipo' },
+    { id: 'planIzaje', label: 'Plan izaje' },
+    { id: 'otros', label: 'Otros' },
+];
+
+// Largo máximo permitido para la etiqueta de un tipo de costo
+export const TIPO_COSTO_LABEL_MAXIMO = 60;
+
+/**
+ * Normaliza la etiqueta visible de un tipo de costo
+ * @param {string} label - Etiqueta ingresada por el usuario
+ * @returns {string|null} Etiqueta recortada y acotada, o null si es inválida
+ */
+export function normalizarLabelTipoCosto(label) {
+    if (label === null || label === undefined) return null;
+
+    const texto = String(label).trim();
+    if (!texto) return null;
+
+    return texto.slice(0, TIPO_COSTO_LABEL_MAXIMO);
+}
+
+/**
+ * Normaliza un tipo de costo individual
+ * @param {{ id?: string, label?: string }} item
+ * @returns {{ id: string, label: string }|null} Tipo válido o null
+ */
+export function normalizarTipoCosto(item) {
+    if (!item || typeof item !== 'object') return null;
+
+    const id = typeof item.id === 'string' ? item.id.trim() : '';
+    const label = normalizarLabelTipoCosto(item.label);
+
+    if (!id || !label) return null;
+
+    return { id, label };
+}
+
+/**
+ * Normaliza una lista de tipos de costo: descarta entradas inválidas y
+ * elimina duplicados por id (conserva el primero). La lista puede quedar
+ * vacía (los estados de pago simplemente no ofrecerán costos adicionales).
+ *
+ * @param {Array<{ id: string, label: string }>} tipos
+ * @returns {Array<{ id: string, label: string }>} Lista normalizada
+ */
+export function normalizarTiposCosto(tipos) {
+    if (!Array.isArray(tipos)) return [];
+
+    const vistos = new Set();
+    const resultado = [];
+
+    tipos.forEach((item) => {
+        const tipo = normalizarTipoCosto(item);
+        if (!tipo || vistos.has(tipo.id)) return;
+
+        vistos.add(tipo.id);
+        resultado.push(tipo);
+    });
+
+    return resultado;
+}
+
+/**
+ * Genera un identificador único y legible a partir de la etiqueta de un tipo
+ * de costo. Se usa como key interna del registro guardado en el estado de pago.
+ *
+ * @param {string} label - Etiqueta visible (ej: "Traslado de grúa")
+ * @param {Array<{ id: string }>} [existentes] - Tipos ya configurados
+ * @returns {string} Identificador en camelCase único (ej: "trasladoDeGrua")
+ */
+export function generarIdTipoCosto(label, existentes = []) {
+    const base = String(label)
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, ' ')
+        .trim()
+        .split(' ')
+        .filter(Boolean)
+        .map((palabra, index) => index === 0
+            ? palabra
+            : palabra.charAt(0).toUpperCase() + palabra.slice(1))
+        .join('') || 'costo';
+
+    const idsExistentes = new Set(existentes.map((tipo) => tipo.id));
+    if (!idsExistentes.has(base)) return base;
+
+    let sufijo = 2;
+    while (idsExistentes.has(base + sufijo)) sufijo += 1;
+
+    return base + sufijo;
+}
+
 // Nombres de días en español
 export const NOMBRES_DIAS = {
     lunes: 'Lunes',

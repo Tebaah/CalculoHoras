@@ -74,7 +74,8 @@
     gap: 0.5rem;
 }
 
-.config-input-row input[type="number"] {
+.config-input-row input[type="number"],
+.config-input-row input[type="text"] {
     flex: 1;
     min-width: 0;
     max-width: 180px;
@@ -93,10 +94,11 @@
     white-space: nowrap;
 }
 
-/* Gestión de listas configurables (recargos, mínimos de horas y valores de hora) */
+/* Gestión de listas configurables (recargos, mínimos de horas, valores de hora y tipos de costo) */
 .recargo-manager,
 .horas-minimas-manager,
-.valor-hora-manager {
+.valor-hora-manager,
+.tipo-costo-manager {
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -104,7 +106,8 @@
 
 .recargo-list,
 .horas-minimas-list,
-.valor-hora-list {
+.valor-hora-list,
+.tipo-costo-list {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
@@ -115,7 +118,8 @@
 
 .recargo-item,
 .horas-minimas-item,
-.valor-hora-item {
+.valor-hora-item,
+.tipo-costo-item {
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
@@ -130,7 +134,8 @@
 
 .recargo-item__label,
 .horas-minimas-item__label,
-.valor-hora-item__label {
+.valor-hora-item__label,
+.tipo-costo-item__label {
     line-height: 1.4;
     white-space: nowrap;
 }
@@ -148,7 +153,8 @@
 
 .recargo-item__remove,
 .horas-minimas-item__remove,
-.valor-hora-item__remove {
+.valor-hora-item__remove,
+.tipo-costo-item__remove {
     width: auto;
     min-width: unset;
     margin-top: 0;
@@ -162,15 +168,17 @@
 
 .recargo-item__remove:hover,
 .horas-minimas-item__remove:hover,
-.valor-hora-item__remove:hover {
+.valor-hora-item__remove:hover,
+.tipo-costo-item__remove:hover {
     background: var(--color-error-bg);
     color: var(--color-error);
     transform: none;
     box-shadow: none;
 }
 
-/* Estado vacío: lista de valores de hora sin ítems configurados */
-.valor-hora-item--empty {
+/* Estado vacío: listas sin ítems configurados */
+.valor-hora-item--empty,
+.tipo-costo-item--empty {
     padding-inline: 0.75rem;
     border-style: dashed;
     font-weight: 400;
