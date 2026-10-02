@@ -173,14 +173,14 @@ function renderRecargos() {
         const etiqueta = formatRecargoLabel(porcentaje);
 
         const accion = porcentaje > 0
-            ? '<button type="button" class="recargo-item__remove" data-recargo="' + porcentaje +
+            ? '<button type="button" class="config-table__remove" data-recargo="' + porcentaje +
             '" title="Eliminar ' + etiqueta + '" aria-label="Eliminar recargo ' + etiqueta + '">&#10005;</button>'
-            : '<span class="recargo-item__badge" title="Este valor no se puede eliminar">Fijo</span>';
+            : '<span class="config-table__badge" title="Este valor no se puede eliminar">Fijo</span>';
 
-        return '<li class="recargo-item">' +
-            '<span class="recargo-item__label">' + etiqueta + '</span>' +
-            accion +
-            '</li>';
+        return '<tr>' +
+            '<td class="config-table__cell">' + etiqueta + '</td>' +
+            '<td class="config-table__actions">' + accion + '</td>' +
+            '</tr>';
     }).join('');
 }
 
@@ -215,7 +215,7 @@ function handleAddRecargo(e) {
 }
 
 function handleRemoveRecargo(e) {
-    const boton = e.target.closest('.recargo-item__remove');
+    const boton = e.target.closest('.config-table__remove');
     if (!boton) return;
 
     const porcentaje = Number(boton.dataset.recargo);
@@ -239,14 +239,14 @@ function renderHorasMinimas() {
         const etiqueta = formatHorasMinimasLabel(horas);
 
         const accion = horas > 0
-            ? '<button type="button" class="horas-minimas-item__remove" data-horas="' + horas +
+            ? '<button type="button" class="config-table__remove" data-horas="' + horas +
             '" title="Eliminar ' + etiqueta + '" aria-label="Eliminar mínimo de ' + etiqueta + '">&#10005;</button>'
-            : '<span class="horas-minimas-item__badge" title="Este valor no se puede eliminar">Fijo</span>';
+            : '<span class="config-table__badge" title="Este valor no se puede eliminar">Fijo</span>';
 
-        return '<li class="horas-minimas-item">' +
-            '<span class="horas-minimas-item__label">' + etiqueta + '</span>' +
-            accion +
-            '</li>';
+        return '<tr>' +
+            '<td class="config-table__cell">' + etiqueta + '</td>' +
+            '<td class="config-table__actions">' + accion + '</td>' +
+            '</tr>';
     }).join('');
 }
 
@@ -281,7 +281,7 @@ function handleAddHorasMinimas(e) {
 }
 
 function handleRemoveHorasMinimas(e) {
-    const boton = e.target.closest('.horas-minimas-item__remove');
+    const boton = e.target.closest('.config-table__remove');
     if (!boton) return;
 
     const horas = Number(boton.dataset.horas);
@@ -306,18 +306,20 @@ function renderValoresHora() {
 
     if (valores.length === 0) {
         valoresHoraList.innerHTML =
-            '<li class="valor-hora-item valor-hora-item--empty">Sin valores configurados</li>';
+            '<tr><td class="config-table__empty" colspan="2">Sin valores configurados</td></tr>';
         return;
     }
 
     valoresHoraList.innerHTML = valores.map((valor) => {
         const etiqueta = formatValorHoraLabel(valor);
 
-        return '<li class="valor-hora-item">' +
-            '<span class="valor-hora-item__label">' + etiqueta + '</span>' +
-            '<button type="button" class="valor-hora-item__remove" data-valor="' + valor +
+        return '<tr>' +
+            '<td class="config-table__cell">' + etiqueta + '</td>' +
+            '<td class="config-table__actions">' +
+            '<button type="button" class="config-table__remove" data-valor="' + valor +
             '" title="Eliminar ' + etiqueta + '" aria-label="Eliminar valor de hora ' + etiqueta + '">&#10005;</button>' +
-            '</li>';
+            '</td>' +
+            '</tr>';
     }).join('');
 }
 
@@ -353,7 +355,7 @@ function handleAddValorHora(e) {
 }
 
 function handleRemoveValorHora(e) {
-    const boton = e.target.closest('.valor-hora-item__remove');
+    const boton = e.target.closest('.config-table__remove');
     if (!boton) return;
 
     const valor = Number(boton.dataset.valor);
@@ -377,7 +379,7 @@ function renderTiposCosto() {
 
     if (tipos.length === 0) {
         tiposCostoList.innerHTML =
-            '<li class="tipo-costo-item tipo-costo-item--empty">Sin tipos de costo configurados</li>';
+            '<tr><td class="config-table__empty" colspan="2">Sin tipos de costo configurados</td></tr>';
         return;
     }
 
@@ -385,11 +387,13 @@ function renderTiposCosto() {
         const etiqueta = escaparHtml(tipo.label);
         const id = escaparHtml(tipo.id);
 
-        return '<li class="tipo-costo-item">' +
-            '<span class="tipo-costo-item__label">' + etiqueta + '</span>' +
-            '<button type="button" class="tipo-costo-item__remove" data-id="' + id +
+        return '<tr>' +
+            '<td class="config-table__cell">' + etiqueta + '</td>' +
+            '<td class="config-table__actions">' +
+            '<button type="button" class="config-table__remove" data-id="' + id +
             '" title="Eliminar ' + etiqueta + '" aria-label="Eliminar ' + etiqueta + '">&#10005;</button>' +
-            '</li>';
+            '</td>' +
+            '</tr>';
     }).join('');
 }
 
@@ -423,7 +427,7 @@ function handleAddTipoCosto(e) {
 }
 
 function handleRemoveTipoCosto(e) {
-    const boton = e.target.closest('.tipo-costo-item__remove');
+    const boton = e.target.closest('.config-table__remove');
     if (!boton) return;
 
     const id = boton.dataset.id;

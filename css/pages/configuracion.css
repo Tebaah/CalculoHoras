@@ -104,57 +104,75 @@
     gap: 1rem;
 }
 
-.recargo-list,
-.horas-minimas-list,
-.valor-hora-list,
-.tipo-costo-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
+/* Tabla de listas configurables (recargos, mínimos de horas, valores de hora y tipos de costo):
+   filas de ancho completo con scroll vertical y encabezado fijo, para que los ítems
+   se distribuyan de forma ordenada e independiente del tamaño de la pantalla. */
+.config-table {
+    overflow: hidden;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-md);
 }
 
-.recargo-item,
-.horas-minimas-item,
-.valor-hora-item,
-.tipo-costo-item {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.25rem 0.375rem 0.25rem 0.75rem;
-    background: var(--color-bg);
-    border: 1px solid var(--color-border-light);
-    border-radius: var(--radius-md);
+.config-table__scroll {
+    max-height: 15rem;
+    overflow-y: auto;
+}
+
+.config-table table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
     font-size: var(--font-size-sm);
+}
+
+.config-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 0.5rem 0.75rem;
+    background: var(--color-bg-elevated);
+    border-bottom: 1.5px solid var(--color-border);
+    text-align: left;
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--color-text-secondary);
+}
+
+.config-table tbody tr {
+    transition: var(--transition-fast);
+}
+
+.config-table tbody td {
+    border-bottom: 1px solid var(--color-border-light);
+}
+
+.config-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.config-table tbody tr:hover {
+    background: var(--color-primary-50);
+}
+
+.config-table__cell {
+    padding: 0.5rem 0.75rem;
     font-weight: 600;
     color: var(--color-text-primary);
+    vertical-align: middle;
+    overflow-wrap: break-word;
 }
 
-.recargo-item__label,
-.horas-minimas-item__label,
-.valor-hora-item__label,
-.tipo-costo-item__label {
-    line-height: 1.4;
+.config-table__actions {
+    width: 1%;
+    padding: 0.375rem 0.5rem;
+    text-align: right;
+    vertical-align: middle;
     white-space: nowrap;
 }
 
-.recargo-item__badge,
-.horas-minimas-item__badge {
-    padding: 0.0625rem 0.375rem;
-    background: var(--color-primary-50);
-    border-radius: var(--radius-sm);
-    font-size: var(--font-size-xs);
-    font-weight: 600;
-    line-height: 1.4;
-    color: var(--color-info-text);
-}
-
-.recargo-item__remove,
-.horas-minimas-item__remove,
-.valor-hora-item__remove,
-.tipo-costo-item__remove {
+.config-table__remove {
     width: auto;
     min-width: unset;
     margin-top: 0;
@@ -166,22 +184,29 @@
     color: var(--color-text-muted);
 }
 
-.recargo-item__remove:hover,
-.horas-minimas-item__remove:hover,
-.valor-hora-item__remove:hover,
-.tipo-costo-item__remove:hover {
+.config-table__remove:hover {
     background: var(--color-error-bg);
     color: var(--color-error);
     transform: none;
     box-shadow: none;
 }
 
-/* Estado vacío: listas sin ítems configurados */
-.valor-hora-item--empty,
-.tipo-costo-item--empty {
-    padding-inline: 0.75rem;
-    border-style: dashed;
+.config-table__badge {
+    padding: 0.0625rem 0.375rem;
+    background: var(--color-primary-50);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--color-info-text);
+}
+
+/* Estado vacío: tablas sin ítems configurados */
+.config-table__empty {
+    padding: 1.25rem 0.75rem;
+    text-align: center;
     font-weight: 400;
+    font-style: italic;
     color: var(--color-text-muted);
 }
 
