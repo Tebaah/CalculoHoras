@@ -79,7 +79,7 @@ Agrupación de órdenes y reportes existentes para generar un comprobante de liq
 - Búsqueda de registros existentes por índice para agregarlos al estado de pago
 - No se pueden agregar recursivamente otros estados de pago
 - Agregar costos extra:
-  - Tipos predefinidos: Traslado de contrapesos, Traslado de equipo, Plan de izaje, Otros
+  - Tipos configurables desde Configuración (por defecto: Traslado de contrapesos, Traslado de equipo, Plan de izaje, Otros)
   - Cantidad y precio unitario por cada costo
 - Cálculo automático de totales con IVA (19%)
 - **Logo de empresa:** URL configurable, persistida en localStorage

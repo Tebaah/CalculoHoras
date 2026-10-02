@@ -46,7 +46,7 @@ Esta herramienta automatiza todos estos cálculos, evitando errores manuales y e
 ### 💰 Estados de Pago
 - Agregación de registros existentes (órdenes o reportes) buscándolos por índice.
 - Cada registro agregado suma sus horas sin recargo, con recargo y monto total.
-- **Costos adicionales**: Agregar ítems extra (traslado de contrapesos, traslado de equipo, plan de izaje, otros) con cantidad y valor unitario.
+- **Costos adicionales**: Agregar ítems extra (tipo de costo configurable: traslado de contrapesos, traslado de equipo, plan de izaje, otros) con cantidad y valor unitario.
 - Cálculo en vivo del total general con IVA (19%).
 - **Logo de empresa**: Carga de logo vía URL con previsualización y almacenamiento persistente en localStorage.
 - **Impresión PDF**: Genera una liquidación formal de servicios con encabezado (logo + datos empresa), detalle por jornada, resumen de montos, IVA y condiciones de pago.
@@ -68,6 +68,7 @@ Esta herramienta automatiza todos estos cálculos, evitando errores manuales y e
 - **Porcentajes de recargo**: incorporación y eliminación manual de los ítems que aparecen en el desplegable `% Recargo` de Órdenes de Trabajo y Reportes. El valor `Sin recargo` siempre está disponible y no puede eliminarse.
 - **Mínimos de horas**: incorporación y eliminación manual de los ítems que aparecen en el desplegable `Mínimo de Horas` de Órdenes de Trabajo y Reportes. El valor `Sin mínimo` siempre está disponible y no puede eliminarse.
 - **Valores de hora normal**: incorporación y eliminación manual de los ítems que aparecen en el desplegable `Valor Hora Normal` de Órdenes de Trabajo y Reportes. La opción `Otro valor...` siempre está disponible para ingresar un valor distinto.
+- **Tipos de costo**: incorporación y eliminación manual de los ítems que aparecen en el desplegable `Tipo de costo` de Estados de Pago. Por defecto incluye `Traslado de contrapesos`, `Traslado de equipo`, `Plan izaje` y `Otros`.
 
 ## 🛠️ Tecnologías Utilizadas
 
@@ -89,7 +90,7 @@ Esta herramienta automatiza todos estos cálculos, evitando errores manuales y e
 ├── reportes.html           # Reporte semanal
 ├── pagos.html              # Estados de pago y liquidaciones
 ├── historial.html          # Historial de registros almacenados
-├── configuracion.html      # Configuración general (logo, correlativo, % recargo, mínimos de horas, valores de hora)
+├── configuracion.html      # Configuración general (logo, correlativo, % recargo, mínimos de horas, valores de hora, tipos de costo)
 ├── package.json            # Configuración del proyecto y dependencias
 ├── vite.config.js          # Configuración de Vite (multi-page build)
 ├── src/
@@ -116,7 +117,7 @@ Esta herramienta automatiza todos estos cálculos, evitando errores manuales y e
 │   │   ├── actions/
 │   │   │   └── calculatorActions.js  # Acciones de cálculo
 │   │   ├── storageManager.js  # Gestor de localStorage (CRUD + export/import JSON)
-│   │   └── configManager.js   # Configuración global (logo, correlativo, % recargo, mínimos de horas, valores de hora)
+│   │   └── configManager.js   # Configuración global (logo, correlativo, % recargo, mínimos de horas, valores de hora, tipos de costo)
 │   └── ui/
 │       ├── components/
 │       │   ├── sidebar.js     # Componente de navegación lateral

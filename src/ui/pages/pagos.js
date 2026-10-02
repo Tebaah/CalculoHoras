@@ -12,9 +12,10 @@ import {
     getLogoUrl,
     getCorrelativoPago,
     avanzarCorrelativoPago,
+    getTiposCosto,
 } from '../../store/configManager.js';
 import { formatCurrency, formatHours, formatHourRate } from '../../core/utils/formatUtils.js';
-import { NOMBRES_DIAS } from '../../core/constants.js';
+import { NOMBRES_DIAS, TIPOS_COSTO_POR_DEFECTO } from '../../core/constants.js';
 import { timeToMinutes } from '../../core/utils/timeUtils.js';
 import { formatFechaLarga, parseISODate } from '../../core/utils/dateUtils.js';
 
@@ -343,6 +344,27 @@ function renderCostosList() {
     });
 }
 
+/**
+ * Rellena el selector de tipos de costo con los configurados en la página
+ * Configuración, conservando el placeholder "Seleccione...".
+ */
+function populateCostoTipoOptions() {
+    if (!costoTipoEl) return;
+
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = 'Seleccione...';
+
+    costoTipoEl.replaceChildren(placeholder);
+
+    getTiposCosto().forEach((tipo) => {
+        const option = document.createElement('option');
+        option.value = tipo.id;
+        option.textContent = tipo.label;
+        costoTipoEl.appendChild(option);
+    });
+}
+
 function handleAddCosto() {
     const tipo = costoTipoEl.value;
     const valor = parseFloat(costoValorEl.value) || 0;
@@ -496,16 +518,18 @@ function calcularTotales() {
 }
 
 /**
- * Convierte el key interno de tipo de costo a texto legible
+ * Convierte el key interno de tipo de costo a texto legible.
+ * Usa los tipos configurados en Configuración y, como respaldo, los tipos
+ * por defecto (para registros antiguos cuyo tipo ya no está configurado).
  */
 function getCostoLabelText(tipo) {
-    const labels = {
-        'trasladoContrapesos': 'Traslado de contrapesos',
-        'trasladoEquipo': 'Traslado de equipo',
-        'planIzaje': 'Plan izaje',
-        'otros': 'Otros',
-    };
-    return labels[tipo] || tipo;
+    const configurado = getTiposCosto().find((item) => item.id === tipo);
+    if (configurado) return configurado.label;
+
+    const porDefecto = TIPOS_COSTO_POR_DEFECTO.find((item) => item.id === tipo);
+    if (porDefecto) return porDefecto.label;
+
+    return tipo;
 }
 
 function handleSavePago() {
@@ -1233,6 +1257,7 @@ async function handleCopiarCorreo() {
 export function initPagosPage() {
     initSidebar();
     initCorrelativo();
+    populateCostoTipoOptions();
 
     document.getElementById('pagoForm').addEventListener('submit', (e) => {
         e.preventDefault();

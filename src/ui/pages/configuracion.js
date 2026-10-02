@@ -23,6 +23,9 @@ import {
     getValoresHora,
     addValorHora,
     removeValorHora,
+    getTiposCosto,
+    addTipoCosto,
+    removeTipoCosto,
 } from '../../store/configManager.js';
 import {
     formatRecargoLabel,
@@ -32,6 +35,7 @@ import {
     formatValorHoraLabel,
     VALOR_HORA_MINIMO,
     VALOR_HORA_MAXIMO,
+    TIPO_COSTO_LABEL_MAXIMO,
 } from '../../core/constants.js';
 
 // Elementos del DOM
@@ -60,6 +64,11 @@ const valorHoraForm = document.getElementById('valorHoraForm');
 const nuevoValorHoraInput = document.getElementById('nuevoValorHora');
 const valoresHoraList = document.getElementById('valoresHoraList');
 const valoresHoraMessage = document.getElementById('valoresHoraMessage');
+
+const tipoCostoForm = document.getElementById('tipoCostoForm');
+const nuevoTipoCostoInput = document.getElementById('nuevoTipoCosto');
+const tiposCostoList = document.getElementById('tiposCostoList');
+const tiposCostoMessage = document.getElementById('tiposCostoMessage');
 
 // ── Logo ──────────────────────────────────────────────────────
 
@@ -120,6 +129,21 @@ function mostrarMensaje(elemento, texto, tipo) {
     elemento.className = 'config-message' + (tipo ? ' config-message--' + tipo : '');
 }
 
+/**
+ * Escapa caracteres especiales para insertar texto de usuario de forma segura
+ * dentro de cadenas HTML.
+ * @param {string} texto
+ * @returns {string} Texto escapado
+ */
+function escaparHtml(texto) {
+    return String(texto)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 // ── Correlativo ───────────────────────────────────────────────
 
 function handleSaveConfig(e) {
@@ -149,14 +173,14 @@ function renderRecargos() {
         const etiqueta = formatRecargoLabel(porcentaje);
 
         const accion = porcentaje > 0
-            ? '<button type="button" class="recargo-item__remove" data-recargo="' + porcentaje +
+            ? '<button type="button" class="config-table__remove" data-recargo="' + porcentaje +
             '" title="Eliminar ' + etiqueta + '" aria-label="Eliminar recargo ' + etiqueta + '">&#10005;</button>'
-            : '<span class="recargo-item__badge" title="Este valor no se puede eliminar">Fijo</span>';
+            : '<span class="config-table__badge" title="Este valor no se puede eliminar">Fijo</span>';
 
-        return '<li class="recargo-item">' +
-            '<span class="recargo-item__label">' + etiqueta + '</span>' +
-            accion +
-            '</li>';
+        return '<tr>' +
+            '<td class="config-table__cell">' + etiqueta + '</td>' +
+            '<td class="config-table__actions">' + accion + '</td>' +
+            '</tr>';
     }).join('');
 }
 
@@ -191,7 +215,7 @@ function handleAddRecargo(e) {
 }
 
 function handleRemoveRecargo(e) {
-    const boton = e.target.closest('.recargo-item__remove');
+    const boton = e.target.closest('.config-table__remove');
     if (!boton) return;
 
     const porcentaje = Number(boton.dataset.recargo);
@@ -215,14 +239,14 @@ function renderHorasMinimas() {
         const etiqueta = formatHorasMinimasLabel(horas);
 
         const accion = horas > 0
-            ? '<button type="button" class="horas-minimas-item__remove" data-horas="' + horas +
+            ? '<button type="button" class="config-table__remove" data-horas="' + horas +
             '" title="Eliminar ' + etiqueta + '" aria-label="Eliminar mínimo de ' + etiqueta + '">&#10005;</button>'
-            : '<span class="horas-minimas-item__badge" title="Este valor no se puede eliminar">Fijo</span>';
+            : '<span class="config-table__badge" title="Este valor no se puede eliminar">Fijo</span>';
 
-        return '<li class="horas-minimas-item">' +
-            '<span class="horas-minimas-item__label">' + etiqueta + '</span>' +
-            accion +
-            '</li>';
+        return '<tr>' +
+            '<td class="config-table__cell">' + etiqueta + '</td>' +
+            '<td class="config-table__actions">' + accion + '</td>' +
+            '</tr>';
     }).join('');
 }
 
@@ -257,7 +281,7 @@ function handleAddHorasMinimas(e) {
 }
 
 function handleRemoveHorasMinimas(e) {
-    const boton = e.target.closest('.horas-minimas-item__remove');
+    const boton = e.target.closest('.config-table__remove');
     if (!boton) return;
 
     const horas = Number(boton.dataset.horas);
@@ -282,18 +306,20 @@ function renderValoresHora() {
 
     if (valores.length === 0) {
         valoresHoraList.innerHTML =
-            '<li class="valor-hora-item valor-hora-item--empty">Sin valores configurados</li>';
+            '<tr><td class="config-table__empty" colspan="2">Sin valores configurados</td></tr>';
         return;
     }
 
     valoresHoraList.innerHTML = valores.map((valor) => {
         const etiqueta = formatValorHoraLabel(valor);
 
-        return '<li class="valor-hora-item">' +
-            '<span class="valor-hora-item__label">' + etiqueta + '</span>' +
-            '<button type="button" class="valor-hora-item__remove" data-valor="' + valor +
+        return '<tr>' +
+            '<td class="config-table__cell">' + etiqueta + '</td>' +
+            '<td class="config-table__actions">' +
+            '<button type="button" class="config-table__remove" data-valor="' + valor +
             '" title="Eliminar ' + etiqueta + '" aria-label="Eliminar valor de hora ' + etiqueta + '">&#10005;</button>' +
-            '</li>';
+            '</td>' +
+            '</tr>';
     }).join('');
 }
 
@@ -329,7 +355,7 @@ function handleAddValorHora(e) {
 }
 
 function handleRemoveValorHora(e) {
-    const boton = e.target.closest('.valor-hora-item__remove');
+    const boton = e.target.closest('.config-table__remove');
     if (!boton) return;
 
     const valor = Number(boton.dataset.valor);
@@ -338,6 +364,79 @@ function handleRemoveValorHora(e) {
     renderValoresHora();
     mostrarMensaje(valoresHoraMessage,
         'Valor de hora ' + formatValorHoraLabel(valor) + ' eliminado (' + valores.length + ' disponibles).', 'success');
+}
+
+// ── Tipos de costo (Estados de Pago) ──────────────────────────
+
+/**
+ * Dibuja la lista de tipos de costo configurados.
+ * Si la lista queda vacía, los estados de pago no ofrecerán costos adicionales.
+ */
+function renderTiposCosto() {
+    if (!tiposCostoList) return;
+
+    const tipos = getTiposCosto();
+
+    if (tipos.length === 0) {
+        tiposCostoList.innerHTML =
+            '<tr><td class="config-table__empty" colspan="2">Sin tipos de costo configurados</td></tr>';
+        return;
+    }
+
+    tiposCostoList.innerHTML = tipos.map((tipo) => {
+        const etiqueta = escaparHtml(tipo.label);
+        const id = escaparHtml(tipo.id);
+
+        return '<tr>' +
+            '<td class="config-table__cell">' + etiqueta + '</td>' +
+            '<td class="config-table__actions">' +
+            '<button type="button" class="config-table__remove" data-id="' + id +
+            '" title="Eliminar ' + etiqueta + '" aria-label="Eliminar ' + etiqueta + '">&#10005;</button>' +
+            '</td>' +
+            '</tr>';
+    }).join('');
+}
+
+function handleAddTipoCosto(e) {
+    e.preventDefault();
+
+    const texto = nuevoTipoCostoInput.value.trim();
+
+    if (!texto) {
+        mostrarMensaje(tiposCostoMessage, 'Ingrese el nombre del tipo de costo.', 'error');
+        return;
+    }
+
+    if (texto.length > TIPO_COSTO_LABEL_MAXIMO) {
+        mostrarMensaje(tiposCostoMessage,
+            'El nombre no puede superar los ' + TIPO_COSTO_LABEL_MAXIMO + ' caracteres.', 'error');
+        return;
+    }
+
+    if (getTiposCosto().some((tipo) => tipo.label.toLowerCase() === texto.toLowerCase())) {
+        mostrarMensaje(tiposCostoMessage,
+            'El tipo de costo "' + texto + '" ya está configurado.', 'error');
+        return;
+    }
+
+    const tipos = addTipoCosto(texto);
+    nuevoTipoCostoInput.value = '';
+    renderTiposCosto();
+    mostrarMensaje(tiposCostoMessage,
+        'Tipo de costo "' + texto + '" agregado (' + tipos.length + ' disponibles).', 'success');
+}
+
+function handleRemoveTipoCosto(e) {
+    const boton = e.target.closest('.config-table__remove');
+    if (!boton) return;
+
+    const id = boton.dataset.id;
+    const tipo = getTiposCosto().find((item) => item.id === id);
+    const tipos = removeTipoCosto(id);
+
+    renderTiposCosto();
+    mostrarMensaje(tiposCostoMessage,
+        'Tipo de costo "' + (tipo ? tipo.label : id) + '" eliminado (' + tipos.length + ' disponibles).', 'success');
 }
 
 // ── Inicialización ────────────────────────────────────────────
@@ -373,4 +472,8 @@ export function initConfiguracionPage() {
     renderValoresHora();
     valorHoraForm.addEventListener('submit', handleAddValorHora);
     valoresHoraList.addEventListener('click', handleRemoveValorHora);
+
+    renderTiposCosto();
+    tipoCostoForm.addEventListener('submit', handleAddTipoCosto);
+    tiposCostoList.addEventListener('click', handleRemoveTipoCosto);
 }

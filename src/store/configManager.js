@@ -7,6 +7,7 @@
  *  - Porcentajes de recargo disponibles en Órdenes de Trabajo y Reportes
  *  - Mínimos de horas disponibles en Órdenes de Trabajo y Reportes
  *  - Valores de hora normal disponibles en Órdenes de Trabajo y Reportes
+ *  - Tipos de costo disponibles en la página Estados de Pago
  */
 
 import {
@@ -19,6 +20,10 @@ import {
     VALORES_HORA_POR_DEFECTO,
     normalizarValorHora,
     normalizarValoresHora,
+    TIPOS_COSTO_POR_DEFECTO,
+    normalizarTiposCosto,
+    normalizarLabelTipoCosto,
+    generarIdTipoCosto,
 } from '../core/constants.js';
 
 const CONFIG_KEY = 'calculoHoras_config';
@@ -352,4 +357,72 @@ export function removeValorHora(valor) {
  */
 export function resetValoresHora() {
     return setValoresHora(VALORES_HORA_POR_DEFECTO);
+}
+
+// ── Tipos de costo (Estados de Pago) ───────────────────────────
+
+/**
+ * Obtiene los tipos de costo configurados para los estados de pago.
+ * Si aún no hay configuración guardada, usa los tipos por defecto.
+ * Una lista guardada vacía se respeta: los estados de pago no ofrecerán
+ * costos adicionales.
+ *
+ * @returns {Array<{ id: string, label: string }>} Tipos configurados (puede estar vacía)
+ */
+export function getTiposCosto() {
+    const config = readConfig();
+
+    if (Array.isArray(config.tiposCosto)) {
+        return normalizarTiposCosto(config.tiposCosto);
+    }
+
+    return normalizarTiposCosto(TIPOS_COSTO_POR_DEFECTO);
+}
+
+/**
+ * Reemplaza la lista completa de tipos de costo.
+ * @param {Array<{ id: string, label: string }>} tipos
+ * @returns {Array<{ id: string, label: string }>} Lista guardada (normalizada)
+ */
+export function setTiposCosto(tipos) {
+    const config = readConfig();
+    config.tiposCosto = normalizarTiposCosto(tipos);
+    writeConfig(config);
+    return config.tiposCosto;
+}
+
+/**
+ * Agrega un tipo de costo a partir de su etiqueta.
+ * Ignora etiquetas vacías y nombres duplicados.
+ * @param {string} label - Nombre visible del tipo de costo
+ * @returns {Array<{ id: string, label: string }>} Lista guardada (normalizada)
+ */
+export function addTipoCosto(label) {
+    const tipos = getTiposCosto();
+    const texto = normalizarLabelTipoCosto(label);
+
+    if (texto === null) return tipos;
+    if (tipos.some((tipo) => tipo.label.toLowerCase() === texto.toLowerCase())) return tipos;
+
+    const id = generarIdTipoCosto(texto, tipos);
+    return setTiposCosto([...tipos, { id, label: texto }]);
+}
+
+/**
+ * Elimina un tipo de costo de la configuración.
+ * @param {string} id - Identificador del tipo de costo
+ * @returns {Array<{ id: string, label: string }>} Lista guardada (normalizada)
+ */
+export function removeTipoCosto(id) {
+    if (typeof id !== 'string' || !id) return getTiposCosto();
+
+    return setTiposCosto(getTiposCosto().filter((tipo) => tipo.id !== id));
+}
+
+/**
+ * Restaura los tipos de costo por defecto.
+ * @returns {Array<{ id: string, label: string }>} Lista guardada (normalizada)
+ */
+export function resetTiposCosto() {
+    return setTiposCosto(TIPOS_COSTO_POR_DEFECTO);
 }
