@@ -13,6 +13,7 @@ export function initSidebar() {
     const navOrdenes = document.getElementById('nav-ordenes');
     const navReportes = document.getElementById('nav-reportes');
     const navPagos = document.getElementById('nav-pagos');
+    const navHistorialPagos = document.getElementById('nav-historial-pagos');
     const navHistorial = document.getElementById('nav-historial');
     const navConfiguracion = document.getElementById('nav-configuracion');
 
@@ -24,6 +25,9 @@ export function initSidebar() {
     }
     if (navPagos) {
         navPagos.classList.toggle('active', currentPath === 'pagos.html');
+    }
+    if (navHistorialPagos) {
+        navHistorialPagos.classList.toggle('active', currentPath === 'historial-pagos.html');
     }
     if (navHistorial) {
         navHistorial.classList.toggle('active', currentPath === 'historial.html');

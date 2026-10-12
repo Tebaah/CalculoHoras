@@ -19,6 +19,7 @@ export default defineConfig({
                 ordenes: resolve(__dirname, 'ordenes.html'),
                 reportes: resolve(__dirname, 'reportes.html'),
                 pagos: resolve(__dirname, 'pagos.html'),
+                'historial-pagos': resolve(__dirname, 'historial-pagos.html'),
                 historial: resolve(__dirname, 'historial.html'),
                 configuracion: resolve(__dirname, 'configuracion.html'),
             },

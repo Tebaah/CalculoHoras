@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial de Pagos - Cálculo de Horas</title>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>Cálculo de Horas</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="ordenes.html" class="nav-item" id="nav-ordenes">
+                    <span class="nav-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="8" y="2" width="8" height="4" rx="1" />
+                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+                            <path d="M12 11v6" />
+                            <path d="M9 14h6" />
+                        </svg>
+                    </span>
+                    <span class="nav-text">Órdenes de Trabajo</span>
+                </a>
+                <a href="reportes.html" class="nav-item" id="nav-reportes">
+                    <span class="nav-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 3v18h18" />
+                            <path d="M7 16l4-8 4 4 4-6" />
+                        </svg>
+                    </span>
+                    <span class="nav-text">Reportes</span>
+                </a>
+                <a href="pagos.html" class="nav-item" id="nav-pagos">
+                    <span class="nav-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8" />
+                            <path d="M12 18V6" />
+                        </svg>
+                    </span>
+                    <span class="nav-text">Estados de Pago</span>
+                </a>
+                <a href="historial-pagos.html" class="nav-item active" id="nav-historial-pagos">
+                    <span class="nav-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1z" />
+                            <path d="M8 7h8" />
+                            <path d="M8 11h8" />
+                            <path d="M8 15h5" />
+                        </svg>
+                    </span>
+                    <span class="nav-text">Historial de Pagos</span>
+                </a>
+                <a href="historial.html" class="nav-item" id="nav-historial">
+                    <span class="nav-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                        </svg>
+                    </span>
+                    <span class="nav-text">Historial</span>
+                </a>
+                <a href="configuracion.html" class="nav-item" id="nav-configuracion">
+                    <span class="nav-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="3" />
+                            <path
+                                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                        </svg>
+                    </span>
+                    <span class="nav-text">Configuración</span>
+                </a>
+            </nav>
+        </aside>
+        <main class="main-content">
+            <div class="container container--wide">
+                <h1 class="page-heading">Historial de Estados de Pago</h1>
+
+                <div class="info-box">
+                    <strong>Importante</strong>
+                    Al eliminar un estado de pago se eliminan también los registros asociados (órdenes y reportes)
+                    para no acumular información. Los registros compartidos con otro estado de pago se conservan.
+                </div>
+
+                <div class="historial-actions">
+                    <div class="form-row historial-toolbar">
+                        <div class="form-group">
+                            <label for="filtroIndice">Buscar por índice</label>
+                            <input type="text" id="filtroIndice" placeholder="Ingrese índice a buscar..."
+                                maxlength="20">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="historial-table-container">
+                    <table class="historial-table" id="historialPagosTable">
+                        <thead>
+                            <tr>
+                                <th>Índice</th>
+                                <th>Emitido</th>
+                                <th>Elementos</th>
+                                <th>Horas Sin Recargo</th>
+                                <th>Horas Con Recargo</th>
+                                <th>Monto Total</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historialPagosBody">
+                            <tr>
+                                <td colspan="7" class="empty-message">No hay estados de pago almacenados. Cree uno en la
+                                    sección Estados de Pago.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="historial-message" id="pagosMessage"></div>
+
+                <div class="results" id="detailResults">
+                    <div id="detailContent"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="/src/historial-pagos.js"></script>
+</body>
+
+</html>

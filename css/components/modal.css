@@ -60,6 +60,7 @@
     font-size: var(--font-size-sm);
     color: var(--color-text-primary);
     line-height: 1.6;
+    white-space: pre-line;
 }
 
 .modal__actions {
