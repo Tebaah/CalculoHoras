@@ -123,6 +123,7 @@ export function getRecordsSummary() {
             recargoPorcentaje,
             timestamp: r.timestamp,
             numDias: r.tipo === 'reporte' ? (r.dias ? r.dias.length : 0) : 1,
+            numElementos: r.tipo === 'pago' ? (r.items ? r.items.length : 0) : 0,
         };
     });
 }
@@ -142,6 +143,79 @@ export function deleteRecord(indice) {
 
     saveAllRecords(filtered);
     return true;
+}
+
+/**
+ * Obtiene los índices de los registros asociados a un estado de pago,
+ * separándolos entre los que solo pertenecen a ese estado de pago y los que
+ * están compartidos con otros estados de pago.
+ *
+ * @param {string} indice - Índice del estado de pago
+ * @returns {{ propios: Array<string>, compartidos: Array<string> }}
+ */
+export function getPagoAsociados(indice) {
+    const records = getAllRecords();
+    const pago = records.find(r => r.indice === indice && r.tipo === 'pago');
+
+    if (!pago) {
+        return { propios: [], compartidos: [] };
+    }
+
+    // Índices incluidos en este estado de pago (sin duplicados)
+    const indicesPago = [];
+    (pago.items || []).forEach((item) => {
+        if (item && item.indice !== undefined && item.indice !== null && !indicesPago.includes(item.indice)) {
+            indicesPago.push(item.indice);
+        }
+    });
+
+    // Índices referenciados por cualquier otro estado de pago
+    const referenciadosPorOtros = new Set();
+    records.forEach((r) => {
+        if (r.tipo !== 'pago' || r.indice === indice) return;
+        (r.items || []).forEach((item) => {
+            if (item && item.indice !== undefined && item.indice !== null) {
+                referenciadosPorOtros.add(item.indice);
+            }
+        });
+    });
+
+    const propios = [];
+    const compartidos = [];
+    indicesPago.forEach((idx) => {
+        if (referenciadosPorOtros.has(idx)) {
+            compartidos.push(idx);
+        } else {
+            propios.push(idx);
+        }
+    });
+
+    return { propios, compartidos };
+}
+
+/**
+ * Elimina un estado de pago junto con los registros que tiene asociados
+ * (órdenes de trabajo y reportes). Los registros compartidos con otro estado
+ * de pago se conservan para no romper los demás.
+ *
+ * @param {string} indice - Índice del estado de pago a eliminar
+ * @returns {{ ok: boolean, eliminados: Array<string>, conservados: Array<string> }}
+ */
+export function deletePagoConAsociados(indice) {
+    const records = getAllRecords();
+    const pago = records.find(r => r.indice === indice && r.tipo === 'pago');
+
+    if (!pago) {
+        return { ok: false, eliminados: [], conservados: [] };
+    }
+
+    const { propios, compartidos } = getPagoAsociados(indice);
+    const aEliminar = new Set([indice, ...propios]);
+    const filtered = records.filter(r => !aEliminar.has(r.indice));
+
+    saveAllRecords(filtered);
+
+    return { ok: true, eliminados: [indice, ...propios], conservados: compartidos };
 }
 
 /**

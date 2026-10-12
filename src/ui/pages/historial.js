@@ -6,7 +6,7 @@
 
 import { initSidebar } from '../components/sidebar.js';
 import { getRecordsSummary, getRecordDetail, deleteRecord, exportRecordsToJSON, importRecordsFromJSON } from '../../store/storageManager.js';
-import { formatCurrency, formatHours, formatHourRate } from '../../core/utils/formatUtils.js';
+import { formatCurrency, formatHours } from '../../core/utils/formatUtils.js';
 
 // Elementos del DOM
 const historialBody = document.getElementById('historialBody');
@@ -21,7 +21,7 @@ const fileInput = document.getElementById('fileInput');
 /**
  * Normaliza las horas de un registro según su porcentaje de recargo.
  * Si el recargo es 0%, todas las horas se consideran sin recargo.
- * @param {Object} record - Registro (orden, reporte o pago)
+ * @param {Object} record - Registro (orden o reporte)
  * @returns {{ horasSinRecargo: number, horasConRecargo: number }}
  */
 function getHorasRegistro(record) {
@@ -29,21 +29,7 @@ function getHorasRegistro(record) {
     let horasConRecargo;
     let recargoPorcentaje;
 
-    if (record.tipo === 'pago') {
-        const totales = record.totales || {};
-        horasSinRecargo = totales.totalSinRecargo || 0;
-        horasConRecargo = totales.totalConRecargo || 0;
-        // Para pagos, determinar recargo por los items
-        const items = record.items || [];
-        const primerosConRecargo = items.filter((it) => {
-            const rec = it.recargoPorcentaje !== undefined && it.recargoPorcentaje !== null
-                ? it.recargoPorcentaje
-                : 30;
-            return rec > 0;
-        });
-        const todosSinRecargo = items.length > 0 && primerosConRecargo.length === 0;
-        recargoPorcentaje = todosSinRecargo ? 0 : 30;
-    } else if (record.tipo === 'orden') {
+    if (record.tipo === 'orden') {
         horasSinRecargo = record.horasSinRecargo || 0;
         horasConRecargo = record.horasConRecargo || 0;
         recargoPorcentaje = record.recargoPorcentaje !== undefined && record.recargoPorcentaje !== null
@@ -83,8 +69,6 @@ function renderTable(records) {
         let tipoLabel;
         if (record.tipo === 'orden') {
             tipoLabel = 'Orden';
-        } else if (record.tipo === 'pago') {
-            tipoLabel = 'Pago';
         } else {
             tipoLabel = 'Reporte';
         }
@@ -147,60 +131,7 @@ function handleViewDetail(indice) {
     const { horasSinRecargo: hSR, horasConRecargo: hCR } = getHorasRegistro(record);
     let html = '<h2>📄 Detalle del Registro #' + record.indice + '</h2>';
 
-    if (record.tipo === 'pago') {
-        const totales = record.totales || {};
-        html += '<div class="result-item">' +
-            '<span class="result-label">Tipo</span>' +
-            '<span class="result-value">💰 Estado de Pago</span>' +
-            '</div>' +
-            '<div class="result-item">' +
-            '<span class="result-label">Elementos incluidos</span>' +
-            '<span class="result-value">' + (record.items ? record.items.length : 0) + '</span>' +
-            '</div>';
-
-        if (totales.detalleItems && totales.detalleItems.length > 0) {
-            html += '<h3>Detalle por elemento</h3>';
-            totales.detalleItems.forEach((det) => {
-                const tipoLabel = det.tipo === 'orden' ? '📋 Orden' : '📊 Reporte';
-                const detRecargo = det.recargoPorcentaje !== undefined && det.recargoPorcentaje !== null
-                    ? det.recargoPorcentaje
-                    : 30;
-                let detHSR = det.horasSinRecargo || 0;
-                let detHCR = det.horasConRecargo || 0;
-                if (detRecargo <= 0) {
-                    detHSR += detHCR;
-                    detHCR = 0;
-                }
-                html += '<div class="result-item">' +
-                    '<span class="result-label">' + tipoLabel + ' #' + det.indice + '</span>' +
-                    '<span class="result-value">' + formatCurrency(det.monto) + '</span>' +
-                    '</div>';
-                html += '<div class="result-item" style="padding-left: 20px;">' +
-                    '<span class="result-label">Horas sin/con recargo</span>' +
-                    '<span class="result-value">' + formatHours(detHSR) + ' / ' + formatHours(detHCR) + '</span>' +
-                    '</div>';
-                html += '<div class="result-item" style="padding-left: 20px;">' +
-                    '<span class="result-label">Valor hora normal / con recargo</span>' +
-                    '<span class="result-value">' + formatHourRate(det.valorHora || 0) + ' / ' + formatHourRate(det.valorConRecargo || 0) + '</span>' +
-                    '</div>';
-            });
-        }
-
-        html += '<div class="result-item">' +
-            '<span class="result-label">Total horas sin recargo</span>' +
-            '<span class="result-value">' + formatHours(hSR) + '</span>' +
-            '</div>' +
-            (hCR > 0
-                ? '<div class="result-item">' +
-                '<span class="result-label">Total horas con recargo</span>' +
-                '<span class="result-value">' + formatHours(hCR) + '</span>' +
-                '</div>'
-                : '') +
-            '<div class="result-item total">' +
-            '<span class="result-label">Monto Total</span>' +
-            '<span class="result-value">' + formatCurrency(totales.totalMonto || 0) + '</span>' +
-            '</div>';
-    } else if (record.tipo === 'orden') {
+    if (record.tipo === 'orden') {
         html += '<div class="result-item">' +
             '<span class="result-label">Tipo</span>' +
             '<span class="result-value">Orden de Trabajo</span>' +
@@ -296,8 +227,6 @@ function handleEdit(indice) {
 
     if (record.tipo === 'orden') {
         window.location.href = 'ordenes.html?editar=' + indice;
-    } else if (record.tipo === 'pago') {
-        window.location.href = 'pagos.html?editar=' + indice;
     } else {
         window.location.href = 'reportes.html?editar=' + indice;
     }
@@ -326,7 +255,8 @@ function handleDelete(indice) {
  * Aplica los filtros actuales y renderiza la tabla
  */
 function applyFilters() {
-    let records = getRecordsSummary();
+    // Los estados de pago tienen su propio historial (historial-pagos.html)
+    let records = getRecordsSummary().filter(r => r.tipo !== 'pago');
 
     // Filtro por tipo
     const tipoFilter = filtroTipoSelect.value;
@@ -394,15 +324,6 @@ export function initHistorialPage() {
     applyFilters();
 
     filtroIndiceInput.addEventListener('input', applyFilters);
-    // Agregar opción "Pagos" al filtro si no existe
-    const optionExiste = filtroTipoSelect.querySelector('option[value="pago"]');
-    if (!optionExiste) {
-        const pagoOption = document.createElement('option');
-        pagoOption.value = 'pago';
-        pagoOption.textContent = 'Estados de Pago';
-        filtroTipoSelect.appendChild(pagoOption);
-    }
-
     filtroTipoSelect.addEventListener('change', applyFilters);
 
     exportarBtn.addEventListener('click', handleExport);
