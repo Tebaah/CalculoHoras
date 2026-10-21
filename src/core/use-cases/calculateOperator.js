@@ -8,7 +8,7 @@
 
 import { calculateMinutesInRange } from '../utils/timeUtils.js';
 import { minutesToHours } from '../utils/timeUtils.js';
-import { TIPOS_DIA } from '../constants.js';
+import { RANGOS_POR_DIA, TIPOS_DIA } from '../constants.js';
 
 /**
  * Calcula los minutos dobles del operador según el tipo de día
@@ -19,21 +19,12 @@ import { TIPOS_DIA } from '../constants.js';
  * @returns {number} Minutos dobles
  */
 function calculateDoubleMinutes(startMin, endMin, tipoDia) {
-    if (tipoDia === TIPOS_DIA.NORMAL) {
-        const minDoblesManana = calculateMinutesInRange(startMin, endMin, 0, 7 * 60);
-        const minDoblesNoche = calculateMinutesInRange(startMin, endMin, 19 * 60, 24 * 60);
-        return minDoblesManana + minDoblesNoche;
-    }
+    const config = RANGOS_POR_DIA[tipoDia] || RANGOS_POR_DIA[TIPOS_DIA.NORMAL];
 
-    if (tipoDia === TIPOS_DIA.SABADO) {
-        const minDoblesManana = calculateMinutesInRange(startMin, endMin, 0, 7 * 60);
-        const minDoblesNoche = calculateMinutesInRange(startMin, endMin, 13 * 60, 24 * 60);
-        return minDoblesManana + minDoblesNoche;
-    }
-
-    // Domingo/Festivo: todo es doble
-    const cruzaMedianoche = endMin < startMin;
-    return cruzaMedianoche ? (endMin + 1440 - startMin) : (endMin - startMin);
+    return config.operadorDobles.reduce(
+        (total, rango) => total + calculateMinutesInRange(startMin, endMin, rango.inicio, rango.fin),
+        0
+    );
 }
 
 /**

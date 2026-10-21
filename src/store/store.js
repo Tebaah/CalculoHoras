@@ -8,9 +8,8 @@
 class Store {
     constructor() {
         this._state = {
-            currentPage: 'ordenes',
-            lastCalculation: null,
-            lastReport: null,
+            currentPage: 'servicios',
+            lastService: null,
             valorHora: null,
             horasMinimas: 0,
         };

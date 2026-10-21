@@ -3,7 +3,7 @@
  *
  * Construye dinámicamente las opciones del desplegable "Valor de la Hora
  * Normal" a partir de los valores configurados en la página Configuración.
- * Se utiliza tanto en Órdenes de Trabajo como en Reportes.
+ * Se utiliza en Cálculo de Servicios.
  *
  * El selector siempre conserva dos opciones fijas: el placeholder vacío y
  * "Otro valor...", que habilita el ingreso de un valor personalizado.

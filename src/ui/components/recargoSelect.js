@@ -3,7 +3,7 @@
  *
  * Construye dinámicamente las opciones del desplegable "% Recargo"
  * a partir de los porcentajes configurados en la página Configuración.
- * Se utiliza tanto en Órdenes de Trabajo como en Reportes.
+ * Se utiliza en Cálculo de Servicios.
  */
 
 import { getRecargos } from '../../store/configManager.js';

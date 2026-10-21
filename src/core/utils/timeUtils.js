@@ -22,6 +22,30 @@ export function minutesToHours(minutes) {
 }
 
 /**
+ * Calcula la duración de una jornada en minutos, contemplando el cruce de
+ * medianoche.
+ *
+ * @param {string} horaInicio - Hora de inicio en HH:MM
+ * @param {string} horaTermino - Hora de término en HH:MM
+ * @returns {number} Minutos trabajados (0 si las horas no son válidas)
+ */
+export function duracionMinutos(horaInicio, horaTermino) {
+    if (!horaInicio || !horaTermino) return 0;
+
+    try {
+        const startMin = timeToMinutes(horaInicio);
+        const endMin = timeToMinutes(horaTermino);
+
+        if (!Number.isFinite(startMin) || !Number.isFinite(endMin)) return 0;
+        if (startMin === endMin) return 0;
+
+        return endMin < startMin ? (endMin + 1440 - startMin) : (endMin - startMin);
+    } catch (error) {
+        return 0;
+    }
+}
+
+/**
  * Calcula la cantidad de minutos dentro de un rango horario específico.
  *
  * Maneja correctamente:

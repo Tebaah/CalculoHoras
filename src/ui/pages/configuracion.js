@@ -4,7 +4,7 @@
  * Permite configurar el logo de empresa, el número de inicio del
  * correlativo de estados de pago, los porcentajes de recargo, los
  * mínimos de horas y los valores de hora normal disponibles en
- * Órdenes de Trabajo y Reportes.
+ * Cálculo de Servicios.
  */
 
 import { initSidebar } from '../components/sidebar.js';

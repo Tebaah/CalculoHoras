@@ -10,18 +10,14 @@
 export function initSidebar() {
     const currentPath = window.location.pathname.split('/').pop() || 'index.html';
 
-    const navOrdenes = document.getElementById('nav-ordenes');
-    const navReportes = document.getElementById('nav-reportes');
+    const navServicios = document.getElementById('nav-servicios');
     const navPagos = document.getElementById('nav-pagos');
     const navHistorialPagos = document.getElementById('nav-historial-pagos');
     const navHistorial = document.getElementById('nav-historial');
     const navConfiguracion = document.getElementById('nav-configuracion');
 
-    if (navOrdenes) {
-        navOrdenes.classList.toggle('active', currentPath === 'ordenes.html');
-    }
-    if (navReportes) {
-        navReportes.classList.toggle('active', currentPath === 'reportes.html');
+    if (navServicios) {
+        navServicios.classList.toggle('active', currentPath === 'servicios.html');
     }
     if (navPagos) {
         navPagos.classList.toggle('active', currentPath === 'pagos.html');

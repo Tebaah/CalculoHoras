@@ -16,6 +16,7 @@ import {
     deletePagoConAsociados,
 } from '../../store/storageManager.js';
 import { formatCurrency, formatHours, formatHourRate } from '../../core/utils/formatUtils.js';
+import { normalizarTramosPorRecargo } from '../../core/utils/hoursUtils.js';
 
 // Elementos del DOM
 const historialPagosBody = document.getElementById('historialPagosBody');
@@ -45,14 +46,12 @@ function getHorasPago(record) {
     });
     const recargoPorcentaje = items.length > 0 && conRecargo.length === 0 ? 0 : 30;
 
-    if (recargoPorcentaje <= 0) {
-        return {
-            horasSinRecargo: horasSinRecargo + horasConRecargo,
-            horasConRecargo: 0,
-        };
-    }
+    const tramos = normalizarTramosPorRecargo(horasSinRecargo, horasConRecargo, recargoPorcentaje);
 
-    return { horasSinRecargo, horasConRecargo };
+    return {
+        horasSinRecargo: tramos.sinRecargo,
+        horasConRecargo: tramos.conRecargo,
+    };
 }
 
 /**
@@ -182,7 +181,7 @@ function handleViewDetail(indice) {
     if (totales.detalleItems && totales.detalleItems.length > 0) {
         html += '<h3>Detalle por elemento</h3>';
         totales.detalleItems.forEach((det) => {
-            const tipoLabel = det.tipo === 'orden' ? '📋 Orden' : '📊 Reporte';
+            const tipoLabel = '🧾 Servicio';
             const detRecargo = det.recargoPorcentaje !== undefined && det.recargoPorcentaje !== null
                 ? det.recargoPorcentaje
                 : 30;
