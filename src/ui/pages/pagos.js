@@ -45,7 +45,7 @@ const totalMontoEl = document.getElementById('totalMonto');
 const labelSinRecargoEl = document.getElementById('labelSinRecargo');
 const labelConRecargoEl = document.getElementById('labelConRecargo');
 const rowConRecargoEl = document.getElementById('rowConRecargo');
-const pagoDetalleItemsEl = document.getElementById('pagoDetalleItems');
+
 
 // Elementos de costo dinámico
 const costoTipoEl = document.getElementById('costoTipo');
@@ -274,26 +274,12 @@ function actualizarItemsList() {
 
     let html = '';
     itemsAgregados.forEach((item) => {
-        const tipoIcono = '🧾';
-        const tipoLabel = 'Servicio';
-
         html += '<div class="pago-item-card">';
         html += '<div class="pago-item-header">';
-        html += '<span class="pago-item-title">' + tipoIcono + ' ' + tipoLabel + ' #' + item.indice + '</span>';
+        html += '<span class="pago-item-title">🧾 Servicio #' + item.indice + '</span>';
         html += '<button type="button" class="btn-remove-item" data-indice="' + item.indice + '" title="Eliminar">🗑️</button>';
         html += '</div>';
-        html += '<div class="pago-item-body">';
-
-        // Mostrar cada día con sus horas (solo total de horas por día)
-        const dias = obtenerDiasReporte(item);
-        dias.forEach((dia) => {
-            html += '<div class="result-item result-item--day">';
-            html += '<span class="result-label">' + dia.nombre + (dia.fecha !== '—' ? ' (' + dia.fecha + ')' : '') + '</span>';
-            html += '<span class="result-value">' + dia.horaInicio + ' - ' + dia.horaTermino + ' | Colación: ' + dia.colacion + ' min | ' + formatHours(dia.horasTotales) + '</span>';
-            html += '</div>';
-        });
-
-        html += '</div></div>';
+        html += '</div>';
     });
 
     itemsContainer.innerHTML = html;
@@ -455,47 +441,25 @@ function calcularTotales() {
     }
 
     const resumen = calcularResumenPago();
-    const detalleItems = [...resumen.grouped.values()];
-
-    // Renderizar desglose agrupado (formato 3 columnas: concepto | horas | monto)
-    let detalleHtml = '';
-    detalleItems.forEach((item) => {
-        const montoSR = item.horasSinRecargo * item.valorHora;
-        const montoCR = item.horasConRecargo * item.valorConRecargo;
-        detalleHtml += '<div class="result-item result-item--3col" style="border-bottom:1px dashed var(--color-border-light,#e2e8ed);padding:6px 0;">';
-        detalleHtml += '<span class="result-label">Valor horas sin recargo ($' + formatHourRate(item.valorHora) + ')</span>';
-        detalleHtml += '<span class="result-value">' + formatHours(item.horasSinRecargo) + '</span>';
-        detalleHtml += '<span class="result-value result-value--calc">' + formatCurrency(montoSR) + '</span>';
-        detalleHtml += '</div>';
-        if (item.horasConRecargo > 0) {
-            detalleHtml += '<div class="result-item result-item--3col" style="border-bottom:1px dashed var(--color-border-light,#e2e8ed);padding:6px 0;">';
-            detalleHtml += '<span class="result-label">Valor horas con recargo ($' + formatHourRate(item.valorConRecargo) + ')</span>';
-            detalleHtml += '<span class="result-value">' + formatHours(item.horasConRecargo) + '</span>';
-            detalleHtml += '<span class="result-value result-value--calc">' + formatCurrency(montoCR) + '</span>';
-            detalleHtml += '</div>';
-        }
-    });
-    pagoDetalleItemsEl.innerHTML = detalleHtml;
+    const grupos = [...resumen.grouped.values()];
 
     diasIncluidosEl.textContent = itemsAgregados.length + ' elemento(s)';
 
-    const totalSinRecargo = detalleItems.reduce((sum, d) => sum + d.horasSinRecargo, 0);
-    const totalConRecargo = detalleItems.reduce((sum, d) => sum + d.horasConRecargo, 0);
+    const totalSinRecargo = grupos.reduce((sum, g) => sum + g.horasSinRecargo, 0);
+    const totalConRecargo = grupos.reduce((sum, g) => sum + g.horasConRecargo, 0);
 
     // Detectar si hay valores hora distintos entre ítems
-    const valoresUnicos = [...new Set(detalleItems.map(d => d.valorHora))];
+    const valoresUnicos = [...new Set(grupos.map((g) => g.valorHora))];
     if (labelSinRecargoEl) {
-        if (valoresUnicos.length === 1 && valoresUnicos[0] > 0) {
-            labelSinRecargoEl.textContent = 'Total horas sin recargo ($' + formatHourRate(valoresUnicos[0]) + '/h)';
-        } else {
-            labelSinRecargoEl.textContent = 'Total horas sin recargo (valores variables)';
-        }
+        labelSinRecargoEl.textContent = valoresUnicos.length === 1 && valoresUnicos[0] > 0
+            ? 'Total horas sin recargo (' + formatHourRate(valoresUnicos[0]) + ')'
+            : 'Total horas sin recargo (valores variables)';
     }
     if (labelConRecargoEl) {
         if (valoresUnicos.length === 1 && valoresUnicos[0] > 0) {
             const recargoUnico = getRecargoPorcentaje(itemsAgregados[0]);
             const vcr = valoresUnicos[0] * getMultiplicadorRecargo(recargoUnico);
-            labelConRecargoEl.textContent = 'Total horas con recargo ($' + formatHourRate(vcr) + '/h)';
+            labelConRecargoEl.textContent = 'Total horas con recargo (' + formatHourRate(vcr) + ')';
         } else {
             labelConRecargoEl.textContent = 'Total horas con recargo (valores variables)';
         }
@@ -519,7 +483,7 @@ function calcularTotales() {
         const cantidad = costo.cantidad || 1;
         const totalCosto = valorUnitario * cantidad;
         costosHtml += '<div class="result-item result-item--3col result-item--costo">';
-        costosHtml += '<span class="result-label">' + tipoTexto + ' ($' + formatHourRate(valorUnitario) + '/u)</span>';
+        costosHtml += '<span class="result-label">' + tipoTexto + ' (' + formatCurrency(valorUnitario) + '/u)</span>';
         costosHtml += '<span class="result-value result-value--costo-qty">' + cantidad + ' u</span>';
         costosHtml += '<span class="result-value result-value--costo-total">' + formatCurrency(totalCosto) + '</span>';
         costosHtml += '</div>';
