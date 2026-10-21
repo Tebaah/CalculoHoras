@@ -26,6 +26,10 @@ TestResults.xml
 
 ### OpenCode ###
 AGENTS.md
+.opencode/
+
+### GitHub local ###
+.github/
 
 ### Node.js ###
 node_modules/
