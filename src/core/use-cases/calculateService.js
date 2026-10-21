@@ -7,8 +7,9 @@
  * - Monto total del servicio
  */
 
-import { RANGOS, MULTIPLICADORES, TIPOS_DIA, getMultiplicadorRecargo } from '../constants.js';
+import { RANGOS_POR_DIA, TIPOS_DIA, getMultiplicadorRecargo } from '../constants.js';
 import { calculateMinutesInRange, minutesToHours } from '../utils/timeUtils.js';
+import { normalizarTramosPorRecargo } from '../utils/hoursUtils.js';
 
 /**
  * Calcula la distribución de minutos trabajados según el tipo de día
@@ -22,29 +23,12 @@ function calculateServiceMinutes(startMin, endMin, tipoDia) {
     const cruzaMedianoche = endMin < startMin;
     const totalMinutos = cruzaMedianoche ? (endMin + 1440 - startMin) : (endMin - startMin);
 
-    let minConRecargo, minSinRecargo;
-
-    if (tipoDia === TIPOS_DIA.NORMAL) {
-        minConRecargo = calculateMinutesInRange(
-            startMin, endMin,
-            RANGOS.CON_RECARGO.inicio,
-            RANGOS.CON_RECARGO.fin
-        );
-        minSinRecargo = totalMinutos - minConRecargo;
-
-    } else if (tipoDia === TIPOS_DIA.SABADO) {
-        minConRecargo = calculateMinutesInRange(
-            startMin, endMin,
-            13 * 60,  // 13:00
-            7 * 60    // 07:00 (cruza medianoche)
-        );
-        minSinRecargo = totalMinutos - minConRecargo;
-
-    } else {
-        // Domingo/Festivo: todo el tiempo es con recargo
-        minConRecargo = totalMinutos;
-        minSinRecargo = 0;
-    }
+    const config = RANGOS_POR_DIA[tipoDia] || RANGOS_POR_DIA[TIPOS_DIA.NORMAL];
+    const minConRecargo = config.servicioConRecargo.reduce(
+        (total, rango) => total + calculateMinutesInRange(startMin, endMin, rango.inicio, rango.fin),
+        0
+    );
+    const minSinRecargo = Math.max(0, totalMinutos - minConRecargo);
 
     return { minSinRecargo, minConRecargo, totalMinutos };
 }
@@ -84,16 +68,12 @@ function applyColacion(minSinRecargo, minConRecargo, minColacion, colacionTramo)
  * @returns {boolean} true si la hora inicial esta en rango sin recargo
  */
 function isStartInSinRecargo(startMin, tipoDia) {
-    if (tipoDia === TIPOS_DIA.DOMINGO_FESTIVO) {
-        return false;
-    }
+    const config = RANGOS_POR_DIA[tipoDia] || RANGOS_POR_DIA[TIPOS_DIA.NORMAL];
+    const rango = config.inicioSinRecargo;
 
-    if (tipoDia === TIPOS_DIA.SABADO) {
-        return startMin >= 7 * 60 && startMin < 13 * 60;
-    }
+    if (!rango) return false;
 
-    // Día normal
-    return startMin >= RANGOS.SIN_RECARGO.inicio && startMin < RANGOS.SIN_RECARGO.fin;
+    return startMin >= rango.inicio && startMin < rango.fin;
 }
 
 /**
@@ -193,17 +173,16 @@ export function calculateService(params) {
         startMin
     );
 
-    // 4. Si no hay recargo (0%), todas las horas se consideran sin recargo
-    let minutosSinRecargo = adjusted.minSinRecargo;
-    let minutosConRecargo = adjusted.minConRecargo;
-    if (recargoPorcentaje <= 0) {
-        minutosSinRecargo += minutosConRecargo;
-        minutosConRecargo = 0;
-    }
+    // 4. Si no hay recargo (0%), todo el tiempo se considera sin recargo
+    const tramos = normalizarTramosPorRecargo(
+        adjusted.minSinRecargo,
+        adjusted.minConRecargo,
+        recargoPorcentaje
+    );
 
     // 5. Convertir a horas
-    const horasSinRecargo = parseFloat(minutesToHours(minutosSinRecargo));
-    const horasConRecargo = parseFloat(minutesToHours(minutosConRecargo));
+    const horasSinRecargo = parseFloat(minutesToHours(tramos.sinRecargo));
+    const horasConRecargo = parseFloat(minutesToHours(tramos.conRecargo));
 
     // 6. Calcular montos con recargo dinámico
     const multiplicadorRecargo = getMultiplicadorRecargo(recargoPorcentaje);

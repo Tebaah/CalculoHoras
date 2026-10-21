@@ -15,8 +15,9 @@ import {
     getTiposCosto,
 } from '../../store/configManager.js';
 import { formatCurrency, formatHours, formatHourRate } from '../../core/utils/formatUtils.js';
-import { NOMBRES_DIAS, TIPOS_COSTO_POR_DEFECTO } from '../../core/constants.js';
-import { timeToMinutes } from '../../core/utils/timeUtils.js';
+import { NOMBRES_DIAS, TIPOS_COSTO_POR_DEFECTO, getMultiplicadorRecargo } from '../../core/constants.js';
+import { duracionMinutos } from '../../core/utils/timeUtils.js';
+import { normalizarTramosPorRecargo, getRecargoPorcentaje } from '../../core/utils/hoursUtils.js';
 import { formatFechaLarga, parseISODate } from '../../core/utils/dateUtils.js';
 
 // Elementos del DOM
@@ -73,7 +74,7 @@ let editandoIndice = null;
 function renderSearchResult(record) {
     let html = '<div class="search-result-card">';
     html += '<div class="search-result-header">';
-    const tipoTexto = record.tipo === 'orden' ? '📋 Orden de Trabajo' : '📊 Reporte Semanal';
+    const tipoTexto = '🧾 Servicio';
     html += '<span class="search-result-type">' + tipoTexto + '</span>';
     html += '<span class="search-result-indice">#' + record.indice + '</span>';
     html += '</div>';
@@ -186,16 +187,7 @@ function handleRemoveItem(indice) {
  * (compatibilidad con registros antiguos que no guardan horas por día)
  */
 function calcularHorasDesdeHorario(horaInicio, horaTermino) {
-    if (!horaInicio || !horaTermino) return 0;
-    try {
-        const startMin = timeToMinutes(horaInicio);
-        const endMin = timeToMinutes(horaTermino);
-        const cruzaMedianoche = endMin < startMin;
-        const totalMinutos = cruzaMedianoche ? (endMin + 1440 - startMin) : (endMin - startMin);
-        return totalMinutos / 60;
-    } catch (e) {
-        return 0;
-    }
+    return duracionMinutos(horaInicio, horaTermino) / 60;
 }
 
 /**
@@ -244,13 +236,11 @@ function obtenerDiasReporte(item) {
  * @returns {{ horasSinRecargo: number, horasConRecargo: number }}
  */
 function getHorasItem(item) {
-    const recargo = item.recargoPorcentaje !== undefined && item.recargoPorcentaje !== null
-        ? item.recargoPorcentaje
-        : 30;
     let horasSinRecargo;
     let horasConRecargo;
 
     if (item.tipo === 'orden') {
+        // Compatibilidad con registros antiguos (la migración los convierte)
         horasSinRecargo = item.horasSinRecargo || 0;
         horasConRecargo = item.horasConRecargo || 0;
     } else {
@@ -259,14 +249,16 @@ function getHorasItem(item) {
         horasConRecargo = totales.horasConRecargo || 0;
     }
 
-    if (recargo <= 0) {
-        return {
-            horasSinRecargo: horasSinRecargo + horasConRecargo,
-            horasConRecargo: 0,
-        };
-    }
+    const tramos = normalizarTramosPorRecargo(
+        horasSinRecargo,
+        horasConRecargo,
+        getRecargoPorcentaje(item)
+    );
 
-    return { horasSinRecargo, horasConRecargo };
+    return {
+        horasSinRecargo: tramos.sinRecargo,
+        horasConRecargo: tramos.conRecargo,
+    };
 }
 
 function actualizarItemsList() {
@@ -282,8 +274,8 @@ function actualizarItemsList() {
 
     let html = '';
     itemsAgregados.forEach((item) => {
-        const tipoIcono = item.tipo === 'orden' ? '📋' : '📊';
-        const tipoLabel = item.tipo === 'orden' ? 'Orden de Trabajo' : 'Reporte Semanal';
+        const tipoIcono = '🧾';
+        const tipoLabel = 'Servicio';
 
         html += '<div class="pago-item-card">';
         html += '<div class="pago-item-header">';
@@ -395,54 +387,75 @@ function handleAddCosto() {
     calcularTotales();
 }
 
+/**
+ * Calcula el resumen económico del estado de pago: agrupa los elementos por
+ * valor hora, suma las horas, incorpora los costos adicionales y obtiene el
+ * neto, el IVA y el total. Es la fuente única usada por la vista, el PDF y el
+ * correo al cliente.
+ *
+ * @returns {{
+ *   grouped: Map<number, Object>,
+ *   montoSinRecargo: number,
+ *   montoConRecargo: number,
+ *   totalCostosAdicionales: number,
+ *   montoNeto: number,
+ *   iva: number,
+ *   total: number,
+ * }}
+ */
+function calcularResumenPago() {
+    const grouped = new Map();
+
+    itemsAgregados.forEach((item) => {
+        const vh = item.valorHora || 0;
+        const { horasSinRecargo, horasConRecargo } = getHorasItem(item);
+
+        if (!grouped.has(vh)) {
+            grouped.set(vh, {
+                valorHora: vh,
+                valorConRecargo: vh * getMultiplicadorRecargo(getRecargoPorcentaje(item)),
+                horasSinRecargo: 0,
+                horasConRecargo: 0,
+            });
+        }
+
+        const group = grouped.get(vh);
+        group.horasSinRecargo += horasSinRecargo;
+        group.horasConRecargo += horasConRecargo;
+    });
+
+    let montoSinRecargo = 0;
+    let montoConRecargo = 0;
+    grouped.forEach((group) => {
+        montoSinRecargo += group.horasSinRecargo * group.valorHora;
+        montoConRecargo += group.horasConRecargo * group.valorConRecargo;
+    });
+
+    const totalCostosAdicionales = costosAgregados
+        .reduce((sum, costo) => sum + ((costo.cantidad || 1) * (costo.valor || 0)), 0);
+
+    const montoNeto = montoSinRecargo + montoConRecargo + totalCostosAdicionales;
+    const iva = montoNeto * 0.19;
+
+    return {
+        grouped,
+        montoSinRecargo,
+        montoConRecargo,
+        totalCostosAdicionales,
+        montoNeto,
+        iva,
+        total: montoNeto + iva,
+    };
+}
+
 function calcularTotales() {
     if (itemsAgregados.length === 0) {
         renderCorreoPreview();
         return;
     }
 
-    // Agrupar items por valorHora (items con mismo valor hora se suman)
-    const groupedMap = new Map();
-    itemsAgregados.forEach((item) => {
-        const vh = item.valorHora || 0;
-        if (!groupedMap.has(vh)) {
-            groupedMap.set(vh, {
-                valorHora: vh,
-                valorConRecargo: vh * (1 + ((item.recargoPorcentaje || 30) / 100)),
-                horasSinRecargo: 0,
-                horasConRecargo: 0,
-                monto: 0,
-            });
-        }
-        const group = groupedMap.get(vh);
-        const { horasSinRecargo: hSR, horasConRecargo: hCR } = getHorasItem(item);
-        group.horasSinRecargo += hSR;
-        group.horasConRecargo += hCR;
-        group.monto += item.tipo === 'orden'
-            ? (item.montoTotal || 0)
-            : ((item.totales || {}).montoTotal || 0);
-    });
-
-    let totalSinRecargo = 0;
-    let totalConRecargo = 0;
-    let totalMonto = 0;
-    const detalleItems = [];
-    groupedMap.forEach((group) => {
-        totalSinRecargo += group.horasSinRecargo;
-        totalConRecargo += group.horasConRecargo;
-        totalMonto += group.monto;
-        detalleItems.push({
-            valorHora: group.valorHora,
-            valorConRecargo: group.valorConRecargo,
-            horasSinRecargo: group.horasSinRecargo,
-            horasConRecargo: group.horasConRecargo,
-            monto: group.monto,
-        });
-    });
-
-    // Sumar costos adicionales al monto total (cantidad × valor unitario)
-    const totalCostos = costosAgregados.reduce((sum, c) => sum + (c.cantidad * c.valor), 0);
-    totalMonto += totalCostos;
+    const resumen = calcularResumenPago();
+    const detalleItems = [...resumen.grouped.values()];
 
     // Renderizar desglose agrupado (formato 3 columnas: concepto | horas | monto)
     let detalleHtml = '';
@@ -466,9 +479,8 @@ function calcularTotales() {
 
     diasIncluidosEl.textContent = itemsAgregados.length + ' elemento(s)';
 
-    // Calcular montos reales sumando cada ítem con su propio valor hora
-    const montoSinRecargo = detalleItems.reduce((sum, d) => sum + (d.horasSinRecargo * d.valorHora), 0);
-    const montoConRecargo = detalleItems.reduce((sum, d) => sum + (d.horasConRecargo * d.valorConRecargo), 0);
+    const totalSinRecargo = detalleItems.reduce((sum, d) => sum + d.horasSinRecargo, 0);
+    const totalConRecargo = detalleItems.reduce((sum, d) => sum + d.horasConRecargo, 0);
 
     // Detectar si hay valores hora distintos entre ítems
     const valoresUnicos = [...new Set(detalleItems.map(d => d.valorHora))];
@@ -481,8 +493,8 @@ function calcularTotales() {
     }
     if (labelConRecargoEl) {
         if (valoresUnicos.length === 1 && valoresUnicos[0] > 0) {
-            const recargoUnico = itemsAgregados[0]?.recargoPorcentaje || 30;
-            const vcr = valoresUnicos[0] * (1 + (recargoUnico / 100));
+            const recargoUnico = getRecargoPorcentaje(itemsAgregados[0]);
+            const vcr = valoresUnicos[0] * getMultiplicadorRecargo(recargoUnico);
             labelConRecargoEl.textContent = 'Total horas con recargo ($' + formatHourRate(vcr) + '/h)';
         } else {
             labelConRecargoEl.textContent = 'Total horas con recargo (valores variables)';
@@ -495,9 +507,9 @@ function calcularTotales() {
 
     totalSinRecargoEl.textContent = formatHours(totalSinRecargo);
     totalConRecargoEl.textContent = formatHours(totalConRecargo);
-    totalSinRecargoCalcEl.textContent = formatCurrency(montoSinRecargo);
-    totalConRecargoCalcEl.textContent = formatCurrency(montoConRecargo);
-    totalMontoEl.textContent = formatCurrency(totalMonto);
+    totalSinRecargoCalcEl.textContent = formatCurrency(resumen.montoSinRecargo);
+    totalConRecargoCalcEl.textContent = formatCurrency(resumen.montoConRecargo);
+    totalMontoEl.textContent = formatCurrency(resumen.montoNeto);
 
     // Mostrar costos adicionales en resultados
     let costosHtml = '';
@@ -554,7 +566,6 @@ function handleSavePago() {
     try {
         let totalSinRecargo = 0;
         let totalConRecargo = 0;
-        let totalMonto = 0;
         const detalleItems = [];
 
         itemsAgregados.forEach((item) => {
@@ -564,11 +575,8 @@ function handleSavePago() {
                 : ((item.totales || {}).montoTotal || 0);
             totalSinRecargo += hSR;
             totalConRecargo += hCR;
-            totalMonto += montoItem;
-            const recargoItem = item.recargoPorcentaje !== undefined && item.recargoPorcentaje !== null
-                ? item.recargoPorcentaje
-                : 30;
-            const valorConRecargo = (item.valorHora || 0) * (1 + (recargoItem / 100));
+            const recargoItem = getRecargoPorcentaje(item);
+            const valorConRecargo = (item.valorHora || 0) * getMultiplicadorRecargo(recargoItem);
             detalleItems.push({
                 indice: item.indice,
                 tipo: item.tipo,
@@ -581,9 +589,7 @@ function handleSavePago() {
             });
         });
 
-        // Sumar costos adicionales al monto total (cantidad × valor unitario)
-        const totalCostos = costosAgregados.reduce((sum, c) => sum + (c.cantidad * c.valor), 0);
-        totalMonto += totalCostos;
+        const resumen = calcularResumenPago();
 
         const record = {
             indice,
@@ -593,7 +599,7 @@ function handleSavePago() {
             totales: {
                 totalSinRecargo,
                 totalConRecargo,
-                totalMonto,
+                totalMonto: resumen.montoNeto,
                 detalleItems,
             },
         };
@@ -617,64 +623,6 @@ function handleSavePago() {
         errorDiv.textContent = '\u274C ' + error.message;
         errorDiv.classList.add('show');
     }
-}
-
-/**
- * Calcula los montos del estado de pago actual: agrupa los elementos por valor
- * hora, suma los costos adicionales y obtiene el neto, el IVA y el total.
- * Es la base del resumen del comprobante de liquidación y del correo al cliente.
- *
- * @returns {{
- *   grouped: Map<number, Object>,
- *   montoSinRecargo: number,
- *   montoConRecargo: number,
- *   totalCostosAdicionales: number,
- *   montoNeto: number,
- *   iva: number,
- *   total: number,
- * }}
- */
-function calcularMontosPago() {
-    const grouped = new Map();
-
-    itemsAgregados.forEach((item) => {
-        const vh = item.valorHora || 0;
-        if (!grouped.has(vh)) {
-            grouped.set(vh, {
-                valorHora: vh,
-                valorConRecargo: vh * (1 + ((item.recargoPorcentaje || 30) / 100)),
-                horasSinRecargo: 0,
-                horasConRecargo: 0,
-            });
-        }
-        const group = grouped.get(vh);
-        const { horasSinRecargo: hSR, horasConRecargo: hCR } = getHorasItem(item);
-        group.horasSinRecargo += hSR;
-        group.horasConRecargo += hCR;
-    });
-
-    let montoSinRecargo = 0;
-    let montoConRecargo = 0;
-    grouped.forEach((group) => {
-        montoSinRecargo += group.horasSinRecargo * group.valorHora;
-        montoConRecargo += group.horasConRecargo * group.valorConRecargo;
-    });
-
-    const totalCostosAdicionales = costosAgregados
-        .reduce((sum, costo) => sum + ((costo.cantidad || 1) * (costo.valor || 0)), 0);
-
-    const montoNeto = montoSinRecargo + montoConRecargo + totalCostosAdicionales;
-    const iva = montoNeto * 0.19;
-
-    return {
-        grouped,
-        montoSinRecargo,
-        montoConRecargo,
-        totalCostosAdicionales,
-        montoNeto,
-        iva,
-        total: montoNeto + iva,
-    };
 }
 
 /**
@@ -937,9 +885,7 @@ function handlePrintPDF() {
 
     // ══════ DETALLE POR ÍTEM ═══════════════════
     itemsAgregados.forEach((item) => {
-        const tipoLabel = item.tipo === 'orden'
-            ? 'Orden de Trabajo'
-            : 'Reporte Semanal';
+        const tipoLabel = 'Servicio';
         html += '<div class="item-section">';
         html += '<div class="item-title">' + tipoLabel + ' — Índice ' + item.indice + '</div>';
 
@@ -970,7 +916,7 @@ function handlePrintPDF() {
         montoNeto,
         iva,
         total,
-    } = calcularMontosPago();
+    } = calcularResumenPago();
 
     // ══════ RESUMEN ════════════════════════════
     html += '<div class="totals">';
@@ -1092,32 +1038,17 @@ function formatearPeriodoServicio(fechas) {
 }
 
 /**
- * Redacta la lista de documentos que componen el estado de pago:
- * órdenes de trabajo y reportes semanales.
+ * Redacta la lista de servicios que componen el estado de pago.
  *
- * @returns {string} Ej: "la orden de trabajo OT 120 y el reporte 500"
+ * @returns {string} Ej: "el servicio 120" | "los servicios 120, 121"
  */
 function formatearDocumentosPago() {
-    const ordenes = itemsAgregados
-        .filter((item) => item.tipo === 'orden')
-        .map((item) => 'OT ' + item.indice);
-    const reportes = itemsAgregados
-        .filter((item) => item.tipo !== 'orden')
-        .map((item) => item.indice);
+    const servicios = itemsAgregados.map((item) => item.indice);
 
-    const textoOrdenes = ordenes.length === 1
-        ? 'la orden de trabajo ' + ordenes[0]
-        : 'las órdenes de trabajo ' + ordenes.join(', ');
-    const textoReportes = reportes.length === 1
-        ? 'el reporte ' + reportes[0]
-        : 'los reportes ' + reportes.join(', ');
+    if (servicios.length === 0) return 'los documentos';
+    if (servicios.length === 1) return 'el servicio ' + servicios[0];
 
-    if (ordenes.length > 0 && reportes.length > 0) {
-        return textoOrdenes + ' y ' + textoReportes;
-    }
-    if (ordenes.length > 0) return textoOrdenes;
-    if (reportes.length > 0) return textoReportes;
-    return 'los documentos';
+    return 'los servicios ' + servicios.join(', ');
 }
 
 /**
@@ -1133,7 +1064,7 @@ function generarTextoCorreo() {
     const tonelaje = (tonelajeInput ? tonelajeInput.value : '').trim() || '[tonelaje]';
     const direccion = (direccionInput ? direccionInput.value : '').trim() || '[direccion]';
     const periodo = formatearPeriodoServicio(obtenerFechasPago());
-    const { montoNeto } = calcularMontosPago();
+    const { montoNeto } = calcularResumenPago();
 
     const servicio = periodo
         ? 'servicio de grúa de ' + tonelaje + ' toneladas realizado ' + periodo + ' en ' + direccion

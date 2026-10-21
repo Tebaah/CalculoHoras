@@ -1,74 +1,25 @@
 /**
- * calculatorActions.js - Acciones permitidas sobre el estado de la calculadora
+ * calculatorActions.js - Acciones de cálculo de servicios
+ *
+ * Envuelve los casos de uso del dominio y actualiza el store.
+ * Un servicio puede tener una o varias jornadas; el cálculo es el mismo.
  */
 
 import { store } from '../store.js';
-import { calculateDay } from '../../core/use-cases/calculateDay.js';
-import { WorkDay } from '../../core/entities/workDay.js';
-import { getMultiplicadorRecargo } from '../../core/constants.js';
+import { calculatePeriod } from '../../core/use-cases/calculatePeriod.js';
 
 /**
- * Ejecuta el cálculo completo de una orden de trabajo (un día)
+ * Ejecuta el cálculo completo de un servicio (uno o más días)
  * y actualiza el store con el resultado.
  *
- * @param {Object} formData - Datos del formulario
- * @returns {Object} Resultado del cálculo
- */
-export function calculateSingleDay(formData) {
-    const workDay = new WorkDay({
-        ...formData,
-    });
-
-    const result = calculateDay(workDay, formData.valorHora);
-
-    const multiplicadorRecargo = getMultiplicadorRecargo(formData.recargoPorcentaje || 30);
-
-    store.setState({
-        lastCalculation: {
-            ...result,
-            tipoDia: formData.tipoDia,
-            valorHora: formData.valorHora,
-            valorSinRecargo: formData.valorHora,
-            valorConRecargo: formData.valorHora * multiplicadorRecargo,
-            recargoPorcentaje: formData.recargoPorcentaje || 30,
-        },
-    });
-
-    return result;
-}
-
-/**
- * Ejecuta el cálculo completo del reporte semanal
- * y actualiza el store con el resultado.
- *
- * @param {Array<Object>} daysData - Arreglo con datos de cada día
+ * @param {Array<Object>} daysData - Datos de cada jornada
  * @param {number} valorHora - Valor de la hora normal
- * @returns {Object} Totales del reporte semanal
+ * @returns {Object} Resultado del servicio (detalle por día + totales)
  */
-export function calculateWeeklyReport(daysData, valorHora) {
-    const results = daysData.map((dayData) => {
-        const workDay = new WorkDay({ ...dayData, valorHora });
-        return calculateDay(workDay, valorHora);
-    });
+export function calculateServicePeriod(daysData, valorHora) {
+    const service = calculatePeriod(daysData, valorHora);
 
-    // Calcular totales
-    const totalSinRecargo = results.reduce((sum, r) => sum + r.horasSinRecargo, 0);
-    const totalConRecargo = results.reduce((sum, r) => sum + r.horasConRecargo, 0);
-    const totalNormalesOp = results.reduce((sum, r) => sum + r.horasNormalesOp, 0);
-    const totalDoblesOp = results.reduce((sum, r) => sum + r.horasDobles, 0);
-    const totalMonto = results.reduce((sum, r) => sum + r.montoTotal, 0);
+    store.setState({ lastService: service });
 
-    const report = {
-        results,
-        totalSinRecargo,
-        totalConRecargo,
-        totalNormalesOp,
-        totalDoblesOp,
-        totalMonto,
-        daysCount: results.length,
-    };
-
-    store.setState({ lastReport: report });
-
-    return report;
+    return service;
 }

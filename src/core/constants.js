@@ -1,41 +1,50 @@
 /**
  * constants.js - Constantes de dominio
- * Rangos horarios, multiplicadores y configuraciones globales
+ * Rangos horarios por tipo de día y configuraciones globales
  */
 
 import { formatCurrency } from './utils/formatUtils.js';
-
-// Rangos horarios en minutos desde medianoche
-export const RANGOS = {
-    SIN_RECARGO: {
-        inicio: 7 * 60,   // 07:00
-        fin: 18 * 60,     // 18:00
-    },
-    CON_RECARGO: {
-        inicio: 18 * 60,  // 18:00
-        fin: 7 * 60,      // 07:00 (cruza medianoche)
-    },
-    NORMAL_OPERADOR: {
-        inicio: 7 * 60,   // 07:00
-        fin: 19 * 60,     // 19:00
-    },
-    DOBLES_OPERADOR: {
-        inicio: 19 * 60,  // 19:00
-        fin: 7 * 60,      // 07:00 (cruza medianoche)
-    },
-};
-
-// Multiplicadores de recargo
-export const MULTIPLICADORES = {
-    RECARGO: 1.30,        // 30% de recargo (defecto)
-    DOBLE: 2.0,           // 100% (doble)
-};
 
 // Tipos de día
 export const TIPOS_DIA = {
     NORMAL: 'normal',
     SABADO: 'sabado',
     DOMINGO_FESTIVO: 'domingoFestivo',
+};
+
+// ── Rangos horarios por tipo de día ────────────────────────────
+// Fuente única de verdad para el cálculo de servicio y de operador.
+// Los rangos con fin menor que el inicio cruzan medianoche.
+export const RANGOS_POR_DIA = {
+    [TIPOS_DIA.NORMAL]: {
+        servicioConRecargo: [
+            { inicio: 18 * 60, fin: 7 * 60 }, // 18:00 - 07:00
+        ],
+        operadorDobles: [
+            { inicio: 0, fin: 7 * 60 },        // 00:00 - 07:00
+            { inicio: 19 * 60, fin: 24 * 60 }, // 19:00 - 24:00
+        ],
+        inicioSinRecargo: { inicio: 7 * 60, fin: 18 * 60 },
+    },
+    [TIPOS_DIA.SABADO]: {
+        servicioConRecargo: [
+            { inicio: 13 * 60, fin: 7 * 60 }, // 13:00 - 07:00
+        ],
+        operadorDobles: [
+            { inicio: 0, fin: 7 * 60 },        // 00:00 - 07:00
+            { inicio: 13 * 60, fin: 24 * 60 }, // 13:00 - 24:00
+        ],
+        inicioSinRecargo: { inicio: 7 * 60, fin: 13 * 60 },
+    },
+    [TIPOS_DIA.DOMINGO_FESTIVO]: {
+        servicioConRecargo: [
+            { inicio: 0, fin: 24 * 60 }, // todo el día
+        ],
+        operadorDobles: [
+            { inicio: 0, fin: 24 * 60 }, // todo el día
+        ],
+        inicioSinRecargo: null,
+    },
 };
 
 // ── Valores de hora normal ─────────────────────────────────────
@@ -378,7 +387,7 @@ export const NOMBRES_MESES = [
     'diciembre',
 ];
 
-// Configuración de los días del reporte semanal
+// Configuración de los días del servicio
 export const DIAS_REPORTE = [
     { id: 'lunes', nombre: 'Lunes', tipo: TIPOS_DIA.NORMAL },
     { id: 'martes', nombre: 'Martes', tipo: TIPOS_DIA.NORMAL },

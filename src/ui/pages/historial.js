@@ -7,6 +7,7 @@
 import { initSidebar } from '../components/sidebar.js';
 import { getRecordsSummary, getRecordDetail, deleteRecord, exportRecordsToJSON, importRecordsFromJSON } from '../../store/storageManager.js';
 import { formatCurrency, formatHours } from '../../core/utils/formatUtils.js';
+import { normalizarTramosPorRecargo } from '../../core/utils/hoursUtils.js';
 
 // Elementos del DOM
 const historialBody = document.getElementById('historialBody');
@@ -19,39 +20,22 @@ const importarBtn = document.getElementById('importarBtn');
 const fileInput = document.getElementById('fileInput');
 
 /**
- * Normaliza las horas de un registro según su porcentaje de recargo.
+ * Normaliza las horas de un servicio según su porcentaje de recargo.
  * Si el recargo es 0%, todas las horas se consideran sin recargo.
- * @param {Object} record - Registro (orden o reporte)
+ * @param {Object} record - Registro de servicio
  * @returns {{ horasSinRecargo: number, horasConRecargo: number }}
  */
 function getHorasRegistro(record) {
-    let horasSinRecargo;
-    let horasConRecargo;
-    let recargoPorcentaje;
+    const totales = record.totales || {};
+    const recargoPorcentaje = record.recargoPorcentaje !== undefined && record.recargoPorcentaje !== null
+        ? record.recargoPorcentaje
+        : 30;
 
-    if (record.tipo === 'orden') {
-        horasSinRecargo = record.horasSinRecargo || 0;
-        horasConRecargo = record.horasConRecargo || 0;
-        recargoPorcentaje = record.recargoPorcentaje !== undefined && record.recargoPorcentaje !== null
-            ? record.recargoPorcentaje
-            : 30;
-    } else {
-        const totales = record.totales || {};
-        horasSinRecargo = totales.horasSinRecargo || 0;
-        horasConRecargo = totales.horasConRecargo || 0;
-        recargoPorcentaje = record.recargoPorcentaje !== undefined && record.recargoPorcentaje !== null
-            ? record.recargoPorcentaje
-            : 30;
-    }
-
-    if (recargoPorcentaje <= 0) {
-        return {
-            horasSinRecargo: horasSinRecargo + horasConRecargo,
-            horasConRecargo: 0,
-        };
-    }
-
-    return { horasSinRecargo, horasConRecargo };
+    return normalizarTramosPorRecargo(
+        totales.horasSinRecargo || 0,
+        totales.horasConRecargo || 0,
+        recargoPorcentaje
+    );
 }
 
 /**
@@ -66,12 +50,7 @@ function renderTable(records) {
 
     let html = '';
     records.forEach((record) => {
-        let tipoLabel;
-        if (record.tipo === 'orden') {
-            tipoLabel = 'Orden';
-        } else {
-            tipoLabel = 'Reporte';
-        }
+        const tipoLabel = 'Servicio';
         const fecha = record.fecha || '—';
         const hSinRecargo = formatHours(record.horasSinRecargo || 0);
         const hConRecargo = formatHours(record.horasConRecargo || 0);
@@ -131,80 +110,42 @@ function handleViewDetail(indice) {
     const { horasSinRecargo: hSR, horasConRecargo: hCR } = getHorasRegistro(record);
     let html = '<h2>📄 Detalle del Registro #' + record.indice + '</h2>';
 
-    if (record.tipo === 'orden') {
-        html += '<div class="result-item">' +
-            '<span class="result-label">Tipo</span>' +
-            '<span class="result-value">Orden de Trabajo</span>' +
-            '</div>' +
-            '<div class="result-item">' +
-            '<span class="result-label">Fecha del servicio</span>' +
-            '<span class="result-value">' + (record.fecha || '—') + '</span>' +
-            '</div>' +
-            '<div class="result-item">' +
-            '<span class="result-label">Hora Inicio</span>' +
-            '<span class="result-value">' + (record.horaInicio || '—') + '</span>' +
-            '</div>' +
-            '<div class="result-item">' +
-            '<span class="result-label">Hora Término</span>' +
-            '<span class="result-value">' + (record.horaTermino || '—') + '</span>' +
-            '</div>' +
-            '<div class="result-item">' +
-            '<span class="result-label">Colación</span>' +
-            '<span class="result-value">' + (record.colacion || 0) + ' min</span>' +
-            '</div>' +
-            '<div class="result-item">' +
-            '<span class="result-label">Horas sin recargo</span>' +
-            '<span class="result-value">' + formatHours(hSR) + '</span>' +
-            '</div>' +
-            (hCR > 0
-                ? '<div class="result-item">' +
-                '<span class="result-label">Horas con recargo</span>' +
-                '<span class="result-value">' + formatHours(hCR) + '</span>' +
-                '</div>'
-                : '') +
-            '<div class="result-item total">' +
-            '<span class="result-label">Monto Total del Servicio</span>' +
-            '<span class="result-value">' + formatCurrency(record.montoTotal) + '</span>' +
-            '</div>';
-    } else {
-        // Reporte
-        const totales = record.totales || {};
-        html += '<div class="result-item">' +
-            '<span class="result-label">Tipo</span>' +
-            '<span class="result-value">Reporte Semanal</span>' +
-            '</div>' +
-            '<div class="result-item">' +
-            '<span class="result-label">Días incluidos</span>' +
-            '<span class="result-value">' + (record.dias ? record.dias.length : 0) + '</span>' +
-            '</div>';
+    const totales = record.totales || {};
+    html += '<div class="result-item">' +
+        '<span class="result-label">Tipo</span>' +
+        '<span class="result-value">Servicio</span>' +
+        '</div>' +
+        '<div class="result-item">' +
+        '<span class="result-label">Días incluidos</span>' +
+        '<span class="result-value">' + (record.dias ? record.dias.length : 0) + '</span>' +
+        '</div>';
 
-        // Mostrar cada día
-        if (record.dias && record.dias.length > 0) {
-            html += '<h3>Días del reporte</h3>';
-            record.dias.forEach((dia, i) => {
-                const nombreDia = dia.dia ? dia.dia.charAt(0).toUpperCase() + dia.dia.slice(1) : 'Día ' + (i + 1);
-                html += '<div class="result-item">' +
-                    '<span class="result-label">' + nombreDia + ' (' + (dia.fecha || '—') + ')</span>' +
-                    '<span class="result-value">' + (dia.horaInicio || '—') + ' - ' + (dia.horaTermino || '—') + ' | Col: ' + (dia.colacion || 0) + ' min</span>' +
-                    '</div>';
-            });
-        }
-
-        html += '<div class="result-item">' +
-            '<span class="result-label">Total horas sin recargo</span>' +
-            '<span class="result-value">' + formatHours(hSR) + '</span>' +
-            '</div>' +
-            (hCR > 0
-                ? '<div class="result-item">' +
-                '<span class="result-label">Total horas con recargo</span>' +
-                '<span class="result-value">' + formatHours(hCR) + '</span>' +
-                '</div>'
-                : '') +
-            '<div class="result-item total">' +
-            '<span class="result-label">Monto Total Semanal</span>' +
-            '<span class="result-value">' + formatCurrency(totales.montoTotal || 0) + '</span>' +
-            '</div>';
+    // Mostrar cada día
+    if (record.dias && record.dias.length > 0) {
+        html += '<h3>Días del servicio</h3>';
+        record.dias.forEach((dia, i) => {
+            const nombreDia = dia.dia ? dia.dia.charAt(0).toUpperCase() + dia.dia.slice(1) : 'Día ' + (i + 1);
+            html += '<div class="result-item">' +
+                '<span class="result-label">' + nombreDia + ' (' + (dia.fecha || '—') + ')</span>' +
+                '<span class="result-value">' + (dia.horaInicio || '—') + ' - ' + (dia.horaTermino || '—') + ' | Col: ' + (dia.colacion || 0) + ' min</span>' +
+                '</div>';
+        });
     }
+
+    html += '<div class="result-item">' +
+        '<span class="result-label">Total horas sin recargo</span>' +
+        '<span class="result-value">' + formatHours(hSR) + '</span>' +
+        '</div>' +
+        (hCR > 0
+            ? '<div class="result-item">' +
+            '<span class="result-label">Total horas con recargo</span>' +
+            '<span class="result-value">' + formatHours(hCR) + '</span>' +
+            '</div>'
+            : '') +
+        '<div class="result-item total">' +
+        '<span class="result-label">Monto Total del Servicio</span>' +
+        '<span class="result-value">' + formatCurrency(totales.montoTotal || 0) + '</span>' +
+        '</div>';
 
     detailContentDiv.innerHTML = html;
     detailResultsDiv.classList.add('show');
@@ -225,11 +166,7 @@ function handleEdit(indice) {
     // Usar sessionStorage para pasar los datos del registro a la otra página
     sessionStorage.setItem('editarRegistro', JSON.stringify(record));
 
-    if (record.tipo === 'orden') {
-        window.location.href = 'ordenes.html?editar=' + indice;
-    } else {
-        window.location.href = 'reportes.html?editar=' + indice;
-    }
+    window.location.href = 'servicios.html?editar=' + indice;
 }
 
 /**

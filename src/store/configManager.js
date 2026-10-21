@@ -4,9 +4,9 @@
  * Almacena preferencias del sistema:
  *  - Logo de empresa (URL)
  *  - Correlativo de estados de pago (número de inicio y siguiente a asignar)
- *  - Porcentajes de recargo disponibles en Órdenes de Trabajo y Reportes
- *  - Mínimos de horas disponibles en Órdenes de Trabajo y Reportes
- *  - Valores de hora normal disponibles en Órdenes de Trabajo y Reportes
+ *  - Porcentajes de recargo disponibles en Cálculo de Servicios
+ *  - Mínimos de horas disponibles en Cálculo de Servicios
+ *  - Valores de hora normal disponibles en Cálculo de Servicios
  *  - Tipos de costo disponibles en la página Estados de Pago
  */
 

@@ -16,8 +16,8 @@ export default defineConfig({
         rollupOptions: {
             input: {
                 index: resolve(__dirname, 'index.html'),
-                ordenes: resolve(__dirname, 'ordenes.html'),
-                reportes: resolve(__dirname, 'reportes.html'),
+                servicios: resolve(__dirname, 'servicios.html'),
+                reportes: resolve(__dirname, 'reportes.html'), // redirección legacy
                 pagos: resolve(__dirname, 'pagos.html'),
                 'historial-pagos': resolve(__dirname, 'historial-pagos.html'),
                 historial: resolve(__dirname, 'historial.html'),

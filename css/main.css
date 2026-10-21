@@ -26,7 +26,6 @@
 
 /* Pages */
 @import url('pages/home.css');
-@import url('pages/ordenes.css');
-@import url('pages/reportes.css');
+@import url('pages/servicios.css');
 @import url('pages/pagos.css');
 @import url('pages/configuracion.css');

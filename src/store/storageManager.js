@@ -5,13 +5,16 @@
  * usando localStorage con persistencia.
  */
 
+import { getDayId, parseISODate } from '../core/utils/dateUtils.js';
+import { normalizarTramosPorRecargo } from '../core/utils/hoursUtils.js';
+
 const STORAGE_KEY = 'calculoHoras_records';
 
 /**
- * Obtiene todos los registros almacenados
+ * Lee todos los registros almacenados sin aplicar migraciones
  * @returns {Array<Object>}
  */
-function getAllRecords() {
+function readRecords() {
     try {
         const data = localStorage.getItem(STORAGE_KEY);
         return data ? JSON.parse(data) : [];
@@ -19,6 +22,148 @@ function getAllRecords() {
         console.error('Error al leer registros:', error);
         return [];
     }
+}
+
+/**
+ * Convierte una orden de trabajo (un día) al formato de servicio unificado
+ * (tipo 'reporte' con un arreglo de días).
+ *
+ * @param {Object} orden
+ * @returns {Object} Registro de servicio
+ */
+function convertirOrdenAServicio(orden) {
+    const fecha = orden.fecha || '';
+    const fechaDate = parseISODate(fecha);
+    const dia = fechaDate ? getDayId(fechaDate) : '';
+    const horasSinRecargo = orden.horasSinRecargo || 0;
+    const horasConRecargo = orden.horasConRecargo || 0;
+    const recargoPorcentaje = orden.recargoPorcentaje !== undefined && orden.recargoPorcentaje !== null
+        ? orden.recargoPorcentaje
+        : 30;
+
+    return {
+        ...orden,
+        tipo: 'reporte',
+        valorHora: orden.valorHora || 0,
+        horasMinimas: orden.horasMinimas || 0,
+        recargoPorcentaje,
+        dias: [{
+            dia,
+            tipoDia: orden.tipoDia,
+            fecha,
+            horaInicio: orden.horaInicio || '',
+            horaTermino: orden.horaTermino || '',
+            colacion: orden.colacion || 0,
+            colacionTramo: orden.colacionTramo || 'sinRecargo',
+            horasSinRecargo,
+            horasConRecargo,
+            horasTotales: horasSinRecargo + horasConRecargo,
+        }],
+        totales: {
+            horasSinRecargo,
+            horasConRecargo,
+            montoTotal: orden.montoTotal || 0,
+        },
+    };
+}
+
+/**
+ * Migra los ítems de un estado de pago que todavía apuntan a órdenes.
+ * Devuelve el mismo objeto si no hay nada que migrar.
+ *
+ * @param {Object} pago
+ * @returns {Object}
+ */
+function convertirPagoAServicio(pago) {
+    let huboCambios = false;
+
+    const items = Array.isArray(pago.items)
+        ? pago.items.map((item) => {
+            if (item && item.tipo === 'orden') {
+                huboCambios = true;
+                return convertirOrdenAServicio(item);
+            }
+            return item;
+        })
+        : pago.items;
+
+    let totales = pago.totales;
+    if (pago.totales && Array.isArray(pago.totales.detalleItems)) {
+        const detalleItems = pago.totales.detalleItems.map((det) => {
+            if (det && det.tipo === 'orden') {
+                huboCambios = true;
+                return { ...det, tipo: 'reporte' };
+            }
+            return det;
+        });
+        totales = { ...pago.totales, detalleItems };
+    }
+
+    if (!huboCambios) return pago;
+
+    return { ...pago, items, totales };
+}
+
+/**
+ * Normaliza un registro importado desde JSON al formato actual
+ *
+ * @param {Object} record
+ * @returns {Object}
+ */
+function normalizarRegistroImportado(record) {
+    if (!record || typeof record !== 'object') return record;
+    if (record.tipo === 'orden') return convertirOrdenAServicio(record);
+    if (record.tipo === 'pago') return convertirPagoAServicio(record);
+    return record;
+}
+
+let migracionEjecutada = false;
+
+/**
+ * Migra los registros de tipo 'orden' al formato de servicio y actualiza las
+ * copias guardadas dentro de los estados de pago. Se ejecuta una vez por carga
+ * de página y es idempotente.
+ */
+function migrateLegacyRecords() {
+    if (migracionEjecutada) return;
+    migracionEjecutada = true;
+
+    const records = readRecords();
+    let huboCambios = false;
+
+    const migrados = records.map((record) => {
+        if (!record || typeof record !== 'object') return record;
+
+        if (record.tipo === 'orden') {
+            huboCambios = true;
+            return convertirOrdenAServicio(record);
+        }
+
+        if (record.tipo === 'pago') {
+            const migrado = convertirPagoAServicio(record);
+            if (migrado !== record) huboCambios = true;
+            return migrado;
+        }
+
+        return record;
+    });
+
+    if (huboCambios) {
+        try {
+            saveAllRecords(migrados);
+        } catch (error) {
+            console.error('No se pudieron migrar los registros de órdenes:', error);
+        }
+    }
+}
+
+/**
+ * Obtiene todos los registros almacenados (migrando órdenes si es necesario)
+ * @returns {Array<Object>}
+ */
+function getAllRecords() {
+    migrateLegacyRecords();
+    return readRecords();
 }
 
 /**
@@ -49,8 +194,8 @@ export function saveRecord(record) {
     // Verificar si el índice ya existe
     const existingIndex = records.findIndex(r => r.indice === record.indice);
     if (existingIndex !== -1) {
-        // Actualizar registro existente
-        records[existingIndex] = { ...records[existingIndex], ...record, timestamp: Date.now() };
+        // Reemplazar el registro existente para no conservar campos obsoletos
+        records[existingIndex] = { ...record, timestamp: Date.now() };
     } else {
         // Agregar nuevo registro
         record.timestamp = Date.now();
@@ -108,10 +253,9 @@ export function getRecordsSummary() {
         }
 
         // Si no hay recargo, todas las horas se consideran sin recargo
-        if (recargoPorcentaje <= 0) {
-            horasSinRecargo += horasConRecargo;
-            horasConRecargo = 0;
-        }
+        const tramos = normalizarTramosPorRecargo(horasSinRecargo, horasConRecargo, recargoPorcentaje);
+        horasSinRecargo = tramos.sinRecargo;
+        horasConRecargo = tramos.conRecargo;
 
         return {
             indice: r.indice,
@@ -286,7 +430,8 @@ export function importRecordsFromJSON(file) {
                 let imported = 0;
                 let updated = 0;
 
-                data.forEach((record) => {
+                data.forEach((rawRecord) => {
+                    const record = normalizarRegistroImportado(rawRecord);
                     record.timestamp = Date.now();
                     const existingIndex = existingRecords.findIndex(r => r.indice === record.indice);
                     if (existingIndex !== -1) {

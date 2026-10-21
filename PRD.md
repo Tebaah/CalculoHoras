@@ -29,51 +29,36 @@ El cálculo manual de servicios con distintos tipos de recargo (horas normales v
 - Pantalla de bienvenida con navegación mediante tarjetas hacia las demás secciones.
 - Sidebar de navegación presente en toda la aplicación.
 
-### 2.2 Órdenes de Trabajo (`ordenes.html`)
+### 2.2 Cálculo de Servicios (`servicios.html`)
 
-Cálculo individual por día de servicio.
+Cálculo de un servicio de uno o varios días. Un servicio de un día equivale a completar una sola fila; uno de varios días, a completar varias.
 
-**Campos del formulario:**
+**Campos globales:**
 | Campo | Descripción | Valores |
 |-------|-------------|---------|
-| Índice | Identificador único de la orden (ej. nombre del cliente) | Texto libre |
-| Fecha | Fecha del servicio | Selector de fecha |
-| Tipo de día | Clasificación automática según fecha | Normal / Sábado / Domingo-Festivo |
+| Índice | Identificador único del servicio (ej. nombre del cliente) | Texto libre |
+| Valor hora | Tarifa por hora (CLP) | Configurables desde Configuración o valor personalizado |
 | Horas mínimas | Garantía de horas mínimas a cobrar | Configurables desde Configuración (por defecto 0, 5, 6, 8 y 9 horas) |
 | % Recargo | Porcentaje de recargo sobre valor hora base | Configurables desde Configuración (por defecto 0%, 10%, 20%, 30%) |
-| Hora inicio | Hora de comienzo del servicio | HH:MM |
-| Hora término | Hora de fin del servicio | HH:MM |
-| Valor hora | Tarifa por hora (CLP) | Configurables desde Configuración o valor personalizado |
-| Colación | Minutos de descanso | 0, 15, 30, 45, 60 min |
-| Tramo colación | Dónde se descuenta la colación | Sin recargo / Con recargo |
+
+**Por día (7 filas, Lun-Dom):**
+- Fecha (al cambiar la primera se auto-rellenan las demás)
+- Tipo de día (auto-detectado: Normal / Sábado / Domingo-Festivo)
+- Hora inicio / Hora término (HH:MM)
+- Colación (0, 15, 30, 45, 60 min) y tramo (Sin recargo / Con recargo)
 
 **Funcionalidades adicionales:**
-- Guardar orden en historial (localStorage)
-- Modo edición: recibe datos desde el historial vía `?editar=<indice>`
-- Validación de formulario antes de calcular
-
-### 2.3 Reportes Semanales (`reportes.html`)
-
-Cálculo consolidado de lunes a domingo.
-
-**Campos del formulario:**
-- **Globales:** índice, valor hora, horas mínimas, % recargo (se aplican a los 7 días)
-- **Por día (7 filas, Lun-Dom):**
-  - Fecha (al cambiar el lunes se auto-rellenan los demás días)
-  - Tipo de día (auto-detectado)
-  - Hora inicio / Hora término
-  - Colación (minutos y tramo)
-
-**Funcionalidades adicionales:**
-- Al menos un día debe tener datos completos para calcular
+- Al menos un día debe tener hora de inicio y término para calcular
+- Los días sin hora de inicio y término no se incluyen en el cálculo
 - Una vez ingresados los tres datos de un día (hora de inicio, hora de término y colación), un modal pregunta si se desea repetir el mismo horario en el día siguiente; la consulta se encadena día a día hasta que el usuario responde que no
 - Los horarios repetidos quedan editables: cualquier día puede ajustarse manualmente antes de calcular
-- Totales agregados de toda la semana (horas sin recargo, con recargo, monto total)
-- Guardar reporte completo en historial
+- Totales consolidados (horas sin recargo, con recargo, horas del operador y monto total)
+- Guardar el servicio en historial (localStorage)
+- Modo edición: recibe datos desde el historial vía `?editar=<indice>`
 
-### 2.4 Estados de Pago / Liquidaciones (`pagos.html`)
+### 2.3 Estados de Pago / Liquidaciones (`pagos.html`)
 
-Agrupación de órdenes y reportes existentes para generar un comprobante de liquidación formal.
+Agrupación de servicios existentes para generar un comprobante de liquidación formal.
 
 **Funcionalidades:**
 - Búsqueda de registros existentes por índice para agregarlos al estado de pago
@@ -91,21 +76,31 @@ Agrupación de órdenes y reportes existentes para generar un comprobante de liq
 - Pie de página con datos de la empresa y condiciones de pago (plazo de 8 días para observaciones)
 - Disparo automático del diálogo de impresión del navegador
 
-### 2.5 Historial (`historial.html`)
+### 2.4 Historial (`historial.html`)
 
-CRUD completo de todos los registros almacenados.
+CRUD completo de los servicios almacenados.
 
 **Funcionalidades:**
 - Tabla con columnas: índice, tipo, fecha, horas sin recargo, horas con recargo, monto total
 - Filtros:
   - Búsqueda por texto (índice)
-  - Filtro por tipo (Orden / Reporte / Pago)
+  - Filtro por tipo (Servicios)
 - Acciones por fila:
   - **Ver:** despliega detalle completo debajo de la tabla
-  - **Editar:** guarda el registro en sessionStorage y redirige a la página correspondiente con `?editar=<indice>`
+  - **Editar:** guarda el registro en sessionStorage y redirige a Cálculo de Servicios con `?editar=<indice>`
   - **Eliminar:** confirmación y eliminación del registro
 - **Exportar:** descarga todos los registros como archivo JSON
-- **Importar:** carga archivo JSON, mergea con registros existentes (actualiza si coincide índice, agrega si es nuevo)
+- **Importar:** carga archivo JSON, mergea con registros existentes (actualiza si coincide índice, agrega si es nuevo) y migra formatos antiguos
+
+### 2.5 Historial de Pagos (`historial-pagos.html`)
+
+Listado y administración de los estados de pago.
+
+**Funcionalidades:**
+- Tabla con índice, fecha de emisión, cantidad de elementos, horas y monto total
+- Filtro por índice
+- Acciones: ver detalle, editar y eliminar
+- Al eliminar un estado de pago se eliminan también sus registros asociados, conservando los compartidos con otros estados de pago
 
 ---
 
@@ -173,31 +168,34 @@ src/
 ├── core/           # Lógica de dominio pura (sin DOM, sin store/UI)
 │   ├── constants.js
 │   ├── entities/       # Entidad WorkDay
-│   ├── use-cases/      # calculateService, calculateOperator, calculateDay
-│   └── utils/          # timeUtils, dateUtils, formatUtils
+│   ├── use-cases/      # calculatePeriod, calculateService, calculateOperator, calculateDay
+│   └── utils/          # timeUtils, dateUtils, formatUtils, hoursUtils
 ├── store/          # Estado global + persistencia
 │   ├── store.js         # Singleton Observer pattern
 │   ├── actions/         # calculatorActions
-│   └── storageManager.js # localStorage CRUD + export/import
+│   └── storageManager.js # localStorage CRUD + export/import + migración
 ├── ui/             # DOM, eventos, renderizado
 │   ├── components/      # sidebar, recargoSelect, horasMinimasSelect, valorHoraSelect, confirmModal
-│   ├── pages/           # ordenes, reportes, pagos, historial
-│   └── render/          # renderResults, renderReport
+│   ├── pages/           # servicios, pagos, historial, historialPagos
+│   └── render/          # renderServicio
 ```
 
 **Regla de dependencia:** `core/` nunca debe importar de `store/` ni de `ui/`.
 
 ### 4.3 Estructura de páginas
 
-5 archivos HTML de entrada (no templados), cada uno con un JS entry point correspondiente:
+6 archivos HTML de entrada (no templados), cada uno con un JS entry point correspondiente:
 
 | HTML | JS Entry | Módulo UI |
 |------|----------|-----------|
 | `index.html` | `src/index.js` | - |
-| `ordenes.html` | `src/ordenes.js` | `src/ui/pages/ordenes.js` |
-| `reportes.html` | `src/reportes.js` | `src/ui/pages/reportes.js` |
+| `servicios.html` | `src/servicios.js` | `src/ui/pages/servicios.js` |
 | `pagos.html` | `src/pagos.js` | `src/ui/pages/pagos.js` |
 | `historial.html` | `src/historial.js` | `src/ui/pages/historial.js` |
+| `historial-pagos.html` | `src/historial-pagos.js` | `src/ui/pages/historialPagos.js` |
+| `configuracion.html` | `src/configuracion.js` | `src/ui/pages/configuracion.js` |
+
+`reportes.html` se conserva únicamente como redirección legacy a `servicios.html`.
 
 ### 4.4 Comunicación entre páginas
 
@@ -359,44 +357,51 @@ Sistema de cascada en `css/main.css` con orden de importación:
 
 ## 8. Flujos de Trabajo
 
-### 8.1 Crear una orden de trabajo
-1. Navegar a "Órdenes de Trabajo"
-2. Ingresar índice, fecha, tipo de día (auto-detectado), horas mínimas, % recargo, horas, valor hora, colación
-3. Hacer clic en "Calcular"
-4. Revisar resultados (horas sin/con recargo, montos)
-5. Opcionalmente guardar en historial
+### 8.1 Crear un servicio de un día
+1. Navegar a "Cálculo de Servicios"
+2. Ingresar índice, valor hora, horas mínimas y % recargo
+3. Completar una fila con fecha, horas y colación
+4. Hacer clic en "Calcular Servicio"
+5. Revisar resultados (horas sin/con recargo, montos)
+6. Opcionalmente guardar en historial
 
-### 8.2 Crear un reporte semanal
-1. Navegar a "Reportes Semanales"
-2. Ingresar índice, valor hora, horas mínimas, % recargo
-3. Seleccionar fecha del lunes
+### 8.2 Crear un servicio de varios días
+1. Navegar a "Cálculo de Servicios"
+2. Ingresar índice, valor hora, horas mínimas y % recargo
+3. Seleccionar la fecha del primer día
 4. Completar cada día trabajado: al ingresar hora de inicio, hora de término y colación, el modal pregunta si se desea repetir el horario en el día siguiente y sigue consultando hasta responder que no
 5. Ajustar manualmente los días que lo requieran
-6. Hacer clic en "Calcular"
-7. Revisar totales semanales
+6. Hacer clic en "Calcular Servicio"
+7. Revisar los totales consolidados
 8. Opcionalmente guardar en historial
 
 ### 8.3 Crear una liquidación
-1. Navegar a "Pagos"
+1. Navegar a "Estados de Pago"
 2. Opcionalmente configurar URL del logo de empresa
-3. Buscar y agregar órdenes/reportes existentes por índice
+3. Buscar y agregar servicios existentes por índice
 4. Opcionalmente agregar costos extra
 5. Revisar totales con IVA
 6. Imprimir PDF del comprobante de liquidación
-7. Opcionalmente guardar en historial
+7. Opcionalmente guardar en historial de pagos
 
 ### 8.4 Gestionar historial
 1. Navegar a "Historial"
-2. Usar filtros para encontrar registros
+2. Usar filtros para encontrar servicios
 3. Ver detalle, editar, o eliminar según necesidad
 4. Exportar/importar datos JSON para respaldo o migración
+
+### 8.5 Gestionar historial de pagos
+1. Navegar a "Historial de Pagos"
+2. Filtrar por índice si es necesario
+3. Ver detalle, editar o eliminar un estado de pago
+4. Al eliminar, confirmar la eliminación en cascada de los registros asociados
 
 ---
 
 ## 9. Limitaciones Conocidas
 
 - Los datos se almacenan exclusivamente en localStorage del navegador (sin backend ni sincronización)
-- La edición de reportes y estados de pago desde el historial puede tener limitaciones (no se regeneran cálculos automáticamente)
+- La edición de servicios y estados de pago desde el historial puede tener limitaciones (no se regeneran cálculos automáticamente)
 - Sin autenticación ni multi-usuario
 - Sin soporte offline explícito (depende del almacenamiento local del navegador)
 - Los festivos deben ser seleccionados manualmente como "Domingo/Festivo" (no hay integración con calendario de feriados)

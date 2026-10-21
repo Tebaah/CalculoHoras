@@ -1,10 +1,19 @@
 /**
- * renderReport.js - Funciones para renderizar resultados del reporte semanal
+ * renderServicio.js - Renderizado de resultados del cálculo de servicios
+ *
+ * Un servicio puede incluir una o varias jornadas; el resultado siempre se
+ * presenta como detalle por día + totales del período.
  */
 
 import { formatHourRate, formatCurrency, formatHours } from '../../core/utils/formatUtils.js';
-import { NOMBRES_DIAS } from '../../core/constants.js';
+import { NOMBRES_DIAS, getMultiplicadorRecargo } from '../../core/constants.js';
 
+/**
+ * Genera la tabla de horas por día
+ *
+ * @param {Array<Object>} results - Resultado de cada jornada
+ * @returns {string} HTML
+ */
 export function populateDailyHoursTable(results) {
     let html = '<div class="result-item"><span class="result-label">Día</span><span class="result-value">Horas</span></div>';
 
@@ -19,19 +28,25 @@ export function populateDailyHoursTable(results) {
     return '<div class="hours-daily-table">' + html + '</div>';
 }
 
-export function renderReportTotals(report, valorHora, recargoPorcentaje) {
-    if (recargoPorcentaje === undefined || recargoPorcentaje === null) {
-        recargoPorcentaje = (report.recargoPorcentaje !== undefined && report.recargoPorcentaje !== null)
-            ? report.recargoPorcentaje
-            : 30;
-    }
-    const tieneRecargo = recargoPorcentaje > 0 && report.totalConRecargo > 0;
-    const valorSinRecargo = valorHora;
-    const multiplicadorRecargo = 1 + (recargoPorcentaje / 100);
-    const valorConRecargo = valorHora * multiplicadorRecargo;
-    const recargoText = recargoPorcentaje > 0
-        ? `(+${recargoPorcentaje}%)`
-        : '(sin recargo)';
+/**
+ * Renderiza los totales del servicio en el panel de resultados
+ *
+ * @param {Object} report - Resultado de calculatePeriod
+ * @param {number} valorHora - Valor de la hora normal
+ * @param {number} [recargoPorcentaje] - Porcentaje de recargo aplicado
+ */
+export function renderServicioTotals(report, valorHora, recargoPorcentaje) {
+    const recargo = recargoPorcentaje !== undefined && recargoPorcentaje !== null
+        ? recargoPorcentaje
+        : (
+            report.recargoPorcentaje !== undefined && report.recargoPorcentaje !== null
+                ? report.recargoPorcentaje
+                : 30
+        );
+
+    const tieneRecargo = recargo > 0 && report.totalConRecargo > 0;
+    const valorConRecargo = valorHora * getMultiplicadorRecargo(recargo);
+    const recargoText = recargo > 0 ? `(+${recargo}%)` : '(sin recargo)';
 
     const dailyTableHtml = populateDailyHoursTable(report.results);
 
@@ -46,12 +61,12 @@ export function renderReportTotals(report, valorHora, recargoPorcentaje) {
         </div>
         ${dailyTableHtml}
         <div class="result-item">
-            <span class="result-label">Total horas sin recargo ${formatHourRate(valorSinRecargo)} <small>(07:00 - 18:00)</small></span>
+            <span class="result-label">Total horas sin recargo ${formatHourRate(valorHora)}</span>
             <span class="result-value">${formatHours(report.totalSinRecargo)}</span>
         </div>
         ${tieneRecargo ? `
         <div class="result-item">
-            <span class="result-label">Total horas con recargo ${formatHourRate(valorConRecargo)} ${recargoText} <small>(18:00 - 07:00)</small></span>
+            <span class="result-label">Total horas con recargo ${formatHourRate(valorConRecargo)} ${recargoText}</span>
             <span class="result-value">${formatHours(report.totalConRecargo)}</span>
         </div>` : ''}
         <div class="result-item">
@@ -63,7 +78,7 @@ export function renderReportTotals(report, valorHora, recargoPorcentaje) {
             <span class="result-value">${formatHours(report.totalDoblesOp)}</span>
         </div>
         <div class="result-item total">
-            <span class="result-label">Monto Total Semanal</span>
+            <span class="result-label">Monto Total del Servicio</span>
             <span class="result-value">${formatCurrency(report.totalMonto)}</span>
         </div>
     `;

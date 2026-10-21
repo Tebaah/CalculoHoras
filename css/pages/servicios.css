@@ -1,6 +1,11 @@
 /* ======================================
-   Page: Reportes (reportes.html)
+   Page: Cálculo de Servicios (servicios.html)
    ====================================== */
+
+#customValueGroup {
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+}
 
 #totalResults .result-value#diasIncluidos {
     font-size: var(--font-size-sm);

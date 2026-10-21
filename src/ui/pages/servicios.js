@@ -1,12 +1,12 @@
 /**
- * reportes.js - Lógica de la página "Reportes"
+ * servicios.js - Lógica de la página "Cálculo de Servicios"
  *
- * Coordina la interacción del usuario con el DOM del reporte semanal
- * y conecta con los casos de uso y el store.
+ * Permite calcular un servicio de uno o varios días. Coordina la interacción
+ * con el DOM y conecta con el caso de uso de período y el store.
  */
 
-import { calculateWeeklyReport } from '../../store/actions/calculatorActions.js';
-import { renderReportTotals } from '../render/renderReport.js';
+import { calculateServicePeriod } from '../../store/actions/calculatorActions.js';
+import { renderServicioTotals } from '../render/renderServicio.js';
 import { initSidebar } from '../components/sidebar.js';
 import { populateRecargoOptions, ensureRecargoOption } from '../components/recargoSelect.js';
 import { populateHorasMinimasOptions, ensureHorasMinimasOption } from '../components/horasMinimasSelect.js';
@@ -24,18 +24,18 @@ import { TIPOS_DIA, VALOR_HORA_PERSONALIZADO } from '../../core/constants.js';
 import { saveRecord } from '../../store/storageManager.js';
 
 // Elementos del DOM
-const reportForm = document.getElementById('reportForm');
+const serviceForm = document.getElementById('servicioForm');
 const valorHoraSelect = document.getElementById('valorHora');
 const horasMinimasSelect = document.getElementById('horasMinimas');
 const recargoPorcentajeSelect = document.getElementById('recargoPorcentaje');
 const customValueGroup = document.getElementById('customValueGroup');
 const customValueInput = document.getElementById('customValue');
 const errorDiv = document.getElementById('errorMessage');
-const indiceInput = document.getElementById('indiceReporte');
-const guardarBtn = document.getElementById('guardarReporteBtn');
+const indiceInput = document.getElementById('indiceServicio');
+const guardarBtn = document.getElementById('guardarServicioBtn');
 
-// Último reporte calculado para poder guardarlo
-let lastCalculatedReport = null;
+// Último servicio calculado para poder guardarlo
+let lastCalculatedService = null;
 
 // Filas para las que ya se consultó si se desea repetir el horario
 const repeatAskedRows = new WeakSet();
@@ -48,21 +48,18 @@ let repeatPromptActive = false;
  * el tipo de día (data-tipo) y la etiqueta visual de una fila
  * según la fecha seleccionada
  *
- * @param {HTMLElement} row - Fila del reporte
+ * @param {HTMLElement} row - Fila del servicio
  * @param {Date} date - Fecha asociada
  */
 function updateRowDayType(row, date) {
-    // Actualizar identificador de día según la fecha real
     const dayId = getDayId(date);
     row.dataset.dia = dayId;
 
-    // Actualizar el nombre visible del día
     const dayName = row.querySelector('.day-name');
     if (dayName) {
         dayName.textContent = DAY_ID_TO_NAME[dayId] || dayId;
     }
 
-    // Actualizar tipo de día (normal, sabado, domingoFestivo)
     const dayType = getDayTypeFromDate(date);
     row.dataset.tipo = dayType;
 
@@ -81,7 +78,7 @@ function updateRowDayType(row, date) {
 
 /**
  * Auto-rellena las fechas de los días siguientes cuando se cambia
- * la fecha del primer día (Lunes)
+ * la fecha del primer día
  */
 function handleFirstDateChange() {
     const firstDateInput = document.querySelector('.fecha-dia[data-day-index="0"]');
@@ -95,7 +92,6 @@ function handleFirstDateChange() {
         const newDate = addDays(baseDate, index);
         input.value = toDateInputValue(newDate);
 
-        // Actualizar tipo de día y etiqueta visual
         const row = input.closest('.report-row');
         if (row) {
             updateRowDayType(row, newDate);
@@ -104,7 +100,7 @@ function handleFirstDateChange() {
 }
 
 /**
- * Configura los event listeners de colación para cada fila del reporte
+ * Configura los event listeners de colación para cada fila
  */
 function setupColacionListeners() {
     document.querySelectorAll('.colacion').forEach((select) => {
@@ -119,14 +115,26 @@ function setupColacionListeners() {
  * Configura el auto-relleno de fechas al cambiar el primer día
  */
 function setupDateAutoFill() {
-    const firstDateInput = document.querySelector('.fecha-dia[data-day-index="0"]');
-    if (firstDateInput) {
-        firstDateInput.addEventListener('change', handleFirstDateChange);
-    }
+    document.querySelectorAll('.fecha-dia').forEach((input) => {
+        input.addEventListener('change', () => {
+            // Actualizar el tipo de día de la fila editada
+            if (input.value) {
+                const row = input.closest('.report-row');
+                if (row) {
+                    updateRowDayType(row, new Date(input.value + 'T12:00:00'));
+                }
+            }
+
+            // La primera fecha propaga las fechas a los días siguientes
+            if (input.dataset.dayIndex === '0') {
+                handleFirstDateChange();
+            }
+        });
+    });
 }
 
 /**
- * Establece las fechas por defecto: desde hoy (Lunes = hoy)
+ * Establece las fechas por defecto: desde hoy
  */
 function setDefaultDates() {
     const today = new Date();
@@ -145,9 +153,9 @@ function setDefaultDates() {
 }
 
 /**
- * Indica si una fila del reporte ya tiene el horario completo
+ * Indica si una fila del servicio ya tiene el horario completo
  *
- * @param {HTMLElement} row - Fila del reporte
+ * @param {HTMLElement} row - Fila del servicio
  * @returns {boolean} true si tiene hora de inicio y de término
  */
 function isRowComplete(row) {
@@ -161,7 +169,7 @@ function isRowComplete(row) {
  * Indica si la fila tiene ingresados los tres datos del horario:
  * hora de inicio, hora de término y colación
  *
- * @param {HTMLElement} row - Fila del reporte
+ * @param {HTMLElement} row - Fila del servicio
  * @returns {boolean} true si los tres datos fueron ingresados
  */
 function hasCompleteSchedule(row) {
@@ -169,10 +177,10 @@ function hasCompleteSchedule(row) {
 }
 
 /**
- * Obtiene la fila del día siguiente dentro de la tabla del reporte
+ * Obtiene la fila del día siguiente dentro de la tabla del servicio
  *
  * @param {HTMLElement} row - Fila actual
- * @returns {HTMLElement|null} Fila siguiente o null si es el último día
+ * @returns {HTMLElement|null} Fila siguiente o null si es la última
  */
 function getNextRow(row) {
     const nextRow = row.nextElementSibling;
@@ -204,7 +212,6 @@ function copySchedule(fromRow, toRow) {
     const destinoColacion = toRow.querySelector('.colacion');
     if (destinoColacion) {
         destinoColacion.value = colacion;
-        // El día copiado ya cuenta con su colación ingresada
         toRow.dataset.colacionIngresada = 'true';
     }
 
@@ -214,7 +221,6 @@ function copySchedule(fromRow, toRow) {
         destinoTramo.style.display = parseInt(colacion) > 0 ? 'block' : 'none';
     }
 
-    // Confirmación visual de las filas completadas automáticamente
     toRow.classList.add('report-row--repeated');
     setTimeout(() => toRow.classList.remove('report-row--repeated'), 2000);
 }
@@ -239,7 +245,6 @@ function askRepeatForNextDay(currentRow, nextRow) {
     const horaTermino = currentRow.querySelector('.hora-termino').value;
     const colacion = parseInt(currentRow.querySelector('.colacion').value) || 0;
 
-    // Si el día siguiente ya tiene horario, se avisa que será reemplazado
     const detalleSobrescritura = isRowComplete(nextRow)
         ? ' \u00B7 El horario de ese día ya está ingresado y será reemplazado'
         : '';
@@ -256,7 +261,7 @@ function askRepeatForNextDay(currentRow, nextRow) {
 
 /**
  * Consulta día a día si se desea repetir el horario, hasta que el usuario
- * indique que no desea continuar o se alcance el último día de la semana
+ * indique que no desea continuar o se alcance el último día
  *
  * @param {HTMLElement} startRow - Fila desde la cual comienza la repetición
  * @returns {Promise<void>}
@@ -266,16 +271,10 @@ async function repeatScheduleForFollowingDays(startRow) {
 
     while (true) {
         const nextRow = getNextRow(currentRow);
-
-        // Último día del reporte: no hay día siguiente
-        if (!nextRow) {
-            break;
-        }
+        if (!nextRow) break;
 
         const repeat = await askRepeatForNextDay(currentRow, nextRow);
-        if (!repeat) {
-            break;
-        }
+        if (!repeat) break;
 
         copySchedule(currentRow, nextRow);
         repeatAskedRows.add(nextRow);
@@ -284,33 +283,26 @@ async function repeatScheduleForFollowingDays(startRow) {
 }
 
 /**
- * Maneja el ingreso de un dato de horario en una fila del reporte y ofrece
- * repetirlo en el día siguiente cuando están ingresados la hora de inicio,
- * la hora de término y la colación
+ * Maneja el ingreso de un dato de horario en una fila y ofrece repetirlo
+ * en el día siguiente cuando están ingresados inicio, término y colación
  *
  * @param {HTMLElement} row - Fila modificada
- * @param {string} fieldName - Campo modificado (hora-inicio, hora-termino o colacion)
+ * @param {string} fieldName - Campo modificado
  * @returns {Promise<void>}
  */
 async function handleScheduleInput(row, fieldName) {
-    if (repeatPromptActive) {
-        return;
-    }
+    if (repeatPromptActive) return;
 
-    // La colación es parte de la operación: se registra su ingreso
     if (fieldName === 'colacion') {
         row.dataset.colacionIngresada = 'true';
     }
 
-    // Solo se ofrece repetir el horario con los tres datos ingresados
     if (!hasCompleteSchedule(row)) {
         repeatAskedRows.delete(row);
         return;
     }
 
-    if (repeatAskedRows.has(row)) {
-        return;
-    }
+    if (repeatAskedRows.has(row)) return;
 
     repeatAskedRows.add(row);
     repeatPromptActive = true;
@@ -323,7 +315,7 @@ async function handleScheduleInput(row, fieldName) {
 }
 
 /**
- * Configura la consulta de repetición de horario en cada fila del reporte
+ * Configura la consulta de repetición de horario en cada fila
  */
 function setupRepeatScheduleListeners() {
     document.querySelectorAll('.report-row').forEach((row) => {
@@ -337,8 +329,8 @@ function setupRepeatScheduleListeners() {
 }
 
 /**
- * Obtiene los datos de todos los días del formulario
- * Solo incluye días que tengan hora inicio Y hora término ingresados
+ * Obtiene los datos de todos los días del formulario.
+ * Solo incluye días que tengan hora inicio Y hora término ingresados.
  *
  * @returns {Array<Object>} Datos de los días
  */
@@ -349,6 +341,8 @@ function getDaysData() {
     rows.forEach((row) => {
         const dia = row.dataset.dia;
         const tipoDia = row.dataset.tipo;
+        const fechaInput = row.querySelector('.fecha-dia');
+        const fecha = fechaInput ? fechaInput.value : '';
         const horaInicio = row.querySelector('.hora-inicio').value;
         const horaTermino = row.querySelector('.hora-termino').value;
         const colacion = parseInt(row.querySelector('.colacion').value) || 0;
@@ -359,6 +353,7 @@ function getDaysData() {
             days.push({
                 dia,
                 tipoDia,
+                fecha,
                 horaInicio,
                 horaTermino,
                 colacion,
@@ -371,9 +366,9 @@ function getDaysData() {
 }
 
 /**
- * Maneja el envío del formulario del reporte semanal
+ * Maneja el envío del formulario de cálculo de servicio
  */
-function handleReportSubmit(e) {
+function handleServiceSubmit(e) {
     e.preventDefault();
     errorDiv.classList.remove('show');
 
@@ -407,27 +402,25 @@ function handleReportSubmit(e) {
             dayData.recargoPorcentaje = recargoPorcentaje;
         });
 
-        const report = calculateWeeklyReport(daysData, valorHora);
+        const service = calculateServicePeriod(daysData, valorHora);
 
-        // Guardar datos para posible guardado posterior
-        lastCalculatedReport = {
-            daysData: daysData.map(d => ({ ...d })),
-            report: {
-                results: report.results.map(r => ({ ...r })),
-                totalSinRecargo: report.totalSinRecargo,
-                totalConRecargo: report.totalConRecargo,
-                totalNormalesOp: report.totalNormalesOp,
-                totalDoblesOp: report.totalDoblesOp,
-                totalMonto: report.totalMonto,
-                daysCount: report.daysCount,
+        lastCalculatedService = {
+            daysData: daysData.map((d) => ({ ...d })),
+            service: {
+                results: service.results.map((r) => ({ ...r })),
+                totalSinRecargo: service.totalSinRecargo,
+                totalConRecargo: service.totalConRecargo,
+                totalNormalesOp: service.totalNormalesOp,
+                totalDoblesOp: service.totalDoblesOp,
+                totalMonto: service.totalMonto,
+                daysCount: service.daysCount,
             },
             valorHora,
             horasMinimas,
             recargoPorcentaje,
         };
 
-        // Renderizar resultados
-        renderReportTotals(report, valorHora, recargoPorcentaje);
+        renderServicioTotals(service, valorHora, recargoPorcentaje);
 
     } catch (error) {
         errorDiv.textContent = '\u274C ' + error.message;
@@ -436,12 +429,12 @@ function handleReportSubmit(e) {
 }
 
 /**
- * Maneja el guardado del reporte actual
+ * Maneja el guardado del servicio actual
  */
-function handleSaveReport() {
+function handleSaveService() {
     errorDiv.classList.remove('show');
 
-    if (!lastCalculatedReport) {
+    if (!lastCalculatedService) {
         errorDiv.textContent = '\u274C Primero debe realizar un cálculo antes de guardar.';
         errorDiv.classList.add('show');
         return;
@@ -455,17 +448,12 @@ function handleSaveReport() {
     }
 
     try {
-        const { daysData, report, valorHora, horasMinimas, recargoPorcentaje } = lastCalculatedReport;
+        const { daysData, service, valorHora, horasMinimas, recargoPorcentaje } = lastCalculatedService;
 
-        // Obtener fechas de cada día desde el DOM
-        const diasConFechas = daysData.map((day, index) => {
-            const fechaInputs = document.querySelectorAll('.fecha-dia');
-            const fecha = fechaInputs[index] ? fechaInputs[index].value : '';
-            // Incluir resultados por día (horas sin/con recargo)
-            const result = report.results[index] || {};
+        const diasConResultados = daysData.map((day, index) => {
+            const result = service.results[index] || {};
             return {
                 ...day,
-                fecha,
                 horasSinRecargo: result.horasSinRecargo || 0,
                 horasConRecargo: result.horasConRecargo || 0,
                 horasTotales: result.horasTotales || 0,
@@ -478,19 +466,18 @@ function handleSaveReport() {
             valorHora,
             horasMinimas,
             recargoPorcentaje,
-            dias: diasConFechas,
+            dias: diasConResultados,
             totales: {
-                horasSinRecargo: report.totalSinRecargo,
-                horasConRecargo: report.totalConRecargo,
-                horasNormalesOp: report.totalNormalesOp,
-                horasDobles: report.totalDoblesOp,
-                montoTotal: report.totalMonto,
+                horasSinRecargo: service.totalSinRecargo,
+                horasConRecargo: service.totalConRecargo,
+                horasNormalesOp: service.totalNormalesOp,
+                horasDobles: service.totalDoblesOp,
+                montoTotal: service.totalMonto,
             },
         };
 
         saveRecord(record);
 
-        // Feedback visual
         const originalText = guardarBtn.textContent;
         guardarBtn.textContent = '\u2705 Guardado';
         setTimeout(() => {
@@ -504,17 +491,16 @@ function handleSaveReport() {
 }
 
 /**
- * Inicializa los event listeners de la página de reportes
+ * Inicializa los event listeners de la página de servicios
  */
-export function initReportesPage() {
+export function initServiciosPage() {
     initSidebar();
 
-    // Opciones de % recargo, mínimo de horas y valor de hora según la configuración guardada
     populateRecargoOptions(recargoPorcentajeSelect);
     populateHorasMinimasOptions(horasMinimasSelect);
     populateValorHoraOptions(valorHoraSelect);
 
-    reportForm.addEventListener('submit', handleReportSubmit);
+    serviceForm.addEventListener('submit', handleServiceSubmit);
 
     valorHoraSelect.addEventListener('change', (e) => {
         customValueGroup.style.display = e.target.value === VALOR_HORA_PERSONALIZADO ? 'block' : 'none';
@@ -525,9 +511,8 @@ export function initReportesPage() {
     setupDateAutoFill();
     setDefaultDates();
 
-    guardarBtn.addEventListener('click', handleSaveReport);
+    guardarBtn.addEventListener('click', handleSaveService);
 
-    // Cargar datos desde sessionStorage si venimos desde historial (editar)
     loadEditData();
 }
 
@@ -545,17 +530,13 @@ function loadEditData() {
         const record = JSON.parse(storedData);
         if (record.tipo !== 'reporte') return;
 
-        // Poblar índice
         if (record.indice) indiceInput.value = record.indice;
 
-        // Poblar valor hora
         if (record.valorHora) {
-            // Se reincorpora el valor si ya no está configurado para no perder el dato
             ensureValorHoraOption(valorHoraSelect, record.valorHora);
             valorHoraSelect.value = String(record.valorHora);
 
             if (valorHoraSelect.value !== String(record.valorHora)) {
-                // Valores no configurables (ej: decimales) usan la opción "Otro valor..."
                 valorHoraSelect.value = VALOR_HORA_PERSONALIZADO;
                 customValueGroup.style.display = 'block';
                 customValueInput.value = record.valorHora;
@@ -571,7 +552,6 @@ function loadEditData() {
             recargoPorcentajeSelect.value = String(record.recargoPorcentaje);
         }
 
-        // Poblar cada día del reporte
         if (record.dias && record.dias.length > 0) {
             const rows = document.querySelectorAll('.report-row');
             record.dias.forEach((diaData, index) => {
@@ -599,18 +579,13 @@ function loadEditData() {
                     updateRowDayType(row, date);
                 }
 
-                // Los días guardados con sus tres datos permiten ofrecer la
-                // repetición del horario si el usuario modifica alguno de ellos
                 if (diaData.horaInicio && diaData.horaTermino && diaData.colacion !== undefined) {
                     row.dataset.colacionIngresada = 'true';
                 }
             });
         }
 
-        // Limpiar sessionStorage después de cargar
         sessionStorage.removeItem('editarRegistro');
-
-        // Remover query param de la URL
         window.history.replaceState({}, document.title, window.location.pathname);
 
     } catch (error) {

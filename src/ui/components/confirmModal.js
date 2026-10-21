@@ -4,7 +4,7 @@
  * Muestra un modal accesible basado en el elemento nativo <dialog> con un
  * mensaje y dos acciones (confirmar / cancelar), resolviendo una promesa con
  * la decisión del usuario. Se utiliza, por ejemplo, para preguntar si se
- * desea repetir el horario de un día en el día siguiente del reporte semanal.
+ * desea repetir el horario de un día en el día siguiente del servicio.
  */
 
 // Referencias al modal visible actualmente (solo puede haber uno a la vez)
