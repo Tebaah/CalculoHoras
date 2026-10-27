@@ -183,8 +183,10 @@ Esta herramienta automatiza todos estos cálculos, evitando errores manuales y e
 | Día               | Con recargo desde | Dobles desde        |
 | ----------------- | ----------------- | ------------------- |
 | Normal (lun–vie)  | 18:00             | 19:00 y antes 07:00 |
-| Sábado            | 13:00             | 13:00               |
+| Sábado            | 13:00             | Todo el día         |
 | Domingo / Festivo | Todo el día       | Todo el día         |
+
+> El sábado mantiene el recargo del servicio desde las 13:00, pero las horas dobles del operador son todo el día (igual que domingo/festivo).
 
 ## 📸 Capturas de Pantalla
 
