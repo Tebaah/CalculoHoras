@@ -121,8 +121,10 @@ Usado para tracking interno del personal.
 | Tipo de día | Horas dobles |
 |-------------|-------------|
 | Normal (Lun-Vie) | Antes de 07:00 + Después de 19:00 |
-| Sábado | Antes de 07:00 + Después de 13:00 |
+| Sábado | Todo el día (igual que domingo/festivo) |
 | Domingo / Festivo | Todo el día |
+
+> El recargo del servicio del sábado mantiene el corte de las 13:00; solo cambian las horas dobles del operador.
 
 ### 3.3 Algoritmo de cálculo de servicio
 

@@ -27,12 +27,13 @@ export const RANGOS_POR_DIA = {
         inicioSinRecargo: { inicio: 7 * 60, fin: 18 * 60 },
     },
     [TIPOS_DIA.SABADO]: {
+        // El recargo del servicio mantiene el corte de las 13:00
         servicioConRecargo: [
             { inicio: 13 * 60, fin: 7 * 60 }, // 13:00 - 07:00
         ],
+        // Las horas dobles del operador son todo el día, igual que domingo/festivo
         operadorDobles: [
-            { inicio: 0, fin: 7 * 60 },        // 00:00 - 07:00
-            { inicio: 13 * 60, fin: 24 * 60 }, // 13:00 - 24:00
+            { inicio: 0, fin: 24 * 60 }, // todo el día
         ],
         inicioSinRecargo: { inicio: 7 * 60, fin: 13 * 60 },
     },
